@@ -1,3 +1,4 @@
+from django.utils import timezone
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -125,6 +126,18 @@ class PublicStoreView(APIView):
             return Response({'error': 'Store not found'}, status=status.HTTP_404_NOT_FOUND)
 
         if not shop.is_active:
+            return Response({
+                'is_active': False,
+                'name': shop.name,
+                'whatsapp_number': shop.whatsapp_number,
+            })
+
+        # Check subscription expiry for public store
+        if shop.expires_at and shop.expires_at < timezone.now():
+            if shop.is_active:
+                shop.is_active = False
+                shop.token_version += 1
+                shop.save(update_fields=['is_active', 'token_version'])
             return Response({
                 'is_active': False,
                 'name': shop.name,

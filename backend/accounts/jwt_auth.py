@@ -1,3 +1,4 @@
+from django.utils import timezone
 from rest_framework.authentication import BaseAuthentication
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework_simplejwt.tokens import AccessToken
@@ -29,7 +30,27 @@ class ShopJWTAuthentication(BaseAuthentication):
         except Shop.DoesNotExist:
             raise AuthenticationFailed('Shop not found.')
 
+        # ── Token version check (force-logout on disable / pw reset) ─────
+        token_version_in_token = token.get('token_version', 0)
+        if token_version_in_token != shop.token_version:
+            raise AuthenticationFailed(
+                'Session expired. Please log in again.'
+            )
+
+        # ── Subscription expiry auto-disable ─────────────────────────────
+        if shop.expires_at and shop.expires_at < timezone.now():
+            if shop.is_active:
+                shop.is_active = False
+                shop.token_version += 1
+                shop.save(update_fields=['is_active', 'token_version'])
+            raise AuthenticationFailed(
+                'Your subscription has expired. Contact support.'
+            )
+
+        # ── Active check ─────────────────────────────────────────────────
         if not shop.is_active:
-            raise AuthenticationFailed('This store has been deactivated.')
+            raise AuthenticationFailed(
+                'Your store has been deactivated. Contact support.'
+            )
 
         return (shop, token)

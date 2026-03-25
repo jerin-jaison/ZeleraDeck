@@ -1,10 +1,12 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Eye, EyeOff } from 'lucide-react'
 import api from '../api/axios'
 
 export default function Login() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const reason = searchParams.get('reason')
   const [phone, setPhone] = useState('')
   const [password, setPassword] = useState('')
   const [showPw, setShowPw] = useState(false)
@@ -50,6 +52,24 @@ export default function Login() {
         <p className="text-sm text-[#737373] mt-1 mb-6">Login to manage your store</p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Reason banner (forced logout) */}
+          {reason === 'deactivated' && (
+            <div className="bg-[#FEE2E2] border border-[#FECACA] rounded-xl p-3 mb-4 flex items-start gap-2">
+              <svg className="w-4 h-4 text-[#991B1B] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <p className="text-xs text-[#991B1B]">Your store has been deactivated. Contact ZeleraDeck support.</p>
+            </div>
+          )}
+          {reason === 'expired' && (
+            <div className="bg-[#FEF3C7] border border-[#FDE68A] rounded-xl p-3 mb-4 flex items-start gap-2">
+              <svg className="w-4 h-4 text-[#92400E] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <p className="text-xs text-[#92400E]">Your subscription has expired. Contact ZeleraDeck to renew.</p>
+            </div>
+          )}
+
           {/* Phone */}
           <div>
             <label className="block text-xs font-medium text-[#737373] mb-1">Phone Number</label>

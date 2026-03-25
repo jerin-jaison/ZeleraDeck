@@ -14,6 +14,13 @@ class Shop(models.Model):
     is_active = models.BooleanField(default=True)
     # Only increments. Never decrements. Used for display_id generation.
     product_counter = models.PositiveIntegerField(default=0)
+
+    # ── Admin / subscription fields ──────────────────────────────────────────
+    token_version = models.PositiveIntegerField(default=0)
+    expires_at = models.DateTimeField(null=True, blank=True)
+    admin_notes = models.TextField(blank=True, default='')
+    last_login = models.DateTimeField(null=True, blank=True)
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

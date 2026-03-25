@@ -6,11 +6,14 @@ def get_tokens_for_shop(shop):
     
     Since Shop is NOT Django's User model, we manually inject shop data
     into the token payload rather than using the default user-based tokenisation.
+    token_version is embedded so we can force-invalidate all tokens when
+    a shop is disabled or its password is reset.
     """
     refresh = RefreshToken()
     refresh['shop_id'] = str(shop.id)
     refresh['shop_name'] = shop.name
     refresh['slug'] = shop.slug
+    refresh['token_version'] = shop.token_version
 
     return {
         'refresh': str(refresh),
