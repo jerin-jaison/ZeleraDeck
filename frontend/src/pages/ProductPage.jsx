@@ -1,7 +1,10 @@
-import { useParams, Link } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
+import { ChevronLeft } from 'lucide-react'
 import ImageWithFallback from '../components/ImageWithFallback'
+
+const API = 'https://zeleradeck.onrender.com/api/'
 
 function WAIcon() {
   return (
@@ -11,133 +14,114 @@ function WAIcon() {
   )
 }
 
-function Skeleton() {
-  return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="bg-white border-b border-gray-100 h-14 px-4 flex items-center">
-        <div className="h-5 w-32 bg-gray-200 rounded-full animate-pulse" />
-      </div>
-      <div className="max-w-lg mx-auto px-4 py-5">
-        <div className="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm">
-          <div className="aspect-square bg-gray-100 animate-pulse" />
-          <div className="p-5 space-y-3">
-            <div className="h-6 bg-gray-200 rounded-full w-3/4 animate-pulse" />
-            <div className="h-8 bg-gray-200 rounded-full w-1/3 animate-pulse" />
-            <div className="h-4 bg-gray-100 rounded-full w-full animate-pulse" />
-            <div className="h-12 bg-gray-100 rounded-2xl w-full animate-pulse mt-2" />
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
-
 export default function ProductPage() {
   const { slug, displayId } = useParams()
+  const navigate = useNavigate()
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ['product-public', slug, displayId],
-    queryFn: () =>
-      axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:8000/api/'}store/${slug}/product/${displayId}/`).then((r) => r.data),
-
+    queryFn: () => axios.get(`${API}store/${slug}/product/${displayId}/`).then((r) => r.data),
     retry: false,
   })
 
   const handleWhatsApp = () => {
-    if (!data) return
-    const message =
+    const product = data.product
+    const shop = data.shop
+    const msg =
       `Hi! I'm interested in ordering:\n\n` +
-      `🛍️ Product: ${data.name}\n` +
-      `🆔 ID: ${data.display_id}\n` +
-      `💰 Price: ₹${data.price}\n` +
-      `🔗 Link: zeleradeck.com/store/${slug}/product/${data.display_id}\n\n` +
+      `🛍️ *${product.name}*\n` +
+      `🆔 ID: ${product.display_id}\n` +
+      `💰 Price: ₹${Number(product.price).toLocaleString('en-IN')}\n` +
+      `🔗 https://zelera-deck.vercel.app/store/${slug}/product/${displayId}\n\n` +
       `Please confirm availability. Thank you!`
-    window.open(`https://wa.me/${data.whatsapp_number}?text=${encodeURIComponent(message)}`, '_blank')
+    window.open(`https://wa.me/${shop.whatsapp_number}?text=${encodeURIComponent(msg)}`, '_blank')
   }
 
-  if (isLoading) return <Skeleton />
-
-  if (isError) {
+  if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-slate-100 flex items-center justify-center px-5">
-        <div className="text-center">
-          <div className="w-16 h-16 rounded-3xl bg-white shadow-md flex items-center justify-center mx-auto mb-4">
-            <svg className="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </div>
-          <h1 className="text-[18px] font-bold text-gray-800 mb-1">Product not found</h1>
-          <p className="text-[13px] text-gray-400">Double-check the link and try again.</p>
+      <div className="min-h-screen bg-white max-w-md mx-auto">
+        <div className="aspect-square skeleton w-full" />
+        <div className="px-4 mt-4 space-y-3">
+          <div className="h-3 skeleton rounded-full w-1/4" />
+          <div className="h-6 skeleton rounded-xl w-3/4" />
+          <div className="h-8 skeleton rounded-xl w-1/2" />
         </div>
       </div>
     )
   }
 
+  if (isError) {
+    return (
+      <div className="min-h-screen bg-white flex flex-col items-center justify-center px-6 text-center">
+        <p className="text-5xl font-bold text-[#F0F0F0]">404</p>
+        <p className="text-base font-semibold text-[#0A0A0A] mt-2">Product not found</p>
+        <button onClick={() => navigate(-1)} className="mt-6 text-sm text-[#737373]">← Go back</button>
+      </div>
+    )
+  }
+
+  const { product, shop } = data
+  const inStock = product.is_in_stock
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Store header with back link */}
-      <header className="bg-white border-b border-gray-100 sticky top-0 z-10">
-        <div className="max-w-lg mx-auto px-4 h-14 flex items-center gap-3">
-          <Link
-            to={`/store/${slug}`}
-            className="w-8 h-8 rounded-xl bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-gray-200 transition-colors"
+    <div className="min-h-screen bg-white max-w-md mx-auto" style={{ animation: 'fadeIn 0.15s ease-out' }}>
+      {/* Back button */}
+      <button
+        onClick={() => navigate(`/store/${slug}`)}
+        className="flex items-center gap-1 text-sm text-[#737373] px-4 pt-10 pb-3"
+      >
+        <ChevronLeft size={16} />
+        Back to store
+      </button>
+
+      {/* Product image */}
+      <div className="w-full aspect-square bg-[#F8F8F8]">
+        <ImageWithFallback
+          src={product.image_url}
+          alt={product.name}
+          className="w-full h-full object-contain"
+        />
+      </div>
+
+      {/* Content */}
+      <div className="px-4 mt-4 pb-32">
+        <span className="inline-block text-xs bg-[#F0F0F0] text-[#737373] px-2 py-1 rounded-md font-mono">
+          {product.display_id}
+        </span>
+
+        <h1 className="text-xl font-bold text-[#0A0A0A] mt-2">{product.name}</h1>
+        <p className="text-2xl font-bold text-[#0A0A0A] mt-1">
+          ₹{Number(product.price).toLocaleString('en-IN')}
+        </p>
+
+        {/* Stock badge */}
+        <span className={`inline-block mt-2 text-xs font-medium px-2 py-1 rounded-full ${
+          inStock ? 'bg-[#DCFCE7] text-[#166534]' : 'bg-[#FEE2E2] text-[#991B1B]'
+        }`}>
+          {inStock ? 'In Stock' : 'Out of Stock'}
+        </span>
+
+        {product.description && (
+          <p className="text-sm text-[#737373] mt-4 leading-relaxed">{product.description}</p>
+        )}
+      </div>
+
+      {/* Sticky WhatsApp CTA */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-[#F0F0F0] p-4 pb-safe max-w-md mx-auto">
+        {inStock ? (
+          <button
+            onClick={handleWhatsApp}
+            className="w-full bg-[#25D366] hover:bg-[#128C7E] active:scale-[0.98] text-white font-semibold rounded-xl py-3.5 text-sm transition-all flex items-center justify-center gap-2"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-          </Link>
-          <span className="font-bold text-gray-900 text-[15px] truncate">{data.shop_name}</span>
-        </div>
-      </header>
-
-      <main className="max-w-lg mx-auto px-4 py-5 pb-10">
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-          {/* Square image */}
-          <div className="relative aspect-square bg-gray-50">
-            <ImageWithFallback
-              src={data.image_url}
-              alt={data.name}
-              className="w-full h-full object-cover"
-            />
-            <span className="absolute top-3 left-3 bg-black/50 backdrop-blur-sm text-white text-[10px] font-mono px-2 py-0.5 rounded-md">
-              {data.display_id}
-            </span>
-            {!data.is_in_stock && (
-              <div className="absolute inset-0 bg-white/50 backdrop-blur-[2px] flex items-center justify-center">
-                <span className="bg-black/70 text-white text-sm font-semibold px-4 py-2 rounded-full">
-                  Out of Stock
-                </span>
-              </div>
-            )}
+            <WAIcon />
+            Order on WhatsApp
+          </button>
+        ) : (
+          <div className="w-full bg-[#F0F0F0] text-[#A3A3A3] font-medium rounded-xl py-3.5 text-sm text-center">
+            Currently Out of Stock
           </div>
-
-          {/* Details */}
-          <div className="p-5">
-            <h1 className="text-[19px] font-bold text-gray-900 leading-tight">{data.name}</h1>
-            <p className="text-[22px] font-bold text-indigo-600 mt-1">
-              ₹{Number(data.price).toLocaleString('en-IN')}
-            </p>
-            {data.description && (
-              <p className="text-[13px] text-gray-500 leading-relaxed mt-3">{data.description}</p>
-            )}
-
-            {data.is_in_stock ? (
-              <button
-                onClick={handleWhatsApp}
-                className="mt-5 w-full bg-[#25D366] hover:bg-[#1ebe5c] active:bg-[#18ad52] text-white font-bold py-4 rounded-2xl transition-colors flex items-center justify-center gap-2.5 shadow-md shadow-green-200 text-[15px]"
-              >
-                <WAIcon />
-                Order on WhatsApp
-              </button>
-            ) : (
-              <div className="mt-5 w-full bg-gray-100 text-gray-400 font-semibold py-4 rounded-2xl text-center text-[14px]">
-                Currently Unavailable
-              </div>
-            )}
-          </div>
-        </div>
-        <p className="text-center text-[11px] text-gray-300 mt-6">Powered by ZeleraDeck</p>
-      </main>
+        )}
+      </div>
     </div>
   )
 }
