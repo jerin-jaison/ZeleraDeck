@@ -1,3 +1,5 @@
+from django.core.paginator import Paginator
+from django.db.models import Q
 from django.utils import timezone
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -38,8 +40,39 @@ class ShopProductListCreateView(APIView):
 
     def get(self, request):
         products = Product.objects.filter(shop=request.user).order_by('-created_at')
-        serializer = ProductSerializer(products, many=True)
-        return Response(serializer.data)
+
+        # Search filter
+        search = request.query_params.get('search', '').strip()
+        if search:
+            products = products.filter(
+                Q(name__icontains=search) | Q(display_id__icontains=search)
+            )
+
+        # Stock filter
+        in_stock = request.query_params.get('in_stock', '').strip().lower()
+        if in_stock == 'true':
+            products = products.filter(is_in_stock=True)
+        elif in_stock == 'false':
+            products = products.filter(is_in_stock=False)
+
+        # Pagination
+        page = request.query_params.get('page', '1')
+        page_size = min(int(request.query_params.get('page_size', '12')), 48)
+        paginator = Paginator(products, page_size)
+        page_obj = paginator.get_page(page)
+
+        serializer = ProductSerializer(list(page_obj), many=True)
+        return Response({
+            'products': serializer.data,
+            'pagination': {
+                'total': paginator.count,
+                'page': page_obj.number,
+                'page_size': page_size,
+                'total_pages': paginator.num_pages,
+                'has_next': page_obj.has_next(),
+                'has_previous': page_obj.has_previous(),
+            },
+        })
 
     def post(self, request):
         serializer = ProductCreateSerializer(data=request.data)
@@ -153,12 +186,35 @@ class PublicStoreView(APIView):
                 'whatsapp_number': shop.whatsapp_number,
             })
 
-        # In-stock first, then out-of-stock, each group ordered newest first
-        products = list(
-            Product.objects.filter(shop=shop, is_in_stock=True).order_by('-created_at')
-        ) + list(
-            Product.objects.filter(shop=shop, is_in_stock=False).order_by('-created_at')
-        )
+        # Base queryset: in-stock first, then out-of-stock, newest first
+        from django.db.models import Case, When, BooleanField
+        products = Product.objects.filter(shop=shop).annotate(
+            stock_order=Case(
+                When(is_in_stock=True, then=0),
+                When(is_in_stock=False, then=1),
+                output_field=BooleanField(),
+            )
+        ).order_by('stock_order', '-created_at')
+
+        # Search filter
+        search = request.query_params.get('search', '').strip()
+        if search:
+            products = products.filter(
+                Q(name__icontains=search) | Q(display_id__icontains=search)
+            )
+
+        # Stock filter
+        in_stock = request.query_params.get('in_stock', '').strip().lower()
+        if in_stock == 'true':
+            products = products.filter(is_in_stock=True)
+        elif in_stock == 'false':
+            products = products.filter(is_in_stock=False)
+
+        # Pagination
+        page = request.query_params.get('page', '1')
+        page_size = min(int(request.query_params.get('page_size', '12')), 48)
+        paginator = Paginator(products, page_size)
+        page_obj = paginator.get_page(page)
 
         return Response({
             'is_active': True,
@@ -167,7 +223,16 @@ class PublicStoreView(APIView):
             'phone': shop.phone,
             'whatsapp_number': shop.whatsapp_number,
             'logo_url': shop.logo_url,
-            'products': ProductPublicSerializer(products, many=True).data,
+            'products': ProductPublicSerializer(list(page_obj), many=True).data,
+            'pagination': {
+                'total': paginator.count,
+                'page': page_obj.number,
+                'page_size': page_size,
+                'total_pages': paginator.num_pages,
+                'has_next': page_obj.has_next(),
+                'has_previous': page_obj.has_previous(),
+            },
+            'search_query': search or None,
         })
 
 

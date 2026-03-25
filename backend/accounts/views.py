@@ -1,4 +1,5 @@
 from datetime import datetime, timezone as dt_timezone
+from django.core.paginator import Paginator
 
 from django.contrib.auth.hashers import make_password
 from django.db.models import Q
@@ -101,8 +102,24 @@ class AdminShopListCreateView(APIView):
         elif status_filter == 'inactive':
             shops = shops.filter(is_active=False)
 
-        serializer = ShopAdminListSerializer(shops, many=True)
-        return Response(serializer.data)
+        # Pagination
+        page = request.query_params.get('page', '1')
+        page_size = min(int(request.query_params.get('page_size', '10')), 50)
+        paginator = Paginator(shops, page_size)
+        page_obj = paginator.get_page(page)
+
+        serializer = ShopAdminListSerializer(list(page_obj), many=True)
+        return Response({
+            'shops': serializer.data,
+            'pagination': {
+                'total': paginator.count,
+                'page': page_obj.number,
+                'page_size': page_size,
+                'total_pages': paginator.num_pages,
+                'has_next': page_obj.has_next(),
+                'has_previous': page_obj.has_previous(),
+            },
+        })
 
     def post(self, request):
         serializer = ShopCreateSerializer(data=request.data)

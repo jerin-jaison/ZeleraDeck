@@ -12,7 +12,14 @@ import EditProduct from './pages/EditProduct'
 import StoreInfo from './pages/StoreInfo'
 import StorePage from './pages/StorePage'
 import ProductPage from './pages/ProductPage'
-import AdminPanel from './pages/AdminPanel'
+
+// Admin pages
+import AdminLayout from './pages/admin/AdminLayout'
+import AdminDashboard from './pages/admin/AdminDashboard'
+import AdminShops from './pages/admin/AdminShops'
+import AdminCreateShop from './pages/admin/AdminCreateShop'
+import AdminShopDetail from './pages/admin/AdminShopDetail'
+import AdminSettings from './pages/admin/AdminSettings'
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1, staleTime: 30_000 } },
@@ -50,8 +57,15 @@ createRoot(document.getElementById('root')).render(
             <Route path="/dashboard/edit-product/:id" element={<Protected><EditProduct /></Protected>} />
             <Route path="/dashboard/store-info" element={<Protected><StoreInfo /></Protected>} />
 
-            {/* Admin */}
-            <Route path="/admin-panel" element={<AdminPanel />} />
+            {/* Admin — nested under AdminLayout */}
+            <Route path="/admin-panel" element={<AdminLayout />}>
+              <Route index element={<Navigate to="dashboard" replace />} />
+              <Route path="dashboard" element={<AdminDashboard />} />
+              <Route path="shops" element={<AdminShops />} />
+              <Route path="shops/:id" element={<AdminShopDetail />} />
+              <Route path="create-shop" element={<AdminCreateShop />} />
+              <Route path="settings" element={<AdminSettings />} />
+            </Route>
 
             {/* Redirects */}
             <Route path="/" element={<Navigate to="/login" replace />} />
