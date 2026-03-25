@@ -84,10 +84,12 @@ api.interceptors.response.use(
       }
     }
 
-    // Handle 403 — deactivated or expired
+    // Handle 403 — only force logout for account-level issues (deactivated/expired)
     if (error.response?.status === 403) {
       const isLoginUrl = originalRequest?.url?.includes('auth/login')
-      if (!isLoginUrl) {
+      const msg = error?.response?.data?.detail || error?.response?.data?.error || ''
+      const isAccountIssue = msg.includes('deactivated') || msg.includes('expired')
+      if (!isLoginUrl && isAccountIssue) {
         handleForcedLogout(error)
       }
       return Promise.reject(error)
