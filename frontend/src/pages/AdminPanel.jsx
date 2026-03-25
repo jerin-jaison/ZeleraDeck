@@ -6,7 +6,12 @@ import { useToast } from '../context/ToastContext'
 import imageCompression from 'browser-image-compression'
 
 const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD || 'zeleraadmin2025'
-const API = import.meta.env.VITE_API_URL || 'https://zeleradeck.onrender.com/api/'
+let base = import.meta.env.VITE_API_URL || 'https://zeleradeck.onrender.com/api/'
+if (!base.endsWith('/api/') && !base.endsWith('/api')) {
+  base = base.endsWith('/') ? `${base}api/` : `${base}/api/`
+}
+if (!base.endsWith('/')) base += '/'
+const API = base
 const FRONTEND = 'https://zelera-deck.vercel.app'
 
 const adminApi = axios.create({ baseURL: API, timeout: 15000, headers: { 'X-Admin-Key': ADMIN_PASSWORD } })

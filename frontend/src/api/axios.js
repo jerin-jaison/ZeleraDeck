@@ -1,6 +1,11 @@
 import axios from 'axios'
 
-const BASE = import.meta.env.VITE_API_URL || 'https://zeleradeck.onrender.com/api/'
+let base = import.meta.env.VITE_API_URL || 'https://zeleradeck.onrender.com/api/'
+if (!base.endsWith('/api/') && !base.endsWith('/api')) {
+  base = base.endsWith('/') ? `${base}api/` : `${base}/api/`
+}
+if (!base.endsWith('/')) base += '/'
+const BASE = base
 
 const api = axios.create({
   baseURL: BASE,
