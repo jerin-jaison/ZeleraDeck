@@ -49,8 +49,14 @@ class ShopProductListCreateView(APIView):
         data = serializer.validated_data
         shop = request.user
 
+        # Read image directly from FILES to bypass ImageField extension validation
+        # (browser-image-compression produces blobs with no file extension)
+        image_file = request.FILES.get('image')
+        if not image_file:
+            return Response({'error': 'image is required'}, status=status.HTTP_400_BAD_REQUEST)
+
         try:
-            image_url = upload_product_image(data['image'], shop.slug)
+            image_url = upload_product_image(image_file, shop.slug)
         except CloudinaryUploadError as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -92,9 +98,11 @@ class ShopProductDetailView(APIView):
 
         data = serializer.validated_data
 
-        if 'image' in data:
+        # Read image directly from FILES to bypass ImageField extension validation
+        image_file = request.FILES.get('image')
+        if image_file:
             try:
-                data['image_url'] = upload_product_image(data.pop('image'), request.user.slug)
+                data['image_url'] = upload_product_image(image_file, request.user.slug)
             except CloudinaryUploadError as e:
                 return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 

@@ -18,7 +18,8 @@ class ProductCreateSerializer(serializers.Serializer):
     name = serializers.CharField(max_length=100)
     price = serializers.DecimalField(max_digits=10, decimal_places=2, min_value=0)
     description = serializers.CharField(required=False, allow_blank=True, allow_null=True)
-    image = serializers.ImageField(write_only=True)
+    # image omitted — read directly from request.FILES in the view to avoid
+    # ImageField extension validation rejecting browser-compressed blobs
     is_in_stock = serializers.BooleanField(required=False, default=True)
 
 
@@ -27,7 +28,7 @@ class ProductUpdateSerializer(serializers.Serializer):
     name = serializers.CharField(max_length=100, required=False)
     price = serializers.DecimalField(max_digits=10, decimal_places=2, min_value=0, required=False)
     description = serializers.CharField(required=False, allow_blank=True, allow_null=True)
-    image = serializers.ImageField(write_only=True, required=False)
+    # image omitted — read directly from request.FILES in the view
     is_in_stock = serializers.BooleanField(required=False)
 
 
