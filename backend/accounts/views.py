@@ -17,6 +17,7 @@ from accounts.jwt_utils import get_tokens_for_shop
 from accounts.jwt_auth import ShopJWTAuthentication
 from catalogue.models import Product
 from catalogue.serializers import ProductSerializer
+from catalogue.cloudinary_utils import upload_shop_logo, CloudinaryUploadError
 
 
 # ─── Auth Views ──────────────────────────────────────────────────────────────
@@ -119,9 +120,16 @@ class AdminShopListCreateView(APIView):
         shop = Shop(
             name=data['name'],
             phone=data['phone'],
-            whatsapp_number=data['whatsapp_number'],
             password=make_password(data['password']),
         )
+
+        # Optional logo upload
+        logo_file = data.get('logo')
+        if logo_file:
+            try:
+                shop.logo_url = upload_shop_logo(logo_file, shop.name.lower().replace(' ', '-'))
+            except CloudinaryUploadError as e:
+                return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
         # Optional fields from admin
         if 'expires_at' in request.data and request.data['expires_at']:
@@ -136,6 +144,7 @@ class AdminShopListCreateView(APIView):
             'name': shop.name,
             'slug': shop.slug,
             'phone': shop.phone,
+            'logo_url': shop.logo_url,
             'public_url': f'/store/{shop.slug}',
         }, status=status.HTTP_201_CREATED)
 
@@ -154,11 +163,9 @@ class AdminShopToggleView(APIView):
         shop.is_active = not shop.is_active
 
         if not shop.is_active:
-            # Disabling: increment token_version → force-logout all sessions
             shop.token_version += 1
             shop.save(update_fields=['is_active', 'token_version'])
         else:
-            # Enabling: do NOT increment version
             shop.save(update_fields=['is_active'])
 
         return Response({
@@ -205,7 +212,7 @@ class AdminShopDeleteView(APIView):
             return Response({'error': 'Shop not found'}, status=status.HTTP_404_NOT_FOUND)
 
         print(f'[ADMIN] Deleting shop: {shop.name} ({shop.id}) — {shop.products.count()} products')
-        shop.delete()  # CASCADE deletes all products
+        shop.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
@@ -222,11 +229,9 @@ class AdminShopEditView(APIView):
 
         data = request.data
 
-        # Name
         if 'name' in data and data['name'].strip():
             shop.name = data['name'].strip()
 
-        # Phone — check uniqueness
         if 'phone' in data and data['phone'].strip():
             new_phone = data['phone'].strip()
             if new_phone != shop.phone and Shop.objects.filter(phone=new_phone).exists():
@@ -236,19 +241,20 @@ class AdminShopEditView(APIView):
                 )
             shop.phone = new_phone
 
-        # WhatsApp
-        if 'whatsapp_number' in data and data['whatsapp_number'].strip():
-            shop.whatsapp_number = data['whatsapp_number'].strip()
-
-        # Admin notes
         if 'admin_notes' in data:
             shop.admin_notes = data['admin_notes'] or ''
 
-        # Expires at — can be null (clear) or ISO8601 date
         if 'expires_at' in data:
             shop.expires_at = data['expires_at'] or None
 
-        # NEVER update slug — it's immutable
+        # Logo upload (multipart)
+        logo_file = request.FILES.get('logo')
+        if logo_file:
+            try:
+                shop.logo_url = upload_shop_logo(logo_file, shop.slug)
+            except CloudinaryUploadError as e:
+                return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
         shop.save()
 
         serializer = ShopAdminListSerializer(shop)
@@ -256,7 +262,7 @@ class AdminShopEditView(APIView):
 
 
 class AdminShopProductsView(APIView):
-    """GET /api/admin/shops/{id}/products/ — view any shop's products"""
+    """GET /api/admin/shops/{id}/products/"""
     authentication_classes = []
     permission_classes = [IsAdminSecret]
 
@@ -276,7 +282,7 @@ class AdminShopProductsView(APIView):
 
 
 class AdminStatsView(APIView):
-    """GET /api/admin/stats/ — platform-wide statistics"""
+    """GET /api/admin/stats/"""
     authentication_classes = []
     permission_classes = [IsAdminSecret]
 
@@ -284,21 +290,15 @@ class AdminStatsView(APIView):
         now = timezone.now()
         seven_days = now + timezone.timedelta(days=7)
 
-        total_shops = Shop.objects.count()
-        active_shops = Shop.objects.filter(is_active=True).count()
-        inactive_shops = Shop.objects.filter(is_active=False).count()
-        total_products = Product.objects.count()
-        shops_expiring_soon = Shop.objects.filter(
-            expires_at__isnull=False,
-            expires_at__gt=now,
-            expires_at__lte=seven_days,
-            is_active=True,
-        ).count()
-
         return Response({
-            'total_shops': total_shops,
-            'active_shops': active_shops,
-            'inactive_shops': inactive_shops,
-            'total_products': total_products,
-            'shops_expiring_soon': shops_expiring_soon,
+            'total_shops': Shop.objects.count(),
+            'active_shops': Shop.objects.filter(is_active=True).count(),
+            'inactive_shops': Shop.objects.filter(is_active=False).count(),
+            'total_products': Product.objects.count(),
+            'shops_expiring_soon': Shop.objects.filter(
+                expires_at__isnull=False,
+                expires_at__gt=now,
+                expires_at__lte=seven_days,
+                is_active=True,
+            ).count(),
         })

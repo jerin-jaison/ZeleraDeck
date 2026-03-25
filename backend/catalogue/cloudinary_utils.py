@@ -6,18 +6,7 @@ class CloudinaryUploadError(Exception):
 
 
 def upload_product_image(image_file, shop_slug):
-    """Upload a product image to Cloudinary under the shop's folder.
-    
-    Args:
-        image_file: Django InMemoryUploadedFile or similar file-like object.
-        shop_slug: Used to organise images per shop in Cloudinary.
-    
-    Returns:
-        str: secure_url of the uploaded image.
-    
-    Raises:
-        CloudinaryUploadError: If the upload fails for any reason.
-    """
+    """Upload a product image to Cloudinary under the shop's folder."""
     try:
         result = cloudinary.uploader.upload(
             image_file,
@@ -29,3 +18,21 @@ def upload_product_image(image_file, shop_slug):
         return result['secure_url']
     except Exception as e:
         raise CloudinaryUploadError(f"Image upload failed: {e}")
+
+
+def upload_shop_logo(image_file, shop_slug):
+    """Upload a shop logo to Cloudinary. 400x400 square crop."""
+    try:
+        result = cloudinary.uploader.upload(
+            image_file,
+            folder="zeleradeck/logos",
+            public_id=f"logo_{shop_slug}",
+            overwrite=True,
+            transformation=[
+                {"width": 400, "height": 400,
+                 "crop": "fill", "quality": "auto", "fetch_format": "auto"}
+            ]
+        )
+        return result['secure_url']
+    except Exception as e:
+        raise CloudinaryUploadError(f"Logo upload failed: {e}")

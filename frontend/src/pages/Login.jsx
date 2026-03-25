@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { Eye, EyeOff } from 'lucide-react'
+import { Eye, EyeOff, AlertCircle } from 'lucide-react'
 import api from '../api/axios'
 
 export default function Login() {
@@ -32,47 +32,39 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] flex flex-col" style={{ animation: 'fadeIn 0.15s ease-out' }}>
-      {/* Brand area — top 40% */}
-      <div className="flex-[2] flex flex-col items-center justify-center px-6">
-        {/* Z logo */}
-        <div className="w-14 h-14 rounded-2xl bg-white flex items-center justify-center mb-4">
-          <span className="text-2xl font-bold text-[#0A0A0A]">Z</span>
+    <div className="min-h-screen bg-[#0A0A0A] flex flex-col">
+      {/* Brand top */}
+      <div className="flex-shrink-0 flex flex-col items-center justify-center pt-16 pb-10">
+        <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center">
+          <span className="text-2xl font-black text-[#0A0A0A]">Z</span>
         </div>
-        <h1 className="text-xl font-bold text-white">ZeleraDeck</h1>
-        <p className="text-sm text-[#737373] mt-1">Your shop. One link.</p>
+        <h1 className="text-2xl font-bold text-white mt-4">ZeleraDeck</h1>
+        <p className="text-sm text-white/60 mt-1">Your shop. One link.</p>
       </div>
 
-      {/* Login sheet — bottom 60% */}
-      <div
-        className="flex-[3] bg-white rounded-t-3xl px-6 pt-8 pb-10 shadow-2xl"
-        style={{ animation: 'slideUp 0.2s ease-out' }}
-      >
-        <h2 className="text-lg font-semibold text-[#0A0A0A]">Welcome back</h2>
-        <p className="text-sm text-[#737373] mt-1 mb-6">Login to manage your store</p>
+      {/* White bottom sheet */}
+      <div className="flex-1 bg-white rounded-t-3xl p-6 pt-8" style={{ animation: 'slideUp 0.25s ease-out' }}>
+        <h2 className="text-xl font-bold text-[#0A0A0A]">Welcome back</h2>
+        <p className="text-sm text-[#737373] mt-1 mb-6">Sign in to manage your store</p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Reason banner (forced logout) */}
+          {/* Reason banners */}
           {reason === 'deactivated' && (
-            <div className="bg-[#FEE2E2] border border-[#FECACA] rounded-xl p-3 mb-4 flex items-start gap-2">
-              <svg className="w-4 h-4 text-[#991B1B] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
+            <div className="bg-[#FEE2E2] rounded-xl p-3 mb-4 flex items-start gap-2">
+              <AlertCircle className="w-4 h-4 text-[#EF4444] flex-shrink-0 mt-0.5" />
               <p className="text-xs text-[#991B1B]">Your store has been deactivated. Contact ZeleraDeck support.</p>
             </div>
           )}
           {reason === 'expired' && (
-            <div className="bg-[#FEF3C7] border border-[#FDE68A] rounded-xl p-3 mb-4 flex items-start gap-2">
-              <svg className="w-4 h-4 text-[#92400E] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
+            <div className="bg-[#FEF3C7] rounded-xl p-3 mb-4 flex items-start gap-2">
+              <AlertCircle className="w-4 h-4 text-[#D97706] flex-shrink-0 mt-0.5" />
               <p className="text-xs text-[#92400E]">Your subscription has expired. Contact ZeleraDeck to renew.</p>
             </div>
           )}
 
           {/* Phone */}
           <div>
-            <label className="block text-xs font-medium text-[#737373] mb-1">Phone Number</label>
+            <label className="block text-xs font-medium text-[#737373] mb-1.5">Phone Number</label>
             <input
               type="tel"
               inputMode="numeric"
@@ -81,13 +73,16 @@ export default function Login() {
               placeholder="Enter your phone number"
               disabled={loading}
               required
-              className="w-full border border-[#E5E5E5] rounded-xl px-4 py-3 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#111111] focus:border-transparent placeholder:text-[#A3A3A3] disabled:opacity-50"
+              className="w-full border border-[#E5E5E5] rounded-xl px-4 py-3.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#0A0A0A] focus:border-transparent placeholder:text-[#A3A3A3] disabled:opacity-50"
             />
           </div>
 
           {/* Password */}
           <div>
-            <label className="block text-xs font-medium text-[#737373] mb-1">Password</label>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="text-xs font-medium text-[#737373]">Password</label>
+              <span className="text-xs text-[#737373]">Forgot?</span>
+            </div>
             <div className="relative">
               <input
                 type={showPw ? 'text' : 'password'}
@@ -96,48 +91,44 @@ export default function Login() {
                 placeholder="Enter your password"
                 disabled={loading}
                 required
-                className="w-full border border-[#E5E5E5] rounded-xl px-4 py-3 pr-12 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#111111] focus:border-transparent placeholder:text-[#A3A3A3] disabled:opacity-50"
+                className="w-full border border-[#E5E5E5] rounded-xl px-4 py-3.5 pr-12 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#0A0A0A] focus:border-transparent placeholder:text-[#A3A3A3] disabled:opacity-50"
               />
               <button
                 type="button"
-                onClick={() => setShowPw((v) => !v)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#A3A3A3] hover:text-[#737373] p-1"
+                onClick={() => setShowPw(!showPw)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center"
               >
-                {showPw ? <EyeOff size={18} /> : <Eye size={18} />}
+                {showPw ? <EyeOff className="w-4 h-4 text-[#A3A3A3]" /> : <Eye className="w-4 h-4 text-[#A3A3A3]" />}
               </button>
             </div>
           </div>
+
+          {/* Error */}
+          {error && (
+            <div className="bg-[#FEE2E2] rounded-xl p-3 flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 text-[#EF4444] flex-shrink-0" />
+              <p className="text-sm text-[#EF4444]">{error}</p>
+            </div>
+          )}
 
           {/* Submit */}
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-[#111111] hover:bg-[#2A2A2A] active:scale-[0.98] text-white font-medium rounded-xl py-3 text-sm transition-all disabled:opacity-60 mt-2 flex items-center justify-center gap-2"
+            className="w-full bg-[#0A0A0A] text-white rounded-xl py-4 font-semibold text-sm hover:bg-[#2A2A2A] active:scale-[0.98] transition-all disabled:opacity-70 mt-6 flex items-center justify-center gap-2"
           >
-            {loading && (
-              <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-              </svg>
+            {loading ? (
+              <>
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                Signing in...
+              </>
+            ) : (
+              'Sign In'
             )}
-            {loading ? 'Logging in…' : 'Log In'}
           </button>
-
-          {/* Error */}
-          {error && (
-            <p className="text-xs text-[#EF4444] text-center flex items-center justify-center gap-1">
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                  d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              {error}
-            </p>
-          )}
         </form>
 
-        <p className="text-xs text-center text-[#737373] mt-8">
-          Having trouble? Contact support
-        </p>
+        <p className="text-xs text-[#A3A3A3] text-center mt-6">Having trouble? Contact support</p>
       </div>
     </div>
   )

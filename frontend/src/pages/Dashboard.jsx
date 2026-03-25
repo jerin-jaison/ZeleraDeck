@@ -1,94 +1,93 @@
-import { useNavigate } from 'react-router-dom'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { Package } from 'lucide-react'
 import api from '../api/axios'
 import BottomNav from '../components/BottomNav'
-import Toast from '../components/Toast'
-import SkeletonCard from '../components/SkeletonCard'
-import DashboardProductCard from '../components/DashboardProductCard'
-
-function StatCard({ label, value, highlight }) {
-  return (
-    <div className="bg-white rounded-2xl p-3 flex-1 min-w-[80px]">
-      <p className={`text-xl font-bold ${highlight || 'text-[#0A0A0A]'}`}>{value ?? '—'}</p>
-      <p className="text-xs text-[#737373] mt-0.5">{label}</p>
-    </div>
-  )
-}
+import DashboardProductListItem from '../components/DashboardProductListItem'
+import SkeletonListItem from '../components/SkeletonListItem'
 
 export default function Dashboard() {
-  const navigate = useNavigate()
-  const shopName = localStorage.getItem('shop_name') || 'Your Shop'
+  const qc = useQueryClient()
+  const shopName = localStorage.getItem('shop_name') || 'My Shop'
 
-  const { data: products, isLoading, isError } = useQuery({
-    queryKey: ['products'],
+  const { data: products, isLoading } = useQuery({
+    queryKey: ['shop-products'],
     queryFn: () => api.get('shop/products/').then((r) => r.data),
   })
 
+  const total = products?.length ?? 0
   const inStock = products?.filter((p) => p.is_in_stock).length ?? 0
-  const outOfStock = products?.filter((p) => !p.is_in_stock).length ?? 0
+  const outOfStock = total - inStock
+
+  const handleUpdate = () => qc.invalidateQueries(['shop-products'])
+  const handleDelete = (id) => {
+    qc.setQueryData(['shop-products'], (old) => old?.filter((p) => p.id !== id))
+  }
+
+  // Time-based greeting
+  const hour = new Date().getHours()
+  const greeting = hour < 12 ? 'Good morning 👋' : hour < 17 ? 'Good afternoon 👋' : 'Good evening 👋'
 
   return (
-    <div className="min-h-screen bg-[#F8F8F8]" style={{ animation: 'fadeIn 0.15s ease-out' }}>
-      <Toast />
-
-      <div className="max-w-md mx-auto pb-24">
-        {/* Header */}
-        <div className="bg-white px-4 pt-10 pb-4 border-b border-[#F0F0F0]">
-          <h1 className="text-xl font-bold text-[#0A0A0A] truncate">{shopName}</h1>
-          <p className="text-xs text-[#737373] mt-0.5">
-            Managing {products?.length ?? '…'} product{products?.length !== 1 ? 's' : ''}
-          </p>
+    <div className="bg-[#F8F8F8] min-h-screen pb-24 max-w-md mx-auto" style={{ animation: 'fadeIn 0.15s ease-out' }}>
+      {/* Header */}
+      <div className="bg-white px-4 pt-6 pb-4 border-b border-[#F0F0F0]">
+        <div className="flex items-center">
+          <div className="w-10 h-10 rounded-xl bg-[#0A0A0A] flex items-center justify-center flex-shrink-0">
+            <span className="text-white text-sm font-bold">{shopName.charAt(0).toUpperCase()}</span>
+          </div>
+          <div className="ml-3">
+            <h1 className="text-lg font-bold text-[#0A0A0A]">{shopName}</h1>
+            <p className="text-xs text-[#737373]">{greeting}</p>
+          </div>
         </div>
+      </div>
 
-        {/* Stats row */}
-        <div className="flex gap-3 px-4 mt-4">
-          <StatCard label="Products"    value={products?.length} />
-          <StatCard label="In Stock"    value={inStock}     highlight="text-[#166534]" />
-          <StatCard label="Out of Stock" value={outOfStock} highlight="text-[#991B1B]" />
-        </div>
+      {/* Stats */}
+      <div className="px-4 mt-4 grid grid-cols-3 gap-2">
+        {[
+          { label: 'Total', value: total },
+          { label: 'In Stock', value: inStock, color: 'text-[#166534]' },
+          { label: 'Out of Stock', value: outOfStock, color: 'text-[#991B1B]' },
+        ].map(({ label, value, color }) => (
+          <div key={label} className="bg-white rounded-2xl p-3 border border-[#F0F0F0]">
+            <p className={`text-xl font-bold ${color || 'text-[#0A0A0A]'}`}>{value}</p>
+            <p className="text-[10px] text-[#737373] mt-0.5">{label}</p>
+          </div>
+        ))}
+      </div>
 
-        {/* Section heading */}
-        <div className="flex items-center gap-2 px-4 mt-5 mb-3">
-          <h2 className="text-sm font-semibold text-[#0A0A0A]">Your Products</h2>
-          {products && (
-            <span className="text-xs bg-[#F0F0F0] text-[#737373] px-2 py-0.5 rounded-full font-medium">
-              {products.length}
-            </span>
-          )}
-        </div>
+      {/* Products heading */}
+      <div className="px-4 mt-5 mb-3 flex justify-between items-center">
+        <p className="text-sm font-semibold text-[#0A0A0A]">Products</p>
+        <p className="text-xs text-[#737373]">{total} items</p>
+      </div>
 
-        {/* Grid */}
-        <div className="px-4">
-          {isLoading ? (
-            <div className="grid grid-cols-2 gap-3">
-              {Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)}
-            </div>
-          ) : isError ? (
-            <div className="bg-white rounded-2xl border border-[#F0F0F0] p-8 text-center">
-              <p className="text-sm font-semibold text-[#737373]">Failed to load products</p>
-              <p className="text-xs text-[#A3A3A3] mt-1">Check your connection and try again</p>
-            </div>
-          ) : products.length === 0 ? (
-            <div className="bg-white rounded-2xl border border-[#F0F0F0] p-10 text-center">
-              <svg className="w-12 h-12 text-[#D4D4D4] mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-                  d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-              </svg>
-              <p className="text-sm font-semibold text-[#0A0A0A] mt-3">No products yet</p>
-              <p className="text-xs text-[#737373] mt-1">Tap the + button below to add your first product</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 gap-3">
-              {products.map((p) => (
-                <DashboardProductCard
-                  key={p.id}
-                  product={p}
-                  onEdit={(id) => navigate(`/dashboard/edit-product/${id}`)}
-                />
-              ))}
-            </div>
-          )}
-        </div>
+      {/* Product list */}
+      <div className="px-4">
+        {isLoading ? (
+          <div className="flex flex-col gap-3">
+            {Array.from({ length: 4 }).map((_, i) => <SkeletonListItem key={i} />)}
+          </div>
+        ) : total === 0 ? (
+          <div className="bg-white rounded-2xl p-8 text-center border border-[#F0F0F0]">
+            <Package className="w-12 h-12 text-[#D4D4D4] mx-auto" />
+            <p className="text-sm font-semibold text-[#0A0A0A] mt-3">No products yet</p>
+            <p className="text-xs text-[#737373] text-center mt-1.5 max-w-[200px] mx-auto">
+              Tap the + button below to add your first product
+            </p>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-3">
+            {products.map((p) => (
+              <DashboardProductListItem
+                key={p.id}
+                product={p}
+                onUpdate={handleUpdate}
+                onDelete={handleDelete}
+              />
+            ))}
+          </div>
+        )}
       </div>
 
       <BottomNav />

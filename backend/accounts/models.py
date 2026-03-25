@@ -10,10 +10,12 @@ class Shop(models.Model):
     slug = models.SlugField(unique=True, editable=False, max_length=220)
     phone = models.CharField(max_length=15, unique=True)
     password = models.CharField(max_length=255)
-    whatsapp_number = models.CharField(max_length=15)
     is_active = models.BooleanField(default=True)
     # Only increments. Never decrements. Used for display_id generation.
     product_counter = models.PositiveIntegerField(default=0)
+
+    # ── Shop profile ─────────────────────────────────────────────────────────
+    logo_url = models.URLField(max_length=500, blank=True, null=True)
 
     # ── Admin / subscription fields ──────────────────────────────────────────
     token_version = models.PositiveIntegerField(default=0)
@@ -24,9 +26,16 @@ class Shop(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    # ── DRF compatibility ──────────────────────────────────────────────────────
-    # DRF's IsAuthenticated calls request.user.is_authenticated.
-    # Shop is not Django's User model, so we add this manually.
+    # ── Computed properties ──────────────────────────────────────────────────
+    @property
+    def whatsapp_number(self):
+        """Derive WhatsApp number from phone: strip leading 0, prepend 91."""
+        p = self.phone.strip().lstrip('0')
+        if not p.startswith('91'):
+            p = '91' + p
+        return p
+
+    # ── DRF compatibility ────────────────────────────────────────────────────
     @property
     def is_authenticated(self):
         return True
@@ -34,7 +43,6 @@ class Shop(models.Model):
     @property
     def is_anonymous(self):
         return False
-    # ───────────────────────────────────────────────────────────────────────────
 
     class Meta:
         ordering = ['-created_at']
@@ -43,9 +51,6 @@ class Shop(models.Model):
         return f"{self.name} ({self.phone})"
 
     def save(self, *args, **kwargs):
-        # Slug is immutable — only generated on first save.
-        # NOTE: Cannot use 'if not self.pk' because UUIDField(default=uuid.uuid4)
-        # assigns pk at instantiation time, before save() is called.
         if not self.slug:
             base = slugify(self.name)
             slug = base

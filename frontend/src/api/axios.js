@@ -1,11 +1,11 @@
 import axios from 'axios'
 
+const BASE = import.meta.env.VITE_API_URL || 'https://zeleradeck.onrender.com/api/'
+
 const api = axios.create({
-  baseURL: window.location.hostname === 'localhost' ? 'http://localhost:8000/api/' : 'https://zeleradeck.onrender.com/api/',
+  baseURL: BASE,
   timeout: 15000,
 })
-
-
 
 // ── Request interceptor: attach JWT ────────────────────────────────────────
 api.interceptors.request.use((config) => {
@@ -23,16 +23,24 @@ const processQueue = (error, token = null) => {
   failedQueue = []
 }
 
-const BASE = window.location.hostname === 'localhost'
-  ? 'http://localhost:8000/api/'
-  : 'https://zeleradeck.onrender.com/api/'
+function handleForcedLogout(error) {
+  const msg = error?.response?.data?.detail ||
+              error?.response?.data?.error || ''
+  localStorage.clear()
+  if (msg.includes('deactivated')) {
+    window.location.href = '/login?reason=deactivated'
+  } else if (msg.includes('expired')) {
+    window.location.href = '/login?reason=expired'
+  } else {
+    window.location.href = '/login'
+  }
+}
 
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config
 
-    // Handle 401 with refresh token logic
     if (error.response?.status === 401 && !originalRequest._retry) {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
@@ -73,27 +81,15 @@ api.interceptors.response.use(
 
     // Handle 403 — deactivated or expired
     if (error.response?.status === 403) {
-      handleForcedLogout(error)
+      const isLoginUrl = originalRequest?.url?.includes('auth/login')
+      if (!isLoginUrl) {
+        handleForcedLogout(error)
+      }
       return Promise.reject(error)
     }
 
     return Promise.reject(error)
   }
 )
-
-function handleForcedLogout(error) {
-  const msg = error?.response?.data?.detail ||
-              error?.response?.data?.error || ''
-
-  localStorage.clear()
-
-  if (msg.includes('deactivated')) {
-    window.location.href = '/login?reason=deactivated'
-  } else if (msg.includes('expired')) {
-    window.location.href = '/login?reason=expired'
-  } else {
-    window.location.href = '/login'
-  }
-}
 
 export default api

@@ -27,7 +27,8 @@ class ShopMeView(APIView):
             'slug': shop.slug,
             'phone': shop.phone,
             'whatsapp_number': shop.whatsapp_number,
-            'public_url': f'https://zeleradeck.com/store/{shop.slug}',
+            'logo_url': shop.logo_url,
+            'public_url': f'https://zelera-deck.vercel.app/store/{shop.slug}',
         })
 
 
@@ -155,7 +156,9 @@ class PublicStoreView(APIView):
             'is_active': True,
             'name': shop.name,
             'slug': shop.slug,
+            'phone': shop.phone,
             'whatsapp_number': shop.whatsapp_number,
+            'logo_url': shop.logo_url,
             'products': ProductPublicSerializer(products, many=True).data,
         })
 
@@ -172,7 +175,13 @@ class PublicProductDetailView(APIView):
         except (Shop.DoesNotExist, Product.DoesNotExist):
             return Response({'error': 'Product not found'}, status=status.HTTP_404_NOT_FOUND)
 
-        data = ProductPublicSerializer(product).data
-        data['shop_name'] = shop.name
-        data['whatsapp_number'] = shop.whatsapp_number
-        return Response(data)
+        return Response({
+            'product': ProductPublicSerializer(product).data,
+            'shop': {
+                'name': shop.name,
+                'slug': shop.slug,
+                'phone': shop.phone,
+                'whatsapp_number': shop.whatsapp_number,
+                'logo_url': shop.logo_url,
+            }
+        })
