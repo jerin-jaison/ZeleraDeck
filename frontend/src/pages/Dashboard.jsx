@@ -55,11 +55,23 @@ export default function Dashboard() {
     queryKey: ['shop-products-stats'],
     queryFn: () => api.get('shop/products/?page_size=1').then((r) => r.data),
   })
+  const { data: inStockData } = useQuery({
+    queryKey: ['shop-products-stats-in'],
+    queryFn: () => api.get('shop/products/?in_stock=true&page_size=1').then((r) => r.data),
+  })
+  const { data: outStockData } = useQuery({
+    queryKey: ['shop-products-stats-out'],
+    queryFn: () => api.get('shop/products/?in_stock=false&page_size=1').then((r) => r.data),
+  })
   const totalAll = statsData?.pagination?.total ?? 0
+  const totalInStock = inStockData?.pagination?.total ?? 0
+  const totalOutStock = outStockData?.pagination?.total ?? 0
 
   const handleUpdate = () => {
     qc.invalidateQueries({ queryKey: ['shop-products'] })
     qc.invalidateQueries({ queryKey: ['shop-products-stats'] })
+    qc.invalidateQueries({ queryKey: ['shop-products-stats-in'] })
+    qc.invalidateQueries({ queryKey: ['shop-products-stats-out'] })
   }
   const handleDelete = (id) => {
     qc.setQueryData(['shop-products', searchQuery, stockFilter, currentPage], (old) => {
@@ -67,6 +79,8 @@ export default function Dashboard() {
       return { ...old, products: old.products?.filter((p) => p.id !== id) }
     })
     qc.invalidateQueries({ queryKey: ['shop-products-stats'] })
+    qc.invalidateQueries({ queryKey: ['shop-products-stats-in'] })
+    qc.invalidateQueries({ queryKey: ['shop-products-stats-out'] })
   }
 
   const handlePageChange = (page) => {
@@ -110,8 +124,8 @@ export default function Dashboard() {
       <div className="px-4 mt-4 grid grid-cols-3 gap-2">
         {[
           { label: 'Total', value: totalAll },
-          { label: 'In Stock', value: '—', color: 'text-[#166534]' },
-          { label: 'Out of Stock', value: '—', color: 'text-[#991B1B]' },
+          { label: 'In Stock', value: totalInStock, color: 'text-[#166534]' },
+          { label: 'Out of Stock', value: totalOutStock, color: 'text-[#991B1B]' },
         ].map(({ label, value, color }) => (
           <div key={label} className="bg-white rounded-2xl p-3 border border-[#F0F0F0]">
             <p className={`text-xl font-bold ${color || 'text-[#0A0A0A]'}`}>{value}</p>

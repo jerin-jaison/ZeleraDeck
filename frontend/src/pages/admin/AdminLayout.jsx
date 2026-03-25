@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Outlet, NavLink, useLocation, useNavigate } from 'react-router-dom'
-import { LayoutDashboard, Store, PlusCircle, Settings, LogOut, Menu, X, Shield } from 'lucide-react'
+import { LayoutDashboard, Store, PlusCircle, LogOut, Menu, X, Shield } from 'lucide-react'
 
 const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD || 'zeleraadmin2025'
 
@@ -8,7 +8,6 @@ const NAV_ITEMS = [
   { to: '/admin-panel/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
   { to: '/admin-panel/shops', icon: Store, label: 'Shops' },
   { to: '/admin-panel/create-shop', icon: PlusCircle, label: 'Create Shop' },
-  { to: '/admin-panel/settings', icon: Settings, label: 'Settings' },
 ]
 
 function SidebarContent({ onClose }) {

@@ -132,7 +132,7 @@ export default function AdminCreateShop() {
         <p className="text-xs text-[#737373]">Add a new shop account</p>
       </div>
 
-      <form onSubmit={handleSubmit} className="bg-white rounded-2xl border border-[#F0F0F0] p-6 max-w-lg">
+      <form onSubmit={handleSubmit} className="bg-white rounded-2xl border border-[#F0F0F0] p-6 max-w-lg mx-auto">
         {/* Logo */}
         <div className="mb-5">
           <p className="text-xs text-[#737373] mb-2">Shop Logo <span className="text-[#A3A3A3]">(optional)</span></p>

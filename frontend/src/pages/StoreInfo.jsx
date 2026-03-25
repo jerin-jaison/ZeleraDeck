@@ -15,15 +15,17 @@ export default function StoreInfo() {
     queryFn: () => api.get('shop/me/').then((r) => r.data),
   })
 
-  const { data: products } = useQuery({
-    queryKey: ['shop-products'],
-    queryFn: () => api.get('shop/products/').then((r) => r.data),
+  const { data: productsData } = useQuery({
+    queryKey: ['shop-products-stats'],
+    queryFn: () => api.get('shop/products/?page_size=48').then((r) => r.data),
   })
 
+  // API now returns { products: [...], pagination: {...} }
+  const productList = productsData?.products ?? []
   const storeUrl = shop ? `https://zelera-deck.vercel.app/store/${shop.slug}` : ''
-  const total = products?.length ?? 0
-  const inStock = products?.filter((p) => p.is_in_stock).length ?? 0
-  const outOfStock = total - inStock
+  const total = productList.length > 0 ? (productsData?.pagination?.total ?? productList.length) : 0
+  const inStock = productList.filter((p) => p.is_in_stock).length
+  const outOfStock = productList.filter((p) => !p.is_in_stock).length
 
   const copyLink = () => {
     navigator.clipboard.writeText(storeUrl)
