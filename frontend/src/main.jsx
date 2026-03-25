@@ -12,6 +12,7 @@ import EditProduct from './pages/EditProduct'
 import StoreInfo from './pages/StoreInfo'
 import StorePage from './pages/StorePage'
 import ProductPage from './pages/ProductPage'
+import ContactPage from './pages/ContactPage'
 
 // Admin pages
 import AdminLayout from './pages/admin/AdminLayout'
@@ -50,6 +51,7 @@ createRoot(document.getElementById('root')).render(
             <Route path="/login" element={<Login />} />
             <Route path="/store/:slug" element={<StorePage />} />
             <Route path="/store/:slug/product/:displayId" element={<ProductPage />} />
+            <Route path="/contact" element={<ContactPage />} />
 
             {/* Protected — Shop Owner */}
             <Route path="/dashboard" element={<Protected><Dashboard /></Protected>} />
