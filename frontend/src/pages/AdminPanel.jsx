@@ -318,12 +318,17 @@ export default function AdminPanel() {
   const refresh = () => { qc.invalidateQueries(['admin-shops']); qc.invalidateQueries(['admin-stats']) }
 
   const { data: stats } = useQuery({ queryKey: ['admin-stats'], queryFn: () => adminApi.get('admin/stats/').then(r => r.data), enabled: authed })
-  const { data: shops, isLoading } = useQuery({
+  const { data: shops, isFetching: shopsLoading } = useQuery({
     queryKey: ['admin-shops', debouncedSearch, statusFilter],
     queryFn: () => { const p = new URLSearchParams(); if (debouncedSearch) p.set('search', debouncedSearch); if (statusFilter !== 'all' && statusFilter !== 'expiring') p.set('status', statusFilter); return adminApi.get(`admin/shops/?${p}`).then(r => r.data) },
     enabled: authed,
+    placeholderData: [],
   })
-  const filteredShops = useMemo(() => { if (!shops) return []; if (statusFilter === 'expiring') return shops.filter(s => s.is_expiring_soon); return shops }, [shops, statusFilter])
+  const filteredShops = useMemo(() => {
+    const safeShops = Array.isArray(shops) ? shops : []
+    if (statusFilter === 'expiring') return safeShops.filter(s => s.is_expiring_soon)
+    return safeShops
+  }, [shops, statusFilter])
 
   const handleLogoPick = async (e) => {
     const f = e.target.files?.[0]; if (!f) return
@@ -495,7 +500,7 @@ export default function AdminPanel() {
 
         {/* Shops */}
         <div className="mt-4 space-y-3">
-          {isLoading ? Array.from({length:3}).map((_,i) => <div key={i} className="h-36 skeleton rounded-2xl" />) :
+          {shopsLoading ? Array.from({length:3}).map((_,i) => <div key={i} className="h-36 skeleton rounded-2xl" />) :
            filteredShops.length === 0 ? (
             <div className="bg-white rounded-2xl border border-[#F0F0F0] p-10 text-center">
               <p className="text-sm font-semibold text-[#737373]">No shops found</p>
