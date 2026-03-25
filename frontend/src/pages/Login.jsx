@@ -35,9 +35,7 @@ export default function Login() {
     <div className="min-h-screen bg-[#0A0A0A] flex flex-col">
       {/* Brand top */}
       <div className="flex-shrink-0 flex flex-col items-center justify-center pt-16 pb-10">
-        <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center">
-          <span className="text-2xl font-black text-[#0A0A0A]">Z</span>
-        </div>
+        <img src="/logo.png" alt="ZeleraDeck" className="w-16 h-16 rounded-2xl object-cover" />
         <h1 className="text-2xl font-bold text-white mt-4">ZeleraDeck</h1>
         <p className="text-sm text-white/60 mt-1">Your shop. One link.</p>
       </div>
@@ -81,7 +79,7 @@ export default function Login() {
           <div>
             <div className="flex items-center justify-between mb-1.5">
               <label className="text-xs font-medium text-[#737373]">Password</label>
-              <span className="text-xs text-[#737373]">Forgot?</span>
+              <a href="/contact" className="text-xs text-[#737373] underline">Forgot?</a>
             </div>
             <div className="relative">
               <input
@@ -128,7 +126,10 @@ export default function Login() {
           </button>
         </form>
 
-        <p className="text-xs text-[#A3A3A3] text-center mt-6">Having trouble? Contact support</p>
+        <p className="text-xs text-[#A3A3A3] text-center mt-6">
+          Having trouble?{' '}
+          <a href="/contact" className="underline text-[#737373]">Contact support</a>
+        </p>
       </div>
     </div>
   )
