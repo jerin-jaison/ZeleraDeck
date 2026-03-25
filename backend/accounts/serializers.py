@@ -24,7 +24,8 @@ class ShopCreateSerializer(serializers.Serializer):
     name = serializers.CharField(max_length=200)
     phone = serializers.CharField(max_length=15)
     password = serializers.CharField(write_only=True, min_length=6)
-    logo = serializers.ImageField(required=False)
+    # logo is intentionally excluded — read directly from request.FILES in the view
+    # to avoid ImageField extension validation failing on browser-compressed blobs
 
 
 class ShopAdminListSerializer(serializers.ModelSerializer):

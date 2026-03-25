@@ -123,8 +123,9 @@ class AdminShopListCreateView(APIView):
             password=make_password(data['password']),
         )
 
-        # Optional logo upload
-        logo_file = data.get('logo')
+        # Optional logo upload — read directly from FILES to bypass ImageField
+        # extension validation (browser-image-compression strips the extension)
+        logo_file = request.FILES.get('logo')
         if logo_file:
             try:
                 shop.logo_url = upload_shop_logo(logo_file, shop.name.lower().replace(' ', '-'))
