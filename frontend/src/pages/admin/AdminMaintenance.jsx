@@ -5,7 +5,7 @@ import { useToast } from '../../context/ToastContext'
 import Logo from '../../components/Logo'
 
 export default function AdminMaintenance() {
-  const { showToast } = useToast()
+  const showToast = useToast()
   const [loading, setLoading] = useState(true)
   const [maintenance, setMaintenance] = useState(false)
   const [message, setMessage] = useState('')
