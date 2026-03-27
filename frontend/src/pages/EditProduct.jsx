@@ -18,7 +18,8 @@ export default function EditProduct() {
 
   const { data: product, isLoading: fetching } = useQuery({
     queryKey: ['product', id],
-    queryFn: () => api.get(`shop/products/`).then((r) => r.data.find((p) => p.id === id)),
+    queryFn: () =>
+      api.get(`shop/products/${id}/`).then((r) => r.data),
   })
 
   useEffect(() => {
