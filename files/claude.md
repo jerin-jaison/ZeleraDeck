@@ -138,7 +138,7 @@ Please confirm availability. Thank you!
 ## 🚫 MVP Hard Limits (Do Not Build)
 - No payment gateway
 - No cart system
-- No product categories
+- No product categories → ✅ IMPLEMENTED (optional, shop-owner managed)
 - No public signup
 - No OTP login
 - No complex analytics

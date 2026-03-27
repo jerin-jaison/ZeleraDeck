@@ -64,6 +64,7 @@ export default function StorePage() {
   const [currentPage, setCurrentPage] = useState(1)
   const [searchInput, setSearchInput] = useState('')
   const [stockFilter, setStockFilter] = useState('all')
+  const [categoryFilter, setCategoryFilter] = useState('all')
 
   const { data, isLoading, isFetching, error } = useQuery({
     queryKey: ['public-store', slug, currentPage],
@@ -71,7 +72,9 @@ export default function StorePage() {
     placeholderData: (prev) => prev,
   })
 
-  // Client-side search + stock filter on loaded products
+  const shopCategories = data?.categories || []
+
+  // Client-side search + stock + category filter on loaded products
   const filteredProducts = useMemo(() => {
     const products = data?.products || []
     let filtered = products
@@ -79,6 +82,11 @@ export default function StorePage() {
     // Stock filter
     if (stockFilter === 'in_stock') filtered = filtered.filter((p) => p.is_in_stock)
     else if (stockFilter === 'out_of_stock') filtered = filtered.filter((p) => !p.is_in_stock)
+
+    // Category filter (client-side)
+    if (categoryFilter !== 'all') {
+      filtered = filtered.filter((p) => p.category_name === categoryFilter)
+    }
 
     // Search filter (client-side, instant)
     if (searchInput.trim()) {
@@ -89,10 +97,10 @@ export default function StorePage() {
     }
 
     return filtered
-  }, [data?.products, searchInput, stockFilter])
+  }, [data?.products, searchInput, stockFilter, categoryFilter])
 
   const isSearching = searchInput.trim().length > 0
-  const isFiltering = stockFilter !== 'all'
+  const isFiltering = stockFilter !== 'all' || categoryFilter !== 'all'
   const pagination = data?.pagination
   const pillCls = (active) =>
     `text-xs px-4 py-2 rounded-full font-medium whitespace-nowrap transition-colors ${
@@ -103,6 +111,7 @@ export default function StorePage() {
     setCurrentPage(page)
     setSearchInput('')
     setStockFilter('all')
+    setCategoryFilter('all')
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
@@ -189,14 +198,39 @@ export default function StorePage() {
             </button>
           ))}
         </div>
+
+        {/* Category filter pills — only show if 2+ categories */}
+        {shopCategories.length >= 2 && (
+          <div className="flex gap-2 mt-2 overflow-x-auto no-scrollbar">
+            <button
+              onClick={() => setCategoryFilter('all')}
+              className={pillCls(categoryFilter === 'all')}
+            >
+              All
+            </button>
+            {shopCategories.map((cat) => (
+              <button
+                key={cat.id}
+                onClick={() => setCategoryFilter(cat.name)}
+                className={pillCls(categoryFilter === cat.name)}
+              >
+                {cat.name}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Results header */}
       {(isSearching || isFiltering) && (
         <div className="px-4 py-2">
           <p className="text-xs text-[#737373]">
-            {isSearching
+            {isSearching && categoryFilter !== 'all'
+              ? `Showing ${filteredProducts.length} results for '${searchInput.trim()}' in ${categoryFilter}`
+              : isSearching
               ? `Showing ${filteredProducts.length} results for '${searchInput.trim()}'`
+              : categoryFilter !== 'all'
+              ? `Showing: ${categoryFilter} · ${filteredProducts.length} items`
               : `${filteredProducts.length} ${stockFilter === 'in_stock' ? 'in stock' : 'out of stock'}`}
           </p>
           {isSearching && (
@@ -226,7 +260,7 @@ export default function StorePage() {
         </div>
       )}
 
-      {/* Pagination — hidden when searching client-side */}
+      {/* Pagination — hidden when searching/filtering client-side */}
       {!isSearching && !isFiltering && pagination && (
         <div className="px-4 pb-8">
           <Pagination

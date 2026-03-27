@@ -2,6 +2,26 @@ import uuid
 from django.db import models
 
 
+class Category(models.Model):
+    id = models.UUIDField(
+        primary_key=True, default=uuid.uuid4, editable=False
+    )
+    shop = models.ForeignKey(
+        'accounts.Shop',
+        on_delete=models.CASCADE,
+        related_name='categories'
+    )
+    name = models.CharField(max_length=80)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['name']
+        unique_together = [['shop', 'name']]
+
+    def __str__(self):
+        return f"{self.shop.name} → {self.name}"
+
+
 class Product(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     display_id = models.CharField(max_length=10, editable=False)
@@ -13,6 +33,13 @@ class Product(models.Model):
     description = models.TextField(blank=True, null=True)
     image_url = models.URLField(max_length=500)
     is_in_stock = models.BooleanField(default=True)
+    category = models.ForeignKey(
+        Category,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='products'
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

@@ -1,14 +1,49 @@
 from rest_framework import serializers
-from catalogue.models import Product
+from catalogue.models import Product, Category
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    product_count = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Category
+        fields = ['id', 'name', 'product_count', 'created_at']
+
+    def get_product_count(self, obj):
+        return obj.products.count()
+
+
+class CategoryCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ['name']
+
+    def validate_name(self, value):
+        value = value.strip()
+        if not value:
+            raise serializers.ValidationError(
+                "Category name cannot be empty."
+            )
+        if len(value) > 80:
+            raise serializers.ValidationError(
+                "Category name must be 80 characters or less."
+            )
+        return value
 
 
 class ProductSerializer(serializers.ModelSerializer):
     """Full product serializer — used by shop owner dashboard."""
+    category = CategorySerializer(read_only=True)
+    category_id = serializers.UUIDField(
+        write_only=True, required=False, allow_null=True
+    )
+
     class Meta:
         model = Product
         fields = [
             'id', 'display_id', 'name', 'price', 'description',
-            'image_url', 'is_in_stock', 'created_at', 'updated_at'
+            'image_url', 'is_in_stock', 'category', 'category_id',
+            'created_at', 'updated_at'
         ]
         read_only_fields = ['id', 'display_id', 'created_at', 'updated_at']
 
@@ -34,6 +69,11 @@ class ProductUpdateSerializer(serializers.Serializer):
 
 class ProductPublicSerializer(serializers.ModelSerializer):
     """Public-safe product serializer — no internal UUIDs exposed."""
+    category_name = serializers.SerializerMethodField()
+
     class Meta:
         model = Product
-        fields = ['display_id', 'name', 'price', 'description', 'image_url', 'is_in_stock']
+        fields = ['display_id', 'name', 'price', 'description', 'image_url', 'is_in_stock', 'category_name']
+
+    def get_category_name(self, obj):
+        return obj.category.name if obj.category else None

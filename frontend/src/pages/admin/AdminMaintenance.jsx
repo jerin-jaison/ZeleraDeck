@@ -12,21 +12,31 @@ export default function AdminMaintenance() {
   const [saving, setSaving] = useState(false)
 
   useEffect(() => {
+    let cancelled = false
     adminApi.get('admin/maintenance/')
       .then((r) => {
-        setMaintenance(r.data.maintenance)
-        setMessage(r.data.message)
+        if (!cancelled) {
+          setMaintenance(r.data.maintenance)
+          setMessage(r.data.message)
+        }
       })
-      .catch(() => showToast('Failed to load status', 'error'))
-      .finally(() => setLoading(false))
+      .catch(() => {
+        if (!cancelled) showToast('Failed to load status', 'error')
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false)
+      })
+    return () => { cancelled = true }
   }, [])
 
   const handleToggle = async () => {
     const newState = !maintenance
     setMaintenance(newState) // optimistic
     try {
-      await adminApi.post('admin/maintenance/', { maintenance: newState })
-      showToast(newState ? 'Maintenance mode enabled' : 'Site is back online')
+      const r = await adminApi.post('admin/maintenance/', { maintenance: newState })
+      // Sync from server response to guarantee consistency
+      setMaintenance(r.data.maintenance)
+      showToast(r.data.maintenance ? 'Maintenance mode enabled' : 'Site is back online')
     } catch {
       setMaintenance(!newState) // revert
       showToast('Failed to toggle', 'error')
@@ -47,28 +57,31 @@ export default function AdminMaintenance() {
 
   if (loading) {
     return (
-      <div style={{ animation: 'fadeIn 0.15s ease-out' }}>
-        <div className="mb-6">
-          <p className="text-xs text-[#737373]">Admin / Maintenance</p>
-          <h1 className="text-xl font-bold text-[#0A0A0A]">Maintenance Mode</h1>
-        </div>
-        <div className="max-w-lg space-y-4">
-          <div className="h-32 skeleton rounded-2xl" />
-          <div className="h-48 skeleton rounded-2xl" />
+      <div className="min-h-[calc(100vh-0px)] flex flex-col items-center justify-center px-4 py-8" style={{ animation: 'fadeIn 0.15s ease-out' }}>
+        <div className="w-full max-w-lg">
+          <div className="mb-6 text-center">
+            <h1 className="text-xl font-bold text-[#0A0A0A]">Maintenance Mode</h1>
+            <p className="text-xs text-[#737373] mt-1">Control site-wide availability</p>
+          </div>
+          <div className="space-y-4">
+            <div className="h-32 skeleton rounded-2xl" />
+            <div className="h-48 skeleton rounded-2xl" />
+          </div>
         </div>
       </div>
     )
   }
 
   return (
-    <div style={{ animation: 'fadeIn 0.15s ease-out' }}>
-      <div className="mb-6">
-        <p className="text-xs text-[#737373]">Admin / Maintenance</p>
-        <h1 className="text-xl font-bold text-[#0A0A0A]">Maintenance Mode</h1>
-        <p className="text-xs text-[#737373]">Control site-wide availability</p>
-      </div>
+    <div className="min-h-[calc(100vh-0px)] flex flex-col items-center justify-center px-4 py-8" style={{ animation: 'fadeIn 0.15s ease-out' }}>
+      <div className="w-full max-w-lg">
 
-      <div className="max-w-lg">
+        {/* Page heading — inside the centered block */}
+        <div className="mb-6 text-center">
+          <h1 className="text-xl font-bold text-[#0A0A0A]">Maintenance Mode</h1>
+          <p className="text-xs text-[#737373] mt-1">Control site-wide availability</p>
+        </div>
+
         {/* ── Status Card ── */}
         <div className="bg-white rounded-2xl p-6 border border-[#F0F0F0]">
           <div className="flex justify-between items-center">
@@ -170,7 +183,7 @@ export default function AdminMaintenance() {
               />
             </div>
             <p className="text-sm font-bold text-white mt-2">We'll be back soon</p>
-            <p className="text-[10px] text-[#737373] mt-1 max-w-[200px] line-clamp-2">{message}</p>
+            <p className="text-[10px] mt-1 max-w-[200px] line-clamp-2" style={{ color: '#FF6B6B' }}>{message}</p>
             <div className="w-32 h-1 bg-[#1a1a1a] rounded-full overflow-hidden mt-3">
               <div className="h-full bg-[#25D366] rounded-full" style={{ animation: 'barfill 3s ease-in-out infinite' }} />
             </div>

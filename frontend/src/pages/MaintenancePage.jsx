@@ -77,7 +77,7 @@ export default function MaintenancePage({ message }) {
         </h1>
 
         {/* Subtitle */}
-        <p className="mt-2 text-sm text-[#737373] text-center max-w-xs leading-relaxed whitespace-pre-line">
+        <p className="mt-2 text-sm text-center max-w-xs leading-relaxed whitespace-pre-line" style={{ color: '#FF6B6B' }}>
           {displayMsg}
         </p>
 

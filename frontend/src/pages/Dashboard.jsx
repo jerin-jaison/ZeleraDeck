@@ -1,12 +1,13 @@
 import { useState, useEffect, useRef } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { Package, Search, X, SearchX } from 'lucide-react'
+import { Package, Search, X, SearchX, Tag } from 'lucide-react'
 import api from '../api/axios'
 import BottomNav from '../components/BottomNav'
 import DashboardProductListItem from '../components/DashboardProductListItem'
 import SkeletonListItem from '../components/SkeletonListItem'
 import Pagination from '../components/Pagination'
 import Logo from '../components/Logo'
+import CategoriesBottomSheet from '../components/CategoriesBottomSheet'
 
 export default function Dashboard() {
   const qc = useQueryClient()
@@ -17,7 +18,9 @@ export default function Dashboard() {
   const [searchInput, setSearchInput] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
   const [stockFilter, setStockFilter] = useState('all')
+  const [categoryFilter, setCategoryFilter] = useState('all')
   const [currentPage, setCurrentPage] = useState(1)
+  const [showCategories, setShowCategories] = useState(false)
 
   // Debounce search input
   useEffect(() => {
@@ -29,7 +32,14 @@ export default function Dashboard() {
   }, [searchInput])
 
   // Reset page when filter changes
-  useEffect(() => { setCurrentPage(1) }, [stockFilter])
+  useEffect(() => { setCurrentPage(1) }, [stockFilter, categoryFilter])
+
+  // Fetch categories
+  const { data: categoriesData } = useQuery({
+    queryKey: ['shop-categories'],
+    queryFn: () => api.get('shop/categories/').then((r) => r.data),
+  })
+  const shopCategories = categoriesData || []
 
   // Build query params
   const buildParams = () => {
@@ -37,13 +47,14 @@ export default function Dashboard() {
     if (searchQuery) p.set('search', searchQuery)
     if (stockFilter === 'in_stock') p.set('in_stock', 'true')
     if (stockFilter === 'out_of_stock') p.set('in_stock', 'false')
+    if (categoryFilter !== 'all') p.set('category', categoryFilter)
     p.set('page', String(currentPage))
     p.set('page_size', '12')
     return p.toString()
   }
 
   const { data, isLoading, isFetching } = useQuery({
-    queryKey: ['shop-products', searchQuery, stockFilter, currentPage],
+    queryKey: ['shop-products', searchQuery, stockFilter, categoryFilter, currentPage],
     queryFn: () => api.get(`shop/products/?${buildParams()}`).then((r) => r.data),
     placeholderData: (prev) => prev,
   })
@@ -75,7 +86,7 @@ export default function Dashboard() {
     qc.invalidateQueries({ queryKey: ['shop-products-stats-out'] })
   }
   const handleDelete = (id) => {
-    qc.setQueryData(['shop-products', searchQuery, stockFilter, currentPage], (old) => {
+    qc.setQueryData(['shop-products', searchQuery, stockFilter, categoryFilter, currentPage], (old) => {
       if (!old) return old
       return { ...old, products: old.products?.filter((p) => p.id !== id) }
     })
@@ -89,6 +100,12 @@ export default function Dashboard() {
     productListRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
 
+  const handleCategoriesClose = () => {
+    setShowCategories(false)
+    qc.invalidateQueries({ queryKey: ['shop-categories'] })
+    qc.invalidateQueries({ queryKey: ['shop-products'] })
+  }
+
   // Time-based greeting
   const hour = new Date().getHours()
   const greeting = hour < 12 ? 'Good morning 👋' : hour < 17 ? 'Good afternoon 👋' : 'Good evening 👋'
@@ -100,7 +117,13 @@ export default function Dashboard() {
 
   // Results header text
   const resultsText = () => {
+    const catName = categoryFilter !== 'all'
+      ? shopCategories.find((c) => c.id === categoryFilter)?.name
+      : null
+    if (searchQuery && catName) return `Results for "${searchQuery}" in ${catName} — ${pagination.total} found`
     if (searchQuery) return `Results for "${searchQuery}" — ${pagination.total} found`
+    if (catName && stockFilter !== 'all') return `${catName} · ${stockFilter === 'in_stock' ? 'In Stock' : 'Out of Stock'} — ${pagination.total}`
+    if (catName) return `${catName} · ${pagination.total} items`
     if (stockFilter === 'in_stock') return `${pagination.total} in stock`
     if (stockFilter === 'out_of_stock') return `${pagination.total} out of stock`
     return `Products · ${pagination.total} items`
@@ -110,12 +133,21 @@ export default function Dashboard() {
     <div className="bg-[#F8F8F8] min-h-screen pb-32 max-w-md mx-auto" style={{ animation: 'fadeIn 0.15s ease-out' }}>
       {/* Header */}
       <div className="bg-white px-4 pt-6 pb-4 border-b border-[#F0F0F0]">
-        <div className="flex items-center">
-          <Logo size={40} />
-          <div className="ml-3">
-            <h1 className="text-lg font-bold text-[#0A0A0A]">{shopName}</h1>
-            <p className="text-xs text-[#737373]">{greeting}</p>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center">
+            <Logo size={40} />
+            <div className="ml-3">
+              <h1 className="text-lg font-bold text-[#0A0A0A]">{shopName}</h1>
+              <p className="text-xs text-[#737373]">{greeting}</p>
+            </div>
           </div>
+          <button
+            onClick={() => setShowCategories(true)}
+            className="flex items-center gap-1 bg-[#F8F8F8] border border-[#E5E5E5] rounded-xl px-3 py-1.5 text-xs font-medium text-[#0A0A0A]"
+          >
+            <Tag className="w-3.5 h-3.5" />
+            Categories
+          </button>
         </div>
       </div>
 
@@ -154,7 +186,7 @@ export default function Dashboard() {
           )}
         </div>
 
-        {/* Filter pills */}
+        {/* Stock filter pills */}
         <div className="flex gap-2 mt-2">
           {[
             { key: 'all', label: 'All' },
@@ -166,6 +198,30 @@ export default function Dashboard() {
             </button>
           ))}
         </div>
+
+        {/* Category filter pills — only show if 2+ categories */}
+        {shopCategories.length >= 2 && (
+          <div className="mt-2">
+            <p className="text-[10px] text-[#A3A3A3] mb-1">By category:</p>
+            <div className="flex gap-2 overflow-x-auto no-scrollbar">
+              <button
+                onClick={() => setCategoryFilter('all')}
+                className={pillCls(categoryFilter === 'all')}
+              >
+                All Categories
+              </button>
+              {shopCategories.map((cat) => (
+                <button
+                  key={cat.id}
+                  onClick={() => setCategoryFilter(cat.id)}
+                  className={pillCls(categoryFilter === cat.id)}
+                >
+                  {cat.name}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Results header */}
@@ -193,15 +249,13 @@ export default function Dashboard() {
                 Clear Search
               </button>
             </div>
-          ) : stockFilter !== 'all' ? (
+          ) : stockFilter !== 'all' || categoryFilter !== 'all' ? (
             /* Filter empty state */
             <div className="bg-white rounded-2xl p-8 text-center border border-[#F0F0F0]">
               <Package className="w-10 h-10 text-[#D4D4D4] mx-auto" />
-              <p className="text-sm font-semibold mt-3">
-                No {stockFilter === 'in_stock' ? 'in stock' : 'out of stock'} products
-              </p>
+              <p className="text-sm font-semibold mt-3">No products match this filter</p>
               <button
-                onClick={() => setStockFilter('all')}
+                onClick={() => { setStockFilter('all'); setCategoryFilter('all') }}
                 className="mt-4 border border-[#E5E5E5] rounded-xl px-4 py-2 text-xs font-medium text-[#0A0A0A]"
               >
                 Show all products
@@ -242,6 +296,11 @@ export default function Dashboard() {
       </div>
 
       <BottomNav />
+
+      <CategoriesBottomSheet
+        isOpen={showCategories}
+        onClose={handleCategoriesClose}
+      />
     </div>
   )
 }
