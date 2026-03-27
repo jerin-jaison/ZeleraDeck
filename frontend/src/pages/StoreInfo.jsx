@@ -48,7 +48,8 @@ export default function StoreInfo() {
   }
 
   const shareWhatsApp = () => {
-    const msg = `Browse our catalogue: ${storeUrl}`
+    const ogUrl = shop ? `https://zeleradeck.onrender.com/og/store/${shop.slug}` : ''
+    const msg = `Browse our catalogue: ${ogUrl}`
     window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank')
   }
 

@@ -99,10 +99,10 @@ export default function DashboardProductListItem({ product, onUpdate, onDelete }
 
       {/* Delete bottom sheet */}
       {showDeleteSheet && (
-        <div className="fixed inset-0 z-50" onClick={() => setShowDeleteSheet(false)}>
-          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
+        <div className="fixed inset-0 z-[200]" onClick={() => setShowDeleteSheet(false)}>
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm z-[199]" />
           <div
-            className="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl p-6 max-w-md mx-auto"
+            className="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl px-6 pt-6 pb-24 max-w-md mx-auto z-[200]"
             style={{ animation: 'slideUp 0.25s ease-out' }}
             onClick={(e) => e.stopPropagation()}
           >

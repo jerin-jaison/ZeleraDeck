@@ -258,3 +258,93 @@ class PublicProductDetailView(APIView):
                 'logo_url': shop.logo_url,
             }
         })
+
+
+# ─── OG Preview Views (WhatsApp / Telegram / Twitter) ─────────────────────────
+
+from django.http import HttpResponse
+from django.utils.html import escape
+
+
+def og_store_view(request, slug):
+    """GET /og/store/{slug}/ — OG meta tags for store link previews"""
+    try:
+        shop = Shop.objects.get(slug=slug)
+    except Shop.DoesNotExist:
+        return HttpResponse("<html><body>Not found</body></html>", status=404)
+
+    real_url = f"https://zelera-deck.vercel.app/store/{slug}"
+    image_url = shop.logo_url or "https://zelera-deck.vercel.app/logo2.png"
+    title = escape(f"{shop.name} — Browse our products")
+    description = escape(
+        f"Browse {shop.name}'s product catalogue on ZeleraDeck. "
+        f"Order directly on WhatsApp."
+    )
+
+    html = f"""<!DOCTYPE html>
+<html prefix="og: http://ogp.me/ns#">
+<head>
+  <meta charset="UTF-8">
+  <title>{title}</title>
+  <meta name="description" content="{description}">
+  <meta property="og:title" content="{title}">
+  <meta property="og:description" content="{description}">
+  <meta property="og:image" content="{escape(image_url)}">
+  <meta property="og:image:width" content="400">
+  <meta property="og:image:height" content="400">
+  <meta property="og:url" content="{real_url}">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="ZeleraDeck">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="{title}">
+  <meta name="twitter:description" content="{description}">
+  <meta name="twitter:image" content="{escape(image_url)}">
+  <meta http-equiv="refresh" content="0;url={real_url}">
+</head>
+<body>
+  <p>Redirecting to <a href="{real_url}">{escape(shop.name)}</a>...</p>
+</body>
+</html>"""
+    return HttpResponse(html, content_type="text/html")
+
+
+def og_product_view(request, slug, display_id):
+    """GET /og/store/{slug}/product/{display_id}/ — OG meta tags for product link previews"""
+    try:
+        shop = Shop.objects.get(slug=slug)
+        product = Product.objects.get(shop=shop, display_id=display_id)
+    except (Shop.DoesNotExist, Product.DoesNotExist):
+        return HttpResponse("<html><body>Not found</body></html>", status=404)
+
+    real_url = f"https://zelera-deck.vercel.app/store/{slug}/product/{display_id}"
+    image_url = product.image_url or shop.logo_url or "https://zelera-deck.vercel.app/logo2.png"
+    title = escape(f"{product.name} — ₹{product.price}")
+    description = escape(
+        f"Order {product.name} from {shop.name} on WhatsApp. ID: {product.display_id}"
+    )
+
+    html = f"""<!DOCTYPE html>
+<html prefix="og: http://ogp.me/ns#">
+<head>
+  <meta charset="UTF-8">
+  <title>{title}</title>
+  <meta name="description" content="{description}">
+  <meta property="og:title" content="{title}">
+  <meta property="og:description" content="{description}">
+  <meta property="og:image" content="{escape(image_url)}">
+  <meta property="og:image:width" content="600">
+  <meta property="og:image:height" content="600">
+  <meta property="og:url" content="{real_url}">
+  <meta property="og:type" content="product">
+  <meta property="og:site_name" content="{escape(shop.name)} on ZeleraDeck">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="{title}">
+  <meta name="twitter:description" content="{description}">
+  <meta name="twitter:image" content="{escape(image_url)}">
+  <meta http-equiv="refresh" content="0;url={real_url}">
+</head>
+<body>
+  <p>Redirecting to <a href="{real_url}">{escape(product.name)}</a>...</p>
+</body>
+</html>"""
+    return HttpResponse(html, content_type="text/html")

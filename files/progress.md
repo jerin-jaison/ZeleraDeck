@@ -1,114 +1,47 @@
-# ZeleraDeck — Progress Log
-> What was done, errors encountered, tests run, results. Updated daily.
+# ZeleraDeck — Progress Update (March 27, 2026)
+
+## ✅ FIX 1 — Admin Panel: Edit Phone, Shop Name, Expiry
+
+**Backend** (`accounts/views.py`):
+- `AdminShopEditView` updated with phone stripping (spaces/dashes removed), uniqueness validation with clear error message, ISO8601/YYYY-MM-DD date parsing, null expiry support, and `token_version` increment on phone change to force re-login.
+
+**Frontend** (`AdminShopDetail.jsx`):
+- Full inline edit form added: Shop Name, Phone (10-digit validation + logout warning), Subscription Expiry (with Clear button, expired/expiring-soon/active status badges), Admin Notes, and Reset Password section. Inline error display for duplicate phone.
 
 ---
 
-## 🟢 Status: Phase 3 Complete — Search + Pagination + Admin Dashboard (2026-03-25)
+## ✅ FIX 2 — Product Delete Button Hidden by Bottom Nav
+
+- `Dashboard.jsx`: Bottom padding increased from `pb-24` to `pb-32` (128px clearance)
+- `DashboardProductListItem.jsx`: Delete bottom sheet z-index raised to `z-[200]`, backdrop to `z-[199]`, bottom padding `pb-24` added
+- `EditProduct.jsx`: Delete link section padding increased to `pb-28`, delete sheet z-index fixed to `z-[200]`
 
 ---
 
-### [Phase 3] — Search + Pagination + Admin Dashboard Rebuild (2026-03-25)
+## ✅ FIX 3 — Replace Logo Everywhere
 
-**Backend Changes:**
-- `catalogue/views.py` — Added `?search`, `?page`, `?page_size`, `?in_stock` to `PublicStoreView` and `ShopProductListCreateView`
-- `accounts/views.py` — Added `?page`, `?page_size` to `AdminShopListCreateView`
-- All APIs return `pagination` envelope: `{ total, page, page_size, total_pages, has_next, has_previous }`
-
-**Frontend — Shared:**
-- `src/components/Pagination.jsx` [NEW] — Smart page range with ellipsis, previous/next buttons
-
-**Frontend — Dashboard (Shop Owner):**
-- Search input with 400ms debounce + filter pills (All / In Stock / Out of Stock)
-- Pagination component + empty states
-
-**Frontend — Public Store:**
-- Sticky search bar (client-side filtering) + filter pills
-- API-driven pagination
-
-**Frontend — Admin Panel (6 new pages, replacing old AdminPanel.jsx):**
-- `admin/AdminLayout.jsx` — Sidebar + mobile drawer + password gate (sessionStorage)
-- `admin/AdminDashboard.jsx` — Stats grid + quick actions + recent shops
-- `admin/AdminShops.jsx` — Search + filter + paginated shop cards + delete modal
-- `admin/AdminCreateShop.jsx` — Form + success panel + WhatsApp share
-- `admin/AdminShopDetail.jsx` — 2-column: info/actions + products/notes
-- `admin/AdminSettings.jsx` — MVP session auth info + platform info
-
-**Build:** ✅ `npm run build` passes 0 errors (468kB bundle)
-**Commit:** `7899f9a` — pushed to `main`
+- `logo2.png` copied to `frontend/public/`
+- Created shared `Logo.jsx` component with `size`, `variant` (icon/full/full-stacked), `theme` (dark/light) props
+- Replaced logos in: `Login.jsx`, `AdminLayout.jsx` (sidebar + password gate), `Dashboard.jsx` (header)
+- Updated `index.html`: favicon and apple-touch-icon → `logo2.png`, title → "ZeleraDeck — Your shop. One link."
 
 ---
 
-## Log
+## ✅ FIX 4 — WhatsApp Link Previews (OG Meta Tags)
 
-### [Day 0] — Project Initialisation
-- ✅ claude.md (Project Constitution) created
-- ✅ task_plan.md created with 5-week timeline
-- ✅ findings.md created with library decisions
-- ✅ architecture/ directory created
-- ✅ tools/ directory created
-- ✅ .tmp/ directory created
-- ⏳ Figma wireframes — pending
-- ✅ .env.example — created
+**Backend** (`catalogue/views.py`):
+- `og_store_view` — serves HTML with OG tags (title, description, image) + meta-refresh redirect to React store
+- `og_product_view` — serves HTML with OG tags (product name, price, image) + meta-refresh redirect to React product page
+- Both views are plain Django `HttpResponse` (no DRF auth, fully public)
 
-**Next action:** Team to review claude.md. All 3 members must agree before Phase 1 begins.
+**URL Wiring** (`config/urls.py`):
+- `/og/store/<slug>/` → `og_store_view`
+- `/og/store/<slug>/product/<display_id>/` → `og_product_view`
 
----
-
-### [Day 1] — Phase 1: Link (Connectivity Verification)
-
-**Django Setup**
-- ✅ Virtual environment created: `backend/.venv/`
-- ✅ All packages installed (Django 6.0.3, DRF, SimpleJWT, Cloudinary, CORS, psycopg2, etc.)
-- ✅ `requirements.txt` frozen
-- ✅ Django project `config` created inside `backend/`
-- ✅ `settings.py` configured: dotenv, PostgreSQL, CORS, Cloudinary, JWT (60min/7day)
-- ✅ `config/urls.py` — health check endpoint `/api/health/` added
-- ✅ `tools/test_db.py` and `tools/test_cloudinary.py` copied to `backend/tools/`
-- ✅ `backend/.env` created and filled with real credentials
-
-**DB Test (tools/test_db.py)**
-- ✅ PASS — Connected to PostgreSQL 18.1 on localhost:5432
-- Database: `zeleradeck_db`
-- All 18 Django migrations applied successfully
-
-**Cloudinary Test (tools/test_cloudinary.py)**
-- ✅ PASS — Test image uploaded and cleaned up
-- URL: `https://res.cloudinary.com/de7f6rnco/image/upload/v.../zeleradeck_test_connection.png`
-- Cloud: `de7f6rnco`
-
-**React Setup**
-- ✅ Vite React project created: `frontend/`
-- ✅ All npm packages installed: tailwindcss, @tailwindcss/vite, axios, @tanstack/react-query, react-router-dom, qrcode.react, browser-image-compression
-- ✅ Tailwind CSS v4 configured via `@tailwindcss/vite` plugin
-- ✅ Axios pre-configured with base URL `http://localhost:8000/api/`
-- ✅ Health check component in `App.jsx`
-
-**Health Check Endpoint**
-- ✅ `GET /api/health/` → `{"status": "ok"}` — verified in browser
-- ✅ React app at `http://localhost:5173` displays: **"Backend connected ✅"**
+**Frontend WhatsApp links updated**:
+- `ProductPage.jsx`, `StorePage.jsx`, `StoreInfo.jsx` — link in WhatsApp messages now uses `zeleradeck.onrender.com/og/store/...` for rich link previews
 
 ---
 
-## Error Registry
-> Record every error here with resolution so it never repeats.
-
-| # | Error | Root Cause | Fix | Date |
-|---|---|---|---|---|
-| 1 | `UnicodeEncodeError` in test scripts | Windows terminal (cp1252) can't render emoji characters | Added `sys.stdout.reconfigure(encoding='utf-8')` and replaced emoji with ASCII `[PASS]`/`[FAIL]` | 2026-03-25 |
-| 2 | `npm` blocked by execution policy | PowerShell default policy blocks `.ps1` scripts | `Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned` | 2026-03-25 |
-
----
-
-## Test Results
-> Record every test script result.
-
-| Script | Status | Output | Date |
-|---|---|---|---|
-| tools/test_cloudinary.py | ✅ PASS | Upload to `de7f6rnco`, test image cleaned up | 2026-03-25 |
-| tools/test_auth.py | ⏳ Not run | — | — |
-| tools/test_db.py | ✅ PASS | PostgreSQL 18.1 on localhost:5432 | 2026-03-25 |
-| React health check | ✅ PASS | "Backend connected ✅" at http://localhost:5173 | 2026-03-25 |
-
----
-
-**Phase 1 Complete — All connections verified. 2026-03-25.**
+## Build Status
+- `npm run build` ✅ — 0 errors, built in 696ms

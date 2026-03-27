@@ -83,7 +83,7 @@ export default function EditProduct() {
       {product && <ProductForm initialData={product} onSubmit={handleSubmit} isLoading={loading} />}
 
       {/* Delete link */}
-      <div className="px-4 pb-6 text-center">
+      <div className="px-4 pb-28 text-center">
         <button onClick={() => setShowDeleteSheet(true)} className="text-xs text-[#EF4444] underline">
           Delete this product
         </button>
@@ -112,9 +112,9 @@ export default function EditProduct() {
 
       {/* Delete bottom sheet */}
       {showDeleteSheet && (
-        <div className="fixed inset-0 z-50" onClick={() => setShowDeleteSheet(false)}>
-          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
-          <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl p-6 max-w-md mx-auto"
+        <div className="fixed inset-0 z-[200]" onClick={() => setShowDeleteSheet(false)}>
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm z-[199]" />
+          <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl px-6 pt-6 pb-8 max-w-md mx-auto z-[200]"
             style={{ animation: 'slideUp 0.25s ease-out' }} onClick={(e) => e.stopPropagation()}>
             <h3 className="text-base font-semibold">Delete product?</h3>
             <p className="text-sm text-[#737373] mt-1">{product?.name}</p>

@@ -1,5 +1,6 @@
 import { LayoutGrid, PlusCircle, Link2, LogOut } from 'lucide-react'
 import { useLocation, useNavigate } from 'react-router-dom'
+import { useAuth } from '../hooks/useAuth'
 
 const tabs = [
   { icon: LayoutGrid, label: 'Products', path: '/dashboard' },
@@ -10,6 +11,7 @@ const tabs = [
 export default function BottomNav() {
   const { pathname } = useLocation()
   const navigate = useNavigate()
+  const { logout } = useAuth()
 
   const isActive = (path) => {
     if (path === '/dashboard') return pathname === '/dashboard' || pathname.startsWith('/dashboard/edit')
@@ -17,7 +19,7 @@ export default function BottomNav() {
   }
 
   const handleLogout = () => {
-    localStorage.clear()
+    logout()
     navigate('/login', { replace: true })
   }
 

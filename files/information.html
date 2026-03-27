@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZeleraDesk – Sales Pitch Playbook</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --card: #1a1a26;
+    --border: #2a2a3d;
+    --accent: #6c63ff;
+    --accent2: #ff6b6b;
+    --accent3: #43e97b;
+    --accent4: #f9ca24;
+    --text: #e8e8f0;
+    --muted: #7a7a9a;
+    --glow: rgba(108,99,255,0.15);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  /* HERO */
+  .hero {
+    background: linear-gradient(135deg, #0a0a0f 0%, #12102a 50%, #0a0a0f 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 64px 40px 48px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content:'';
+    position:absolute;
+    top:-80px; left:50%; transform:translateX(-50%);
+    width:600px; height:300px;
+    background: radial-gradient(ellipse, rgba(108,99,255,0.25) 0%, transparent 70%);
+    pointer-events:none;
+  }
+  .hero-badge {
+    display:inline-block;
+    background: rgba(108,99,255,0.15);
+    border: 1px solid rgba(108,99,255,0.4);
+    color: #a89fff;
+    font-size:12px;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    padding:6px 16px;
+    border-radius:20px;
+    margin-bottom:20px;
+  }
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(32px, 5vw, 52px);
+    font-weight:800;
+    line-height:1.15;
+    margin-bottom:16px;
+  }
+  .hero h1 span { color: var(--accent); }
+  .hero p {
+    color: var(--muted);
+    font-size:16px;
+    max-width:560px;
+    margin:0 auto;
+  }
+
+  /* LAYOUT */
+  .container { max-width: 860px; margin:0 auto; padding: 0 24px; }
+  .section { padding: 48px 0 32px; }
+  .section-label {
+    font-family:'Syne',sans-serif;
+    font-size:11px;
+    letter-spacing:3px;
+    text-transform:uppercase;
+    color: var(--accent);
+    margin-bottom:8px;
+  }
+  .section-title {
+    font-family:'Syne',sans-serif;
+    font-size:clamp(22px,3vw,30px);
+    font-weight:700;
+    margin-bottom:28px;
+    line-height:1.2;
+  }
+
+  /* PITCH SCRIPT */
+  .pitch-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius:16px;
+    padding:28px 32px;
+    margin-bottom:16px;
+    position:relative;
+  }
+  .pitch-card::before {
+    content:'';
+    position:absolute;
+    top:0; left:0;
+    width:4px; height:100%;
+    background: var(--accent);
+    border-radius:16px 0 0 16px;
+  }
+  .pitch-card.red::before { background: var(--accent2); }
+  .pitch-card.green::before { background: var(--accent3); }
+  .pitch-card.yellow::before { background: var(--accent4); }
+
+  .pitch-card h3 {
+    font-family:'Syne',sans-serif;
+    font-size:16px;
+    font-weight:700;
+    margin-bottom:10px;
+  }
+  .pitch-card p { color: #c0c0d8; font-size:14.5px; }
+  .pitch-card .script {
+    background: rgba(108,99,255,0.08);
+    border: 1px solid rgba(108,99,255,0.2);
+    border-radius:10px;
+    padding:14px 18px;
+    margin-top:14px;
+    font-style:italic;
+    color: #d4d0ff;
+    font-size:14px;
+    line-height:1.8;
+  }
+  .pitch-card.red .script {
+    background: rgba(255,107,107,0.07);
+    border-color: rgba(255,107,107,0.2);
+    color: #ffd0d0;
+  }
+  .pitch-card.green .script {
+    background: rgba(67,233,123,0.07);
+    border-color: rgba(67,233,123,0.2);
+    color: #c0ffda;
+  }
+  .pitch-card.yellow .script {
+    background: rgba(249,202,36,0.07);
+    border-color: rgba(249,202,36,0.2);
+    color: #fff0b0;
+  }
+
+  /* FOMO TACTICS */
+  .fomo-grid {
+    display:grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap:14px;
+    margin-bottom:24px;
+  }
+  .fomo-item {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius:12px;
+    padding:20px;
+  }
+  .fomo-item .icon { font-size:24px; margin-bottom:10px; }
+  .fomo-item h4 { font-family:'Syne',sans-serif; font-size:14px; font-weight:700; margin-bottom:6px; }
+  .fomo-item p { font-size:13px; color: var(--muted); }
+
+  /* QA ACCORDION */
+  .qa-item {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius:12px;
+    margin-bottom:10px;
+    overflow:hidden;
+  }
+  .qa-q {
+    padding:18px 22px;
+    display:flex;
+    align-items:center;
+    gap:12px;
+    cursor:pointer;
+    user-select:none;
+  }
+  .qa-q:hover { background: rgba(108,99,255,0.06); }
+  .qa-badge {
+    background: rgba(108,99,255,0.15);
+    color: #a89fff;
+    font-size:10px;
+    font-weight:700;
+    letter-spacing:1px;
+    text-transform:uppercase;
+    padding:3px 8px;
+    border-radius:6px;
+    white-space:nowrap;
+  }
+  .qa-q span.qtext {
+    font-weight:500;
+    font-size:14.5px;
+    flex:1;
+  }
+  .qa-arrow { color: var(--muted); font-size:18px; transition:transform 0.25s; }
+  .qa-a {
+    display:none;
+    padding:0 22px 20px 22px;
+    color: #b8b8cc;
+    font-size:14px;
+    line-height:1.8;
+    border-top: 1px solid var(--border);
+    padding-top:16px;
+  }
+  .qa-item.open .qa-a { display:block; }
+  .qa-item.open .qa-arrow { transform:rotate(90deg); }
+
+  /* GROWTH STATS */
+  .stats-row {
+    display:grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap:14px;
+    margin:24px 0;
+  }
+  .stat-box {
+    background: var(--card);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:22px 18px;
+    text-align:center;
+  }
+  .stat-box .num {
+    font-family:'Syne',sans-serif;
+    font-size:32px;
+    font-weight:800;
+    color: var(--accent);
+    display:block;
+  }
+  .stat-box .desc { font-size:12px; color:var(--muted); margin-top:4px; }
+
+  /* CLOSING */
+  .close-banner {
+    background: linear-gradient(135deg, #1a1030 0%, #0f1a2a 100%);
+    border: 1px solid var(--border);
+    border-radius:16px;
+    padding:36px 32px;
+    text-align:center;
+    margin:32px 0 48px;
+  }
+  .close-banner h2 { font-family:'Syne',sans-serif; font-size:24px; font-weight:800; margin-bottom:10px; }
+  .close-banner p { color:var(--muted); font-size:14px; max-width:440px; margin:0 auto; }
+
+  /* DIVIDER */
+  .divider { border:none; border-top:1px solid var(--border); margin:8px 0 32px; }
+
+  /* TAG CHIPS */
+  .chip {
+    display:inline-block;
+    background:rgba(67,233,123,0.1);
+    color:#43e97b;
+    border:1px solid rgba(67,233,123,0.25);
+    border-radius:20px;
+    font-size:11px;
+    font-weight:600;
+    padding:3px 10px;
+    margin:0 4px 4px 0;
+  }
+  .chip.red { background:rgba(255,107,107,0.1); color:var(--accent2); border-color:rgba(255,107,107,0.25); }
+  .chip.yellow { background:rgba(249,202,36,0.1); color:var(--accent4); border-color:rgba(249,202,36,0.25); }
+  .chip.purple { background:rgba(108,99,255,0.1); color:#a89fff; border-color:rgba(108,99,255,0.25); }
+
+  /* HIGHLIGHT */
+  mark {
+    background: rgba(108,99,255,0.2);
+    color: #c4beff;
+    border-radius:3px;
+    padding:1px 5px;
+  }
+
+  @media(max-width:600px){
+    .hero { padding:40px 20px 32px; }
+    .container { padding:0 16px; }
+    .pitch-card { padding:20px; }
+    .stats-row { grid-template-columns:1fr; }
+    .fomo-grid { grid-template-columns:1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge">Sales Playbook</div>
+  <h1>How to Pitch <span>ZeleraDesk</span><br>to Shop Owners</h1>
+  <p>Every script, objection, FOMO tactic, and answer you need — from cold approach to closing the deal.</p>
+</div>
+
+<div class="container">
+
+  <!-- SECTION 1: OPENING PITCH -->
+  <div class="section">
+    <div class="section-label">Step 01</div>
+    <div class="section-title">The Opening Pitch — First 60 Seconds</div>
+    <p style="color:var(--muted);margin-bottom:24px;">You have one minute to make them curious. Don't sell features — sell the <strong style="color:var(--text)">pain they already feel.</strong></p>
+
+    <div class="pitch-card">
+      <h3>🎯 The Problem-First Hook</h3>
+      <p>Start with a question that makes them nod their head. People buy when they feel understood, not when they're impressed.</p>
+      <div class="script">
+        "Bro, tell me something — when a customer visits your website at 11 PM with a doubt about a product, and you're sleeping... what happens? They leave, right? They go buy from someone who answered them. That's exactly what ZeleraDesk fixes."
+      </div>
+    </div>
+
+    <div class="pitch-card green">
+      <h3>💡 The Vision Hook (for growth-minded owners)</h3>
+      <p>If the owner seems ambitious, paint a picture of where they could be.</p>
+      <div class="script">
+        "Imagine your website working like a 24/7 salesman — answering questions, guiding customers, collecting their details — even when you're not there. That's what ZeleraDesk does for your business."
+      </div>
+    </div>
+
+    <div class="pitch-card yellow">
+      <h3>⚡ The Competitor Drop (if they have local rivals)</h3>
+      <p>Mention that their competitor is already doing something similar — even if you don't know for sure, the fear will land.</p>
+      <div class="script">
+        "Most shops in [City] are still catching up. But the ones who set this up early? They're the ones getting the walk-ins AND the online leads. You want to be ahead of that wave, not chasing it."
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- SECTION 2: FOMO TACTICS -->
+  <div class="section">
+    <div class="section-label">Step 02</div>
+    <div class="section-title">FOMO Tactics — Make Them Feel They're Missing Out</div>
+
+    <div class="fomo-grid">
+      <div class="fomo-item">
+        <div class="icon">🔥</div>
+        <h4>Scarcity Close</h4>
+        <p>"We're onboarding only 10 shops in [Area] this month to maintain service quality. 6 slots are already taken."</p>
+      </div>
+      <div class="fomo-item">
+        <div class="icon">🏆</div>
+        <h4>Social Proof Drop</h4>
+        <p>"A textile shop in Kochi set this up 2 months ago — they now get 3–4 WhatsApp leads daily directly from their website. Zero extra ads."</p>
+      </div>
+      <div class="fomo-item">
+        <div class="icon">💸</div>
+        <h4>Cost-of-Waiting</h4>
+        <p>"Every week you wait, you're losing customers who visited your site and left without buying because no one replied. Those aren't coming back."</p>
+      </div>
+      <div class="fomo-item">
+        <div class="icon">📈</div>
+        <h4>Trend Wave</h4>
+        <p>"Online customer engagement is growing 40% every year in Kerala alone. Shops without this will feel it in 2025–26."</p>
+      </div>
+      <div class="fomo-item">
+        <div class="icon">🎁</div>
+        <h4>Early Adopter Reward</h4>
+        <p>"If you join this month, you get setup + first 3 months at a founding member price — we're not offering this once we scale."</p>
+      </div>
+      <div class="fomo-item">
+        <div class="icon">👀</div>
+        <h4>Awareness Play</h4>
+        <p>"Right now you have no way to know how many people visited your website and left. ZeleraDesk makes the invisible visible."</p>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- SECTION 3: WHY ZELERADESK -->
+  <div class="section">
+    <div class="section-label">Step 03</div>
+    <div class="section-title">Why ZeleraDesk? — The Value Proposition</div>
+    <p style="color:var(--muted);margin-bottom:24px;">When they ask "what does it actually do?" — here's how you explain it without sounding technical.</p>
+
+    <div class="stats-row">
+      <div class="stat-box">
+        <span class="num">24/7</span>
+        <div class="desc">Customer support, even when you're sleeping</div>
+      </div>
+      <div class="stat-box">
+        <span class="num">0 ₹</span>
+        <div class="desc">Extra ad spend needed to capture website visitors</div>
+      </div>
+      <div class="stat-box">
+        <span class="num">3x</span>
+        <div class="desc">More leads when chat support is available on a site</div>
+      </div>
+    </div>
+
+    <div class="pitch-card">
+      <h3>🗣️ Simple Explanation Script</h3>
+      <div class="script">
+        "Think of ZeleraDesk like a smart assistant sitting on your website. When a customer lands on your page — maybe they saw your Instagram post or found you on Google — instead of them staring at a number and thinking 'should I call?', a little chat pops up: 'Hi! How can I help you today?'<br><br>
+        They ask their question. They get an answer. They trust you. They buy.<br><br>
+        You wake up in the morning and you see 4 new inquiries waiting. That's what ZeleraDesk does."
+      </div>
+    </div>
+
+    <div class="pitch-card green">
+      <h3>✅ Key Benefits (Say These Simply)</h3>
+      <div style="margin-top:12px;">
+        <span class="chip">Instant reply to visitors</span>
+        <span class="chip">Collect customer name + number</span>
+        <span class="chip">WhatsApp integration</span>
+        <span class="chip">Works on mobile & desktop</span>
+        <span class="chip">No tech knowledge needed</span>
+        <span class="chip">See who visited your site</span>
+        <span class="chip purple">Works 24/7 automatically</span>
+        <span class="chip yellow">One-time easy setup</span>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- SECTION 4: OBJECTIONS & QA -->
+  <div class="section">
+    <div class="section-label">Step 04</div>
+    <div class="section-title">Every Question They'll Ask — With Your Answer</div>
+    <p style="color:var(--muted);margin-bottom:24px;">Click each question to see how to answer it confidently.</p>
+
+    <!-- Q1 -->
+    <div class="qa-item" onclick="toggle(this)">
+      <div class="qa-q">
+        <span class="qa-badge">Objection</span>
+        <span class="qtext">"Nobody visits my website. What's the use?"</span>
+        <span class="qa-arrow">›</span>
+      </div>
+      <div class="qa-a">
+        <strong style="color:var(--text)">Don't defend. Flip it.</strong><br><br>
+        "That's exactly the problem I'm here to solve, bro. Right now you have no idea how many people actually visit — Google Ads, Instagram bio links, WhatsApp forwards all bring people to your site. They're coming, but nothing is there to catch them. ZeleraDesk tells you how many visited and starts converting them.<br><br>
+        Also, we can help you show up on Google Search — once you're there, traffic will come. Let's fix both together."
+      </div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="qa-item" onclick="toggle(this)">
+      <div class="qa-q">
+        <span class="qa-badge">Objection</span>
+        <span class="qtext">"I already have WhatsApp. Why do I need this?"</span>
+        <span class="qa-arrow">›</span>
+      </div>
+      <div class="qa-a">
+        <strong style="color:var(--text)">Acknowledge, then differentiate.</strong><br><br>
+        "WhatsApp is great — but it only works when the customer already knows your number. ZeleraDesk sits on your website before they even decide to contact you. It starts the conversation before they leave. It's the bridge between 'visiting your site' and 'messaging you on WhatsApp.'<br><br>
+        In fact, we can connect ZeleraDesk directly to your WhatsApp — so when someone chats, it pings you there. Best of both worlds."
+      </div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="qa-item" onclick="toggle(this)">
+      <div class="qa-q">
+        <span class="qa-badge">Technical</span>
+        <span class="qtext">"How do I get my website on Google? Google Console la?"</span>
+        <span class="qa-arrow">›</span>
+      </div>
+      <div class="qa-a">
+        <strong style="color:var(--text)">Explain simply, then offer to do it for them.</strong><br><br>
+        "Google Search Console is a free tool from Google that tells Google 'hey, my website exists, please show it in search results.' It's like registering your shop with Google Maps — once you do it, people searching for your type of business can find you.<br><br>
+        We handle the entire setup for you — submit your sitemap, verify your domain, and connect it. You don't need to touch anything technical. Within 2–4 weeks, your site starts appearing in Google search."
+      </div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="qa-item" onclick="toggle(this)">
+      <div class="qa-q">
+        <span class="qa-badge">Objection</span>
+        <span class="qtext">"This is expensive. I can't afford it now."</span>
+        <span class="qa-arrow">›</span>
+      </div>
+      <div class="qa-a">
+        <strong style="color:var(--text)">Reframe cost as an investment, not an expense.</strong><br><br>
+        "I understand. But let me ask — if ZeleraDesk brings you just 2 extra customers a month, does that cover the cost? For most shops, yes, it pays for itself in the first week.<br><br>
+        And right now we have a founding member plan — much lower than what we'll charge once we scale. You're getting in at the best possible price. After this month, this offer is gone."
+      </div>
+    </div>
+
+    <!-- Q5 -->
+    <div class="qa-item" onclick="toggle(this)">
+      <div class="qa-q">
+        <span class="qa-badge">Objection</span>
+        <span class="qtext">"I'm not a tech person. I won't understand how to use it."</span>
+        <span class="qa-arrow">›</span>
+      </div>
+      <div class="qa-a">
+        <strong style="color:var(--text)">Reassure completely — make them feel safe.</strong><br><br>
+        "That's the whole point — you don't need to. We set it up completely. You just open your phone, see the messages, and reply like you'd reply on WhatsApp. That's it.<br><br>
+        Zero coding. Zero complicated dashboard. If you know how to use Instagram, you can use ZeleraDesk. And if you ever get stuck, we're one call away."
+      </div>
+    </div>
+
+    <!-- Q6 -->
+    <div class="qa-item" onclick="toggle(this)">
+      <div class="qa-q">
+        <span class="qa-badge">Concern</span>
+        <span class="qtext">"What if customers ask questions I can't answer automatically?"</span>
+        <span class="qa-arrow">›</span>
+      </div>
+      <div class="qa-a">
+        <strong style="color:var(--text)">Show the hybrid power.</strong><br><br>
+        "Great question. ZeleraDesk handles the common questions automatically — timings, location, pricing range, product availability. But when something needs your personal touch, it instantly hands it over to you.<br><br>
+        You set the answers for routine questions once. For everything else, you take over. It filters out the noise so you only handle the important stuff."
+      </div>
+    </div>
+
+    <!-- Q7 -->
+    <div class="qa-item" onclick="toggle(this)">
+      <div class="qa-q">
+        <span class="qa-badge">Concern</span>
+        <span class="qtext">"How will my business actually grow with this?"</span>
+        <span class="qa-arrow">›</span>
+      </div>
+      <div class="qa-a">
+        <strong style="color:var(--text)">Give a concrete growth journey.</strong><br><br>
+        <strong>Month 1:</strong> ZeleraDesk goes live on your site. You start seeing who's visiting and what they're asking. You understand your customers better than ever.<br><br>
+        <strong>Month 2–3:</strong> Leads start coming in from the website — people who would have left now engage. Your WhatsApp starts getting pings from warm, interested buyers.<br><br>
+        <strong>Month 4+:</strong> Google shows your site in local searches. New customers find you. You're not just relying on word-of-mouth anymore — you have a system that works while you sleep.<br><br>
+        "You go from a shop with a website to a shop with an online presence that actively brings business."
+      </div>
+    </div>
+
+    <!-- Q8 -->
+    <div class="qa-item" onclick="toggle(this)">
+      <div class="qa-q">
+        <span class="qa-badge">Concern</span>
+        <span class="qtext">"Is my customer data safe? Where does it go?"</span>
+        <span class="qa-arrow">›</span>
+      </div>
+      <div class="qa-a">
+        <strong style="color:var(--text)">Be direct and confident.</strong><br><br>
+        "All data is stored securely — only you can see your customers' details. We never share it with anyone. It's your data, fully. We follow standard data security practices, and you can export or delete it anytime.<br><br>
+        Think of it like your own private notebook — we just help you keep it organized."
+      </div>
+    </div>
+
+    <!-- Q9 -->
+    <div class="qa-item" onclick="toggle(this)">
+      <div class="qa-q">
+        <span class="qa-badge">Concern</span>
+        <span class="qtext">"What if I want to stop using it later?"</span>
+        <span class="qa-arrow">›</span>
+      </div>
+      <div class="qa-a">
+        <strong style="color:var(--text)">Remove the fear of commitment.</strong><br><br>
+        "No lock-in. You can pause or cancel anytime — no questions asked, no hidden fees. But honestly, once you see the leads coming in, you won't want to.<br><br>
+        We're confident in the value. That's why we don't need to trap you in a contract."
+      </div>
+    </div>
+
+    <!-- Q10 -->
+    <div class="qa-item" onclick="toggle(this)">
+      <div class="qa-q">
+        <span class="qa-badge">Concern</span>
+        <span class="qtext">"I don't even have a good website. Will this still work?"</span>
+        <span class="qa-arrow">›</span>
+      </div>
+      <div class="qa-a">
+        <strong style="color:var(--text)">Turn it into an upsell or reassurance.</strong><br><br>
+        "ZeleraDesk works on any website — even simple ones. In fact, adding a live chat is one of the fastest ways to make a basic site feel professional and trustworthy.<br><br>
+        If you want, we can also help improve your site alongside this. But even with what you have now, ZeleraDesk will make it work much harder for you."
+      </div>
+    </div>
+
+    <!-- Q11 -->
+    <div class="qa-item" onclick="toggle(this)">
+      <div class="qa-q">
+        <span class="qa-badge">Technical</span>
+        <span class="qtext">"What is Google Search Console and do I need it?"</span>
+        <span class="qa-arrow">›</span>
+      </div>
+      <div class="qa-a">
+        <strong style="color:var(--text)">Give the shop-owner-friendly explanation.</strong><br><br>
+        "Imagine Google is like a massive directory. Google Search Console is how you tell Google: 'Add my shop to your directory.' Without it, Google may not even know your website exists — or it ranks you so low nobody finds you.<br><br>
+        With it set up correctly: when someone in [your city] searches 'best textile shop near me' or 'mobile accessories store in [area]' — your shop appears. That's free advertising, every single day, forever.<br><br>
+        We set it up for you in the onboarding. It takes 2–4 weeks to kick in, but after that — it runs on its own."
+      </div>
+    </div>
+
+    <!-- Q12 -->
+    <div class="qa-item" onclick="toggle(this)">
+      <div class="qa-q">
+        <span class="qa-badge">Stall</span>
+        <span class="qtext">"Let me think about it / I'll call you later."</span>
+        <span class="qa-arrow">›</span>
+      </div>
+      <div class="qa-a">
+        <strong style="color:var(--text)">Don't panic. Isolate the real objection.</strong><br><br>
+        "Of course, take your time. But let me ask — is it the price that's the concern, or are you not sure how it fits your shop? Because depending on what it is, I might have a better option for you right now.<br><br>
+        I'll also send you a quick demo of how it looks on a shop similar to yours — that might make it clearer. What's the best number to send it to?"<br><br>
+        <em style="color:var(--muted)">(Always end with a micro-commitment — getting their number is a win even if they don't sign up today.)</em>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- SECTION 5: CLOSING -->
+  <div class="section">
+    <div class="section-label">Step 05</div>
+    <div class="section-title">The Closing Lines — How to Ask for the Yes</div>
+
+    <div class="pitch-card green">
+      <h3>✅ The Assumptive Close</h3>
+      <p>Act as if it's already decided — only question is how.</p>
+      <div class="script">
+        "So should we do the setup this week or is next week better for you?"
+      </div>
+    </div>
+
+    <div class="pitch-card">
+      <h3>🧠 The Summary Close</h3>
+      <p>Remind them of everything they're getting before asking.</p>
+      <div class="script">
+        "So what you're getting: 24/7 customer chat on your site, Google visibility setup, WhatsApp lead integration, and full support from our team. All for less than the cost of one day's Instagram ad. Are we doing this?"
+      </div>
+    </div>
+
+    <div class="pitch-card red">
+      <h3>🔥 The Urgency Close</h3>
+      <p>For hesitant owners who need a push.</p>
+      <div class="script">
+        "I'll be honest with you — I have one slot left in [City] at the founding price. Once this week ends, it goes to standard pricing. I'd hate for you to pay more for the exact same thing. Shall I block it for you right now?"
+      </div>
+    </div>
+  </div>
+
+  <!-- CLOSING BANNER -->
+  <div class="close-banner">
+    <h2>Remember This One Thing 🎯</h2>
+    <p>Shop owners don't buy features. They buy <strong>time saved, money made, and customers not lost.</strong> Every answer you give should connect back to one of these three.</p>
+  </div>
+
+</div>
+
+<script>
+  function toggle(el) {
+    const isOpen = el.classList.contains('open');
+    document.querySelectorAll('.qa-item').forEach(i => i.classList.remove('open'));
+    if (!isOpen) el.classList.add('open');
+  }
+</script>
+</body>
+</html>

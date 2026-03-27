@@ -7,6 +7,7 @@ from accounts.views import (
     AdminShopEditView,
     AdminShopProductsView,
     AdminStatsView,
+    MaintenanceModeView,
 )
 
 urlpatterns = [
@@ -17,4 +18,5 @@ urlpatterns = [
     path('shops/<uuid:pk>/edit/', AdminShopEditView.as_view(), name='admin-shop-edit'),
     path('shops/<uuid:pk>/products/', AdminShopProductsView.as_view(), name='admin-shop-products'),
     path('stats/', AdminStatsView.as_view(), name='admin-stats'),
+    path('maintenance/', MaintenanceModeView.as_view(), name='admin-maintenance'),
 ]

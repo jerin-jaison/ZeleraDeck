@@ -49,7 +49,7 @@ export default function ProductPage() {
       `🛍️ Product: ${product.name}\n` +
       `🆔 ID: ${product.display_id}\n` +
       `💰 Price: ₹${product.price}\n` +
-      `🔗 Link: https://zelera-deck.vercel.app/store/${slug}/product/${product.display_id}\n\n` +
+      `🔗 Link: https://zeleradeck.onrender.com/og/store/${slug}/product/${product.display_id}\n\n` +
       `Please confirm availability. Thank you!`
     window.open(`https://wa.me/${shop.whatsapp_number}?text=${encodeURIComponent(message)}`, '_blank')
   }

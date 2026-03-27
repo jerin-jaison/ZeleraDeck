@@ -1,10 +1,13 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Eye, EyeOff, AlertCircle } from 'lucide-react'
 import api from '../api/axios'
+import Logo from '../components/Logo'
+import { useAuth } from '../hooks/useAuth'
 
 export default function Login() {
   const navigate = useNavigate()
+  const auth = useAuth()
   const [searchParams] = useSearchParams()
   const reason = searchParams.get('reason')
   const [phone, setPhone] = useState('')
@@ -13,16 +16,22 @@ export default function Login() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
+  // Redirect if already logged in
+  useEffect(() => {
+    if (auth.hydrated && auth.isAuthenticated) {
+      navigate('/dashboard', { replace: true })
+    }
+  }, [auth.hydrated, auth.isAuthenticated])
+
+  if (!auth.hydrated) return null
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
     setLoading(true)
     try {
       const { data } = await api.post('auth/login/', { phone, password })
-      localStorage.setItem('access_token', data.access)
-      localStorage.setItem('refresh_token', data.refresh)
-      localStorage.setItem('shop_name', data.shop_name)
-      localStorage.setItem('slug', data.slug)
+      auth.login(data.access, data.refresh, data.shop_name, data.slug)
       navigate('/dashboard', { replace: true })
     } catch (err) {
       setError(err?.response?.data?.error || 'Login failed. Please try again.')
@@ -35,7 +44,7 @@ export default function Login() {
     <div className="min-h-screen bg-[#0A0A0A] flex flex-col">
       {/* Brand top */}
       <div className="flex-shrink-0 flex flex-col items-center justify-center pt-16 pb-10">
-        <img src="/logo.png" alt="ZeleraDeck" className="w-16 h-16 rounded-2xl object-cover" />
+        <Logo size={56} theme="light" />
         <h1 className="text-2xl font-bold text-white mt-4">ZeleraDeck</h1>
         <p className="text-sm text-white/60 mt-1">Your shop. One link.</p>
       </div>

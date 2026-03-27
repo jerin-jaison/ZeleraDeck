@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { ArrowLeft, Search, X, Trash2, ExternalLink, Package, Eye, EyeOff, Pencil } from 'lucide-react'
+import { ArrowLeft, Search, X, Trash2, ExternalLink, Package, Eye, EyeOff, Pencil, Save } from 'lucide-react'
 import { useToast } from '../../context/ToastContext'
 import { adminApi, timeAgo } from './AdminDashboard'
 import Pagination from '../../components/Pagination'
@@ -9,6 +9,8 @@ import imageCompression from 'browser-image-compression'
 
 const FRONTEND = 'https://zelera-deck.vercel.app'
 function fmtDate(d) { if (!d) return '—'; return new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) }
+function toDateInput(d) { if (!d) return ''; return new Date(d).toISOString().split('T')[0] }
+function daysUntil(d) { if (!d) return null; return Math.ceil((new Date(d) - new Date()) / (1000 * 60 * 60 * 24)) }
 
 export default function AdminShopDetail() {
   const { id } = useParams()
@@ -42,16 +44,26 @@ export default function AdminShopDetail() {
 
   // Actions
   const [toggling, setToggling] = useState(false)
+  const [deleteModal, setDeleteModal] = useState(false)
+  const [deleteName, setDeleteName] = useState('')
+  const [deleting, setDeleting] = useState(false)
+
+  // ── Edit form state ─────────────────────────────────────────────────────
+  const [editing, setEditing] = useState(false)
+  const [editName, setEditName] = useState('')
+  const [editPhone, setEditPhone] = useState('')
+  const [editExpiry, setEditExpiry] = useState('')
+  const [editClearExpiry, setEditClearExpiry] = useState(false)
+  const [editNotes, setEditNotes] = useState('')
+  const [saving, setSaving] = useState(false)
+  const [nameError, setNameError] = useState('')
+  const [phoneError, setPhoneError] = useState('')
+
+  // ── Reset password state ────────────────────────────────────────────────
   const [showResetPw, setShowResetPw] = useState(false)
   const [newPw, setNewPw] = useState('')
   const [showPw, setShowPw] = useState(false)
   const [resetting, setResetting] = useState(false)
-  const [editingNotes, setEditingNotes] = useState(false)
-  const [notesVal, setNotesVal] = useState('')
-  const [savingNotes, setSavingNotes] = useState(false)
-  const [deleteModal, setDeleteModal] = useState(false)
-  const [deleteName, setDeleteName] = useState('')
-  const [deleting, setDeleting] = useState(false)
 
   const refresh = () => { qc.invalidateQueries({ queryKey: ['admin-shops'] }); qc.invalidateQueries({ queryKey: ['admin-shops-all'] }); qc.invalidateQueries({ queryKey: ['admin-stats'] }) }
 
@@ -61,24 +73,84 @@ export default function AdminShopDetail() {
     catch { showToast('Failed', 'error') }
     finally { setToggling(false) }
   }
+
   const handleResetPw = async () => {
     if (!newPw || newPw.length < 6) { showToast('Min 6 characters', 'error'); return }
     setResetting(true)
-    try { await adminApi.patch(`admin/shops/${id}/reset-password/`, { new_password: newPw }); showToast('Password reset'); setShowResetPw(false); setNewPw('') }
+    try { await adminApi.patch(`admin/shops/${id}/reset-password/`, { new_password: newPw }); showToast('Password reset — shop owner logged out'); setShowResetPw(false); setNewPw('') }
     catch { showToast('Failed', 'error') }
     finally { setResetting(false) }
   }
-  const handleSaveNotes = async () => {
-    setSavingNotes(true)
-    try { await adminApi.patch(`admin/shops/${id}/edit/`, { admin_notes: notesVal }); refresh(); setEditingNotes(false); showToast('Notes saved') }
-    catch { showToast('Failed', 'error') }
-    finally { setSavingNotes(false) }
-  }
+
   const handleDelete = async () => {
     setDeleting(true)
     try { await adminApi.delete(`admin/shops/${id}/`); refresh(); showToast('Shop deleted'); navigate('/admin-panel/shops') }
     catch { showToast('Failed', 'error') }
     finally { setDeleting(false) }
+  }
+
+  // ── Start editing ───────────────────────────────────────────────────────
+  const startEditing = () => {
+    setEditName(shop.name || '')
+    setEditPhone(shop.phone || '')
+    setEditExpiry(toDateInput(shop.expires_at))
+    setEditClearExpiry(false)
+    setEditNotes(shop.admin_notes || '')
+    setNameError('')
+    setPhoneError('')
+    setEditing(true)
+  }
+
+  // ── Save edit ───────────────────────────────────────────────────────────
+  const handleSaveEdit = async () => {
+    // Validate
+    setNameError('')
+    setPhoneError('')
+
+    let hasError = false
+    if (!editName.trim()) { setNameError('Shop name is required'); hasError = true }
+    const cleanPhone = editPhone.replace(/[\s-]/g, '')
+    if (!cleanPhone || !/^\d{10}$/.test(cleanPhone)) { setPhoneError('Phone must be 10 digits'); hasError = true }
+    if (hasError) return
+
+    setSaving(true)
+    const payload = {
+      name: editName.trim(),
+      phone: cleanPhone,
+      admin_notes: editNotes,
+    }
+
+    // Only send expires_at if the user changed it
+    const originalExpiry = toDateInput(shop.expires_at)
+    if (editClearExpiry) {
+      payload.expires_at = null
+    } else if (editExpiry && editExpiry !== originalExpiry) {
+      payload.expires_at = `${editExpiry}T00:00:00Z`
+    } else if (!editExpiry && originalExpiry) {
+      // User cleared the date input manually (without clicking "Clear expiry")
+      payload.expires_at = null
+    }
+
+    const phoneChanged = cleanPhone !== shop.phone
+
+    try {
+      await adminApi.patch(`admin/shops/${id}/edit/`, payload)
+      refresh()
+      setEditing(false)
+      showToast('Shop updated successfully')
+      if (phoneChanged) {
+        showToast('Phone changed — shop owner has been logged out', 'success')
+      }
+    } catch (err) {
+      const errMsg = err?.response?.data?.error || 'Failed to save'
+      if (errMsg.toLowerCase().includes('phone')) {
+        setPhoneError(errMsg)
+      } else {
+        showToast(errMsg, 'error')
+      }
+    } finally {
+      setSaving(false)
+    }
   }
 
   if (shopLoading) {
@@ -104,6 +176,9 @@ export default function AdminShopDetail() {
     { l: 'Expires', v: shop.expires_at ? fmtDate(shop.expires_at) : 'No expiry' },
     { l: 'Products', v: shop.product_count },
   ]
+
+  // Expiry status for edit form
+  const editExpiryDays = editExpiry ? daysUntil(`${editExpiry}T00:00:00Z`) : null
 
   return (
     <div style={{ animation: 'fadeIn 0.15s ease-out' }}>
@@ -156,25 +231,10 @@ export default function AdminShopDetail() {
               {toggling ? '...' : shop.is_active ? 'Disable Store' : 'Enable Store'}
             </button>
 
-            <button onClick={() => { setShowResetPw(!showResetPw); setNewPw('') }}
-              className="w-full mb-2 border border-[#E5E5E5] rounded-xl py-3 text-sm font-medium">
-              Reset Password
+            <button onClick={() => editing ? setEditing(false) : startEditing()}
+              className="w-full mb-2 border border-[#E5E5E5] rounded-xl py-3 text-sm font-medium flex items-center justify-center gap-1.5">
+              <Pencil className="w-3.5 h-3.5" /> {editing ? 'Cancel Editing' : 'Edit Shop Details'}
             </button>
-            {showResetPw && (
-              <div className="mb-2 p-3 bg-[#F8F8F8] rounded-xl">
-                <div className="relative">
-                  <input type={showPw ? 'text' : 'password'} value={newPw} onChange={(e) => setNewPw(e.target.value)} placeholder="New password (min 6)"
-                    className="w-full border border-[#E5E5E5] rounded-lg px-3 py-2 text-sm pr-8 focus:outline-none focus:ring-2 focus:ring-[#111111]" />
-                  <button type="button" onClick={() => setShowPw(!showPw)} className="absolute right-2 top-1/2 -translate-y-1/2">
-                    {showPw ? <EyeOff className="w-3.5 h-3.5 text-[#A3A3A3]" /> : <Eye className="w-3.5 h-3.5 text-[#A3A3A3]" />}
-                  </button>
-                </div>
-                <button onClick={handleResetPw} disabled={resetting}
-                  className="w-full mt-2 bg-[#111111] text-white rounded-lg py-2 text-xs font-medium disabled:opacity-50">
-                  {resetting ? 'Saving...' : 'Set Password'}
-                </button>
-              </div>
-            )}
 
             <a href={`${FRONTEND}/store/${shop.slug}`} target="_blank" rel="noopener noreferrer"
               className="w-full mb-2 border border-[#E5E5E5] rounded-xl py-3 text-sm font-medium flex items-center justify-center gap-1.5">
@@ -190,6 +250,126 @@ export default function AdminShopDetail() {
 
         {/* RIGHT COLUMN */}
         <div className="lg:col-span-2 space-y-4">
+
+          {/* ── Edit Panel ─────────────────────────────────────────────── */}
+          {editing && (
+            <div className="bg-white rounded-2xl p-5 border border-[#F0F0F0]" style={{ animation: 'fadeIn 0.15s ease-out' }}>
+              <p className="text-sm font-semibold mb-4">Edit Shop Details</p>
+              <div className="space-y-4">
+
+                {/* ① Shop Name */}
+                <div>
+                  <label className="text-xs font-medium text-[#737373] mb-1 block">Shop Name</label>
+                  <input
+                    type="text"
+                    value={editName}
+                    onChange={(e) => { setEditName(e.target.value); setNameError('') }}
+                    className="w-full border border-[#E5E5E5] rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#111111]"
+                  />
+                  {nameError && <p className="text-xs text-[#EF4444] mt-1">{nameError}</p>}
+                </div>
+
+                {/* ② Phone Number */}
+                <div>
+                  <label className="text-xs font-medium text-[#737373] mb-1 block">Phone Number</label>
+                  <input
+                    type="tel"
+                    value={editPhone}
+                    onChange={(e) => { setEditPhone(e.target.value); setPhoneError('') }}
+                    className="w-full border border-[#E5E5E5] rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#111111]"
+                  />
+                  <p className="text-[10px] text-[#A3A3A3] mt-1">Changing the phone number will log the shop owner out.</p>
+                  {phoneError && <p className="text-xs text-[#EF4444] mt-1">{phoneError}</p>}
+                </div>
+
+                {/* ③ Subscription Expiry */}
+                <div>
+                  <div className="flex justify-between items-center mb-1">
+                    <label className="text-xs font-medium text-[#737373]">Subscription Expiry</label>
+                    <button
+                      type="button"
+                      onClick={() => { setEditExpiry(''); setEditClearExpiry(true) }}
+                      className="text-[10px] text-[#A3A3A3] underline cursor-pointer"
+                    >
+                      Clear expiry
+                    </button>
+                  </div>
+                  <input
+                    type="date"
+                    value={editClearExpiry ? '' : editExpiry}
+                    onChange={(e) => { setEditExpiry(e.target.value); setEditClearExpiry(false) }}
+                    className="w-full border border-[#E5E5E5] rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#111111]"
+                  />
+                  {editClearExpiry && (
+                    <p className="text-[10px] text-[#A3A3A3] mt-1">Expiry will be cleared on save.</p>
+                  )}
+                  {!editClearExpiry && editExpiry && editExpiryDays !== null && (
+                    editExpiryDays < 0 ? (
+                      <div className="bg-[#FEE2E2] rounded-xl p-2 mt-1">
+                        <p className="text-xs text-[#991B1B]">⚠ This shop's subscription has expired.</p>
+                      </div>
+                    ) : editExpiryDays <= 7 ? (
+                      <div className="bg-[#FEF3C7] rounded-xl p-2 mt-1">
+                        <p className="text-xs text-[#92400E]">Expiring soon — {editExpiryDays} days remaining.</p>
+                      </div>
+                    ) : (
+                      <p className="text-[10px] text-[#A3A3A3] mt-1">Active until {new Date(editExpiry).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
+                    )
+                  )}
+                </div>
+
+                {/* ④ Admin Notes */}
+                <div>
+                  <label className="text-xs font-medium text-[#737373] mb-1 block">Admin Notes</label>
+                  <textarea
+                    value={editNotes}
+                    onChange={(e) => setEditNotes(e.target.value)}
+                    rows={3}
+                    className="w-full border border-[#E5E5E5] rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#111111] resize-none"
+                    placeholder="Internal notes (not visible to shop owner)"
+                  />
+                </div>
+
+                {/* Save button */}
+                <button
+                  onClick={handleSaveEdit}
+                  disabled={saving}
+                  className="w-full bg-[#0A0A0A] text-white rounded-xl py-3.5 text-sm font-semibold disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  {saving ? (
+                    <><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> Saving...</>
+                  ) : (
+                    <><Save className="w-4 h-4" /> Save Changes</>
+                  )}
+                </button>
+
+                {/* Divider */}
+                <div className="border-t border-[#F0F0F0] pt-4">
+                  {/* ⑤ Reset Password */}
+                  <button onClick={() => { setShowResetPw(!showResetPw); setNewPw('') }}
+                    className="w-full border border-[#E5E5E5] rounded-xl py-3 text-sm font-medium">
+                    Reset Password
+                  </button>
+                  {showResetPw && (
+                    <div className="mt-2 p-3 bg-[#F8F8F8] rounded-xl">
+                      <div className="relative">
+                        <input type={showPw ? 'text' : 'password'} value={newPw} onChange={(e) => setNewPw(e.target.value)} placeholder="New password (min 6)"
+                          className="w-full border border-[#E5E5E5] rounded-lg px-3 py-2 text-sm pr-8 focus:outline-none focus:ring-2 focus:ring-[#111111]" />
+                        <button type="button" onClick={() => setShowPw(!showPw)} className="absolute right-2 top-1/2 -translate-y-1/2">
+                          {showPw ? <EyeOff className="w-3.5 h-3.5 text-[#A3A3A3]" /> : <Eye className="w-3.5 h-3.5 text-[#A3A3A3]" />}
+                        </button>
+                      </div>
+                      <button onClick={handleResetPw} disabled={resetting}
+                        className="w-full mt-2 bg-[#111111] text-white rounded-lg py-2 text-xs font-medium disabled:opacity-50">
+                        {resetting ? 'Saving...' : 'Set Password'}
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Products */}
           <div className="bg-white rounded-2xl p-5 border border-[#F0F0F0]">
             <p className="text-sm font-semibold mb-4">Products ({shop.product_count})</p>
@@ -240,37 +420,25 @@ export default function AdminShopDetail() {
             )}
           </div>
 
-          {/* Admin Notes */}
-          <div className="bg-white rounded-2xl p-5 border border-[#F0F0F0]">
-            <div className="flex justify-between items-center mb-3">
-              <p className="text-sm font-semibold">Internal Notes</p>
-              {!editingNotes && (
-                <button onClick={() => { setEditingNotes(true); setNotesVal(shop.admin_notes || '') }}>
+          {/* Admin Notes (read-only when not editing) */}
+          {!editing && (
+            <div className="bg-white rounded-2xl p-5 border border-[#F0F0F0]">
+              <div className="flex justify-between items-center mb-3">
+                <p className="text-sm font-semibold">Internal Notes</p>
+                <button onClick={startEditing}>
                   <Pencil className="w-3.5 h-3.5 text-[#A3A3A3] hover:text-[#0A0A0A]" />
                 </button>
+              </div>
+              {shop.admin_notes ? (
+                <p className="text-sm text-[#737373]">{shop.admin_notes}</p>
+              ) : (
+                <div>
+                  <p className="text-xs text-[#737373]">No notes yet</p>
+                  <button onClick={startEditing} className="text-xs underline text-[#0A0A0A] mt-1">Add note</button>
+                </div>
               )}
             </div>
-            {editingNotes ? (
-              <>
-                <textarea value={notesVal} onChange={(e) => setNotesVal(e.target.value)} rows={3}
-                  className="w-full border border-[#E5E5E5] rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#111111] resize-none" />
-                <div className="flex gap-2 mt-2">
-                  <button onClick={() => setEditingNotes(false)} className="text-xs text-[#737373]">Cancel</button>
-                  <button onClick={handleSaveNotes} disabled={savingNotes}
-                    className="text-xs font-medium bg-[#111111] text-white px-4 py-1.5 rounded-lg disabled:opacity-50">
-                    {savingNotes ? 'Saving...' : 'Save'}
-                  </button>
-                </div>
-              </>
-            ) : shop.admin_notes ? (
-              <p className="text-sm text-[#737373]">{shop.admin_notes}</p>
-            ) : (
-              <div>
-                <p className="text-xs text-[#737373]">No notes yet</p>
-                <button onClick={() => { setEditingNotes(true); setNotesVal('') }} className="text-xs underline text-[#0A0A0A] mt-1">Add note</button>
-              </div>
-            )}
-          </div>
+          )}
         </div>
       </div>
 

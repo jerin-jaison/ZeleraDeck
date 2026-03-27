@@ -80,6 +80,73 @@ class LoginView(APIView):
         }, status=status.HTTP_200_OK)
 
 
+class RefreshTokenView(APIView):
+    """POST /api/auth/refresh/ — refresh access token using refresh token"""
+    authentication_classes = []
+    permission_classes = []
+
+    def post(self, request):
+        refresh_str = request.data.get('refresh')
+        if not refresh_str:
+            return Response(
+                {'error': 'Refresh token is required'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            from rest_framework_simplejwt.tokens import RefreshToken
+            old_refresh = RefreshToken(refresh_str)
+        except Exception:
+            return Response(
+                {'detail': 'Token is invalid or expired'},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+
+        shop_id = old_refresh.get('shop_id')
+        if not shop_id:
+            return Response(
+                {'detail': 'Token is invalid or expired'},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+
+        try:
+            shop = Shop.objects.get(pk=shop_id)
+        except Shop.DoesNotExist:
+            return Response(
+                {'detail': 'Token is invalid or expired'},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+
+        # Check token_version — force logout if password changed or shop disabled
+        token_version_in_token = old_refresh.get('token_version', 0)
+        if token_version_in_token != shop.token_version:
+            return Response(
+                {'detail': 'Session expired. Please log in again.'},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+
+        # Check if shop is still active
+        if not shop.is_active:
+            return Response(
+                {'detail': 'Your store has been deactivated. Contact support.'},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+
+        # Check subscription expiry
+        if shop.expires_at and shop.expires_at < timezone.now():
+            return Response(
+                {'detail': 'Your subscription has expired. Contact support.'},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+
+        # Generate new access token with current shop data
+        tokens = get_tokens_for_shop(shop)
+        return Response({
+            'access': tokens['access'],
+            'shop_name': shop.name,
+            'slug': shop.slug,
+        })
+
 # ─── Admin Views ─────────────────────────────────────────────────────────────
 
 class AdminShopListCreateView(APIView):
@@ -246,32 +313,67 @@ class AdminShopEditView(APIView):
             return Response({'error': 'Shop not found'}, status=status.HTTP_404_NOT_FOUND)
 
         data = request.data
+        phone_changed = False
 
-        if 'name' in data and data['name'].strip():
-            shop.name = data['name'].strip()
+        # ── Name ──────────────────────────────────────────────────────────
+        if 'name' in data:
+            name_val = (data['name'] or '').strip()
+            if name_val and name_val != shop.name:
+                shop.name = name_val
+                shop.regenerate_slug()  # Update slug to match new name
 
-        if 'phone' in data and data['phone'].strip():
-            new_phone = data['phone'].strip()
-            if new_phone != shop.phone and Shop.objects.filter(phone=new_phone).exists():
-                return Response(
-                    {'error': 'A shop with this phone already exists'},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-            shop.phone = new_phone
+        # ── Phone ─────────────────────────────────────────────────────────
+        if 'phone' in data:
+            raw_phone = (data['phone'] or '').strip()
+            # Strip spaces and dashes
+            new_phone = raw_phone.replace(' ', '').replace('-', '')
+            if new_phone:
+                if new_phone != shop.phone:
+                    if Shop.objects.filter(phone=new_phone).exclude(pk=pk).exists():
+                        return Response(
+                            {'error': 'This phone number is already used by another shop.'},
+                            status=status.HTTP_400_BAD_REQUEST
+                        )
+                    phone_changed = True
+                shop.phone = new_phone
 
+        # ── Admin Notes ───────────────────────────────────────────────────
         if 'admin_notes' in data:
             shop.admin_notes = data['admin_notes'] or ''
 
+        # ── Expires At ────────────────────────────────────────────────────
         if 'expires_at' in data:
-            shop.expires_at = data['expires_at'] or None
+            expires_val = data['expires_at']
+            if expires_val is None or expires_val == '' or expires_val == 'null':
+                shop.expires_at = None
+            else:
+                try:
+                    # Accept YYYY-MM-DD or full ISO8601
+                    date_str = str(expires_val).strip()
+                    if 'T' in date_str:
+                        parsed = datetime.fromisoformat(date_str.replace('Z', '+00:00'))
+                    else:
+                        parsed = datetime.strptime(date_str, '%Y-%m-%d').replace(
+                            tzinfo=dt_timezone.utc
+                        )
+                    shop.expires_at = parsed
+                except (ValueError, TypeError):
+                    return Response(
+                        {'error': 'Invalid date format. Use YYYY-MM-DD.'},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
 
-        # Logo upload (multipart)
+        # ── Logo upload (multipart) ───────────────────────────────────────
         logo_file = request.FILES.get('logo')
         if logo_file:
             try:
                 shop.logo_url = upload_shop_logo(logo_file, shop.slug)
             except CloudinaryUploadError as e:
                 return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+        # ── Save ──────────────────────────────────────────────────────────
+        if phone_changed:
+            shop.token_version += 1
 
         shop.save()
 
@@ -319,4 +421,31 @@ class AdminStatsView(APIView):
                 expires_at__lte=seven_days,
                 is_active=True,
             ).count(),
+        })
+
+
+class MaintenanceModeView(APIView):
+    """GET + POST /api/admin/maintenance/ — toggle maintenance mode"""
+    authentication_classes = []
+    permission_classes = [IsAdminSecret]
+
+    def get(self, request):
+        from accounts.site_settings import SiteSettings
+        settings = SiteSettings.get()
+        return Response({
+            'maintenance': settings.maintenance_mode,
+            'message': settings.maintenance_message,
+        })
+
+    def post(self, request):
+        from accounts.site_settings import SiteSettings
+        settings = SiteSettings.get()
+        if 'maintenance' in request.data:
+            settings.maintenance_mode = bool(request.data['maintenance'])
+        if 'message' in request.data and request.data['message']:
+            settings.maintenance_message = request.data['message']
+        settings.save()
+        return Response({
+            'maintenance': settings.maintenance_mode,
+            'message': settings.maintenance_message,
         })

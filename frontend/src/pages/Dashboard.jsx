@@ -6,6 +6,7 @@ import BottomNav from '../components/BottomNav'
 import DashboardProductListItem from '../components/DashboardProductListItem'
 import SkeletonListItem from '../components/SkeletonListItem'
 import Pagination from '../components/Pagination'
+import Logo from '../components/Logo'
 
 export default function Dashboard() {
   const qc = useQueryClient()
@@ -106,13 +107,11 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="bg-[#F8F8F8] min-h-screen pb-24 max-w-md mx-auto" style={{ animation: 'fadeIn 0.15s ease-out' }}>
+    <div className="bg-[#F8F8F8] min-h-screen pb-32 max-w-md mx-auto" style={{ animation: 'fadeIn 0.15s ease-out' }}>
       {/* Header */}
       <div className="bg-white px-4 pt-6 pb-4 border-b border-[#F0F0F0]">
         <div className="flex items-center">
-          <div className="w-10 h-10 rounded-xl bg-[#0A0A0A] flex items-center justify-center flex-shrink-0">
-            <span className="text-white text-sm font-bold">{shopName.charAt(0).toUpperCase()}</span>
-          </div>
+          <Logo size={40} />
           <div className="ml-3">
             <h1 className="text-lg font-bold text-[#0A0A0A]">{shopName}</h1>
             <p className="text-xs text-[#737373]">{greeting}</p>
