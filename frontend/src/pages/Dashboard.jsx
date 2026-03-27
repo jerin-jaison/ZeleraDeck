@@ -199,8 +199,8 @@ export default function Dashboard() {
           ))}
         </div>
 
-        {/* Category filter pills — only show if 2+ categories */}
-        {shopCategories.length >= 2 && (
+        {/* Category filter pills — show if any categories exist */}
+        {shopCategories.length >= 1 && (
           <div className="mt-2">
             <p className="text-[10px] text-[#A3A3A3] mb-1">By category:</p>
             <div className="flex gap-2 overflow-x-auto no-scrollbar">
@@ -208,7 +208,7 @@ export default function Dashboard() {
                 onClick={() => setCategoryFilter('all')}
                 className={pillCls(categoryFilter === 'all')}
               >
-                All Categories
+                All Products
               </button>
               {shopCategories.map((cat) => (
                 <button

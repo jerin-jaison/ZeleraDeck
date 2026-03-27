@@ -199,14 +199,14 @@ export default function StorePage() {
           ))}
         </div>
 
-        {/* Category filter pills — only show if 2+ categories */}
-        {shopCategories.length >= 2 && (
+        {/* Category filter pills — show if any categories exist */}
+        {shopCategories.length >= 1 && (
           <div className="flex gap-2 mt-2 overflow-x-auto no-scrollbar">
             <button
               onClick={() => setCategoryFilter('all')}
               className={pillCls(categoryFilter === 'all')}
             >
-              All
+              All Products
             </button>
             {shopCategories.map((cat) => (
               <button

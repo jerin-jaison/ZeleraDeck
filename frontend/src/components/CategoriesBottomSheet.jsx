@@ -4,7 +4,7 @@ import api from '../api/axios'
 import { useToast } from '../context/ToastContext'
 
 export default function CategoriesBottomSheet({ isOpen, onClose }) {
-  const { showToast } = useToast()
+  const showToast = useToast()
   const [categories, setCategories] = useState([])
   const [loading, setLoading] = useState(true)
   const [newName, setNewName] = useState('')

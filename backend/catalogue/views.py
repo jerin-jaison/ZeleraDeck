@@ -216,7 +216,7 @@ class ShopProductListCreateView(APIView):
 
 
 class ShopProductDetailView(APIView):
-    """PATCH + DELETE /api/shop/products/{id}/"""
+    """GET + PATCH + DELETE /api/shop/products/{id}/"""
     authentication_classes = [ShopJWTAuthentication]
 
     def _get_product(self, pk, shop):
@@ -229,6 +229,12 @@ class ShopProductDetailView(APIView):
             return None, Response({'error': 'Forbidden'}, status=status.HTTP_403_FORBIDDEN)
 
         return product, None
+
+    def get(self, request, pk):
+        product, err = self._get_product(pk, request.user)
+        if err:
+            return err
+        return Response(ProductSerializer(product).data)
 
     def patch(self, request, pk):
         product, err = self._get_product(pk, request.user)
@@ -345,10 +351,8 @@ class PublicStoreView(APIView):
         paginator = Paginator(products, page_size)
         page_obj = paginator.get_page(page)
 
-        # Categories with at least 1 product
-        categories = shop.categories.filter(
-            products__isnull=False
-        ).distinct().order_by('name')
+        # All categories for this shop (including empty ones)
+        categories = shop.categories.all().order_by('name')
 
         return Response({
             'is_active': True,
