@@ -19,10 +19,17 @@ SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-change-me-in-dot-env")
 
 DEBUG = os.getenv("DEBUG", "True") == "True"
 
-ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
+ALLOWED_HOSTS = [
+    h.strip()
+    for h in os.getenv(
+        "ALLOWED_HOSTS",
+        "localhost,127.0.0.1",
+    ).split(",")
+    if h.strip()
+]
 
 # Frontend canonical URL used for building public shop links
-FRONTEND_URL = os.getenv("FRONTEND_URL", "https://zeleralink.com")
+FRONTEND_URL = os.getenv("FRONTEND_URL", "https://zeleradeck.com")
 
 # ─── Installed Apps ───────────────────────────────────────────────────────────
 
@@ -108,15 +115,32 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # ─── CORS ─────────────────────────────────────────────────────────────────────
 
-CORS_ALLOWED_ORIGINS = os.getenv(
-    "CORS_ALLOWED_ORIGINS", "http://localhost:5173"
-).split(",")
+# Production origins come from the env var (Render/Vercel URLs — no localhost).
+# Localhost URLs are appended here in code so Render's env parser never touches
+# them and strips the http:// scheme (which causes corsheaders.E013).
+_cors_env = [
+    o.strip()
+    for o in os.getenv("CORS_ALLOWED_ORIGINS", "").split(",")
+    if o.strip()
+]
+CORS_ALLOWED_ORIGINS = _cors_env + [
+    "http://localhost:5173",
+    "http://localhost:5174",
+]
 
-# CSRF trusted origins — required for POST/PUT/PATCH requests from the frontend
-CSRF_TRUSTED_ORIGINS = os.getenv(
-    "CSRF_TRUSTED_ORIGINS",
-    "https://zeleralink.com,https://www.zeleralink.com"
-).split(",")
+# CSRF trusted origins — required for POST/PUT/PATCH requests from the frontend.
+# Same pattern: production values from env, no trailing slashes.
+_csrf_env = [
+    o.strip()
+    for o in os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",")
+    if o.strip()
+]
+# Ensure the production domains are always present even if the env var is unset.
+_csrf_defaults = [
+    "https://zeleradeck.com",
+    "https://www.zeleradeck.com",
+]
+CSRF_TRUSTED_ORIGINS = _csrf_env if _csrf_env else _csrf_defaults
 
 # Allow the X-Admin-Key custom header used by the admin panel
 from corsheaders.defaults import default_headers
