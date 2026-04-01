@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { Package, Search, X, SearchX, Tag } from 'lucide-react'
+import { Package, Search, X, SearchX, Tag, Filter } from 'lucide-react'
 import api from '../api/axios'
 import BottomNav from '../components/BottomNav'
 import DashboardProductListItem from '../components/DashboardProductListItem'
@@ -21,6 +21,7 @@ export default function Dashboard() {
   const [categoryFilter, setCategoryFilter] = useState('all')
   const [currentPage, setCurrentPage] = useState(1)
   const [showCategories, setShowCategories] = useState(false)
+  const [showFilters, setShowFilters] = useState(false)
 
   // Debounce search input
   useEffect(() => {
@@ -179,59 +180,76 @@ export default function Dashboard() {
 
       {/* Search bar */}
       <div className="px-4 mt-4">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#A3A3A3]" />
-          <input
-            type="text"
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
-            placeholder="Search products..."
-            className="w-full pl-9 pr-9 py-3 border border-[#E5E5E5] rounded-2xl bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]"
-          />
-          {searchInput && (
-            <button
-              onClick={() => { setSearchInput(''); setSearchQuery('') }}
-              className="absolute right-3 top-1/2 -translate-y-1/2"
-            >
-              <X className="w-4 h-4 text-[#A3A3A3]" />
-            </button>
-          )}
-        </div>
-
-        {/* Stock filter pills */}
-        <div className="flex gap-2 mt-2">
-          {[
-            { key: 'all', label: 'All' },
-            { key: 'in_stock', label: 'In Stock' },
-            { key: 'out_of_stock', label: 'Out of Stock' },
-          ].map(({ key, label }) => (
-            <button key={key} onClick={() => setStockFilter(key)} className={pillCls(stockFilter === key)}>
-              {label}
-            </button>
-          ))}
-        </div>
-
-        {/* Category filter pills — show if any categories exist */}
-        {shopCategories.length >= 1 && (
-          <div className="mt-2">
-            <p className="text-[10px] text-[#A3A3A3] mb-1">By category:</p>
-            <div className="flex gap-2 overflow-x-auto no-scrollbar">
+        <div className="flex gap-2">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#A3A3A3]" />
+            <input
+              type="text"
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              placeholder="Search products..."
+              className="w-full pl-9 pr-9 py-3 border border-[#E5E5E5] rounded-2xl bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#0A0A0A]"
+            />
+            {searchInput && (
               <button
-                onClick={() => setCategoryFilter('all')}
-                className={pillCls(categoryFilter === 'all')}
+                onClick={() => { setSearchInput(''); setSearchQuery('') }}
+                className="absolute right-3 top-1/2 -translate-y-1/2"
               >
-                All Products
+                <X className="w-4 h-4 text-[#A3A3A3]" />
               </button>
-              {shopCategories.map((cat) => (
-                <button
-                  key={cat.id}
-                  onClick={() => setCategoryFilter(cat.id)}
-                  className={pillCls(categoryFilter === cat.id)}
-                >
-                  {cat.name}
+            )}
+          </div>
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            className={`flex-shrink-0 flex items-center justify-center w-12 h-12 rounded-2xl border transition-colors ${
+              showFilters || stockFilter !== 'all' || categoryFilter !== 'all'
+                ? 'bg-[#0A0A0A] border-[#0A0A0A] text-white'
+                : 'bg-white border-[#E5E5E5] text-[#0A0A0A]'
+            }`}
+          >
+            <Filter className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Filters Panel */}
+        {showFilters && (
+          <div className="mt-3 p-3 bg-[#F8F8F8] border border-[#E5E5E5] rounded-2xl animate-in slide-in-from-top-2 fade-in duration-200">
+            <p className="text-[10px] font-medium text-[#737373] uppercase tracking-wider mb-2">Availability</p>
+            <div className="flex gap-2">
+              {[
+                { key: 'all', label: 'All' },
+                { key: 'in_stock', label: 'In Stock' },
+                { key: 'out_of_stock', label: 'Out of Stock' },
+              ].map(({ key, label }) => (
+                <button key={key} onClick={() => setStockFilter(key)} className={pillCls(stockFilter === key)}>
+                  {label}
                 </button>
               ))}
             </div>
+
+            {/* Category filter pills — show if any categories exist */}
+            {shopCategories.length >= 1 && (
+              <div className="mt-4">
+                <p className="text-[10px] font-medium text-[#737373] uppercase tracking-wider mb-2">Categories</p>
+                <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+                  <button
+                    onClick={() => setCategoryFilter('all')}
+                    className={pillCls(categoryFilter === 'all')}
+                  >
+                    All Products
+                  </button>
+                  {shopCategories.map((cat) => (
+                    <button
+                      key={cat.id}
+                      onClick={() => setCategoryFilter(cat.id)}
+                      className={pillCls(categoryFilter === cat.id)}
+                    >
+                      {cat.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
