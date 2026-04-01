@@ -41,6 +41,12 @@ export default function Dashboard() {
   })
   const shopCategories = categoriesData || []
 
+  // Fetch shop details for logo
+  const { data: shopDetails } = useQuery({
+    queryKey: ['shop-me'],
+    queryFn: () => api.get('shop/me/').then((r) => r.data),
+  })
+
   // Build query params
   const buildParams = () => {
     const p = new URLSearchParams()
@@ -135,7 +141,13 @@ export default function Dashboard() {
       <div className="bg-white px-4 pt-6 pb-4 border-b border-[#F0F0F0]">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
-            <Logo size={40} />
+            {shopDetails?.logo_url ? (
+               <img src={shopDetails.logo_url} alt="Shop logo" className="w-10 h-10 rounded-lg object-cover" />
+            ) : (
+               <div className="w-10 h-10 bg-[#E5E5E5] rounded-lg flex items-center justify-center text-[#737373] font-bold text-lg">
+                 {shopName.charAt(0).toUpperCase()}
+               </div>
+            )}
             <div className="ml-3">
               <h1 className="text-lg font-bold text-[#0A0A0A]">{shopName}</h1>
               <p className="text-xs text-[#737373]">{greeting}</p>
