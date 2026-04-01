@@ -7,7 +7,7 @@ from pathlib import Path
 from datetime import timedelta
 import os
 from dotenv import load_dotenv
-from urllib.parse import urlparse
+from urllib.parse import urlparse, unquote
 
 # Load .env file
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -95,7 +95,7 @@ DATABASES = {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": _parsed.path.lstrip("/") if _parsed else "zeleradeck_db",
         "USER": _parsed.username if _parsed else "postgres",
-        "PASSWORD": _parsed.password if _parsed else "",
+        "PASSWORD": unquote(_parsed.password) if _parsed and _parsed.password else "",
         "HOST": _parsed.hostname if _parsed else "localhost",
         "PORT": str(_parsed.port or 5432) if _parsed else "5432",
     }
