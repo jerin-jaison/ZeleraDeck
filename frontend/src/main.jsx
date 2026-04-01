@@ -72,6 +72,7 @@ function AppRoutes() {
               <Route path="/login" element={<Login />} />
               <Route path="/store/:slug" element={<StorePage />} />
               <Route path="/store/:slug/product/:displayId" element={<ProductPage />} />
+              <Route path="/:slug/product/:displayId" element={<ProductPage />} />
               <Route path="/contact" element={<ContactPage />} />
 
               {/* Protected — Shop Owner */}
@@ -93,6 +94,8 @@ function AppRoutes() {
 
               {/* Redirects */}
               <Route path="/" element={<Navigate to="/login" replace />} />
+              {/* Store public route — must come last before 404 */}
+              <Route path="/:slug" element={<StorePage />} />
               <Route path="*" element={<NotFoundPage />} />
             </Routes>
           </AuthProvider>

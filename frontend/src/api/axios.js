@@ -35,8 +35,10 @@ function handleForcedLogout(error) {
   if (msg.includes('deactivated')) {
     window.location.href = '/login?reason=deactivated'
   } else if (msg.includes('expired')) {
+    // Server explicitly says subscription/plan expired
     window.location.href = '/login?reason=expired'
   } else {
+    // Generic session timeout / bad token — just redirect silently
     window.location.href = '/login'
   }
 }
@@ -62,7 +64,9 @@ api.interceptors.response.use(
 
       const refreshToken = localStorage.getItem('refresh_token')
       if (!refreshToken) {
-        handleForcedLogout(error)
+        // No refresh token = session ended normally, don't show any warning
+        localStorage.clear()
+        window.location.href = '/login'
         return Promise.reject(error)
       }
 
