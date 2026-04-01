@@ -153,20 +153,20 @@ export default function ProductForm({ initialData, onSubmit, isLoading }) {
             />
           </div>
 
-          {/* Category selector — only show if categories exist */}
-          {categories.length > 0 && (
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <label className="text-xs font-medium text-[#737373]">Category</label>
-                <span className="text-xs text-[#A3A3A3]">(optional)</span>
-                <button
-                  type="button"
-                  onClick={() => setShowCategories(true)}
-                  className="text-xs text-[#0A0A0A] underline ml-auto"
-                >
-                  Manage →
-                </button>
-              </div>
+          {/* Category selector */}
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <label className="text-xs font-medium text-[#737373]">Category</label>
+              <span className="text-xs text-[#A3A3A3]">(optional)</span>
+              <button
+                type="button"
+                onClick={() => setShowCategories(true)}
+                className="text-xs text-[#0A0A0A] underline ml-auto"
+              >
+                {categories.length > 0 ? 'Manage →' : 'Add Category +'}
+              </button>
+            </div>
+            {categories.length > 0 ? (
               <div className="flex flex-wrap gap-2">
                 <button
                   type="button"
@@ -194,8 +194,10 @@ export default function ProductForm({ initialData, onSubmit, isLoading }) {
                   </button>
                 ))}
               </div>
-            </div>
-          )}
+            ) : (
+              <p className="text-xs text-[#A3A3A3] italic">No categories created yet.</p>
+            )}
+          </div>
 
           <div className="flex justify-between items-center bg-[#F8F8F8] rounded-xl p-4">
             <p className="text-sm font-medium text-[#0A0A0A]">Mark as in stock</p>
