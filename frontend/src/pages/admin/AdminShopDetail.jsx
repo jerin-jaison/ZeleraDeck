@@ -7,7 +7,7 @@ import { adminApi, timeAgo } from './AdminDashboard'
 import Pagination from '../../components/Pagination'
 import imageCompression from 'browser-image-compression'
 
-const FRONTEND = 'https://zelera-deck.vercel.app'
+const FRONTEND = 'https://zeleralink.com'
 function fmtDate(d) { if (!d) return '—'; return new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) }
 function toDateInput(d) { if (!d) return ''; return new Date(d).toISOString().split('T')[0] }
 function daysUntil(d) { if (!d) return null; return Math.ceil((new Date(d) - new Date()) / (1000 * 60 * 60 * 24)) }
@@ -209,7 +209,7 @@ export default function AdminShopDetail() {
               <span className={`inline-block text-xs px-2.5 py-1 rounded-full font-medium mt-1 ${shop.is_active ? 'bg-[#DCFCE7] text-[#166534]' : 'bg-[#FEE2E2] text-[#991B1B]'}`}>
                 {shop.is_active ? 'Active' : 'Inactive'}
               </span>
-              <p className="text-xs text-[#737373] mt-2 truncate">zelera-deck.vercel.app/store/{shop.slug}</p>
+              <p className="text-xs text-[#737373] mt-2 truncate">zeleralink.com/store/{shop.slug}</p>
             </div>
 
             <div className="mt-4 space-y-0">

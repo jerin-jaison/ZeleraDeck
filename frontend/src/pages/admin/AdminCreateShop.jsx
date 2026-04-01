@@ -6,7 +6,7 @@ import { adminApi } from './AdminDashboard'
 import imageCompression from 'browser-image-compression'
 import { useQueryClient } from '@tanstack/react-query'
 
-const FRONTEND = 'https://zelera-deck.vercel.app'
+const FRONTEND = 'https://zeleralink.com'
 
 function genPassword(len = 8) {
   const chars = 'abcdefghijkmnopqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ23456789'

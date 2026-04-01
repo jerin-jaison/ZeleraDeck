@@ -7,7 +7,7 @@ import { adminApi, timeAgo } from './AdminDashboard'
 import Pagination from '../../components/Pagination'
 import imageCompression from 'browser-image-compression'
 
-const FRONTEND = 'https://zelera-deck.vercel.app'
+const FRONTEND = 'https://zeleralink.com'
 
 function fmtDate(d) {
   if (!d) return '—'
@@ -147,7 +147,7 @@ export default function AdminShops() {
                 <p className="text-[10px] text-[#A3A3A3] mt-2">
                   {shop.product_count} products · Joined {fmtDate(shop.created_at)} · {shop.last_login ? `Last login: ${timeAgo(shop.last_login)}` : 'Never logged in'}
                 </p>
-                <p className="text-[10px] text-[#A3A3A3] mt-0.5 truncate">zelera-deck.vercel.app/store/{shop.slug}</p>
+                <p className="text-[10px] text-[#A3A3A3] mt-0.5 truncate">zeleralink.com/store/{shop.slug}</p>
                 {shop.expires_at && (
                   <p className={`text-[10px] mt-0.5 font-medium ${isExpired ? 'text-[#EF4444]' : shop.is_expiring_soon ? 'text-[#D97706]' : 'text-[#A3A3A3]'}`}>
                     {isExpired ? 'Expired' : 'Expires'}: {fmtDate(shop.expires_at)}

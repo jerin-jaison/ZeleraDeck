@@ -21,6 +21,9 @@ DEBUG = os.getenv("DEBUG", "True") == "True"
 
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
 
+# Frontend canonical URL used for building public shop links
+FRONTEND_URL = os.getenv("FRONTEND_URL", "https://zeleralink.com")
+
 # ─── Installed Apps ───────────────────────────────────────────────────────────
 
 INSTALLED_APPS = [
@@ -107,6 +110,12 @@ AUTH_PASSWORD_VALIDATORS = [
 
 CORS_ALLOWED_ORIGINS = os.getenv(
     "CORS_ALLOWED_ORIGINS", "http://localhost:5173"
+).split(",")
+
+# CSRF trusted origins — required for POST/PUT/PATCH requests from the frontend
+CSRF_TRUSTED_ORIGINS = os.getenv(
+    "CSRF_TRUSTED_ORIGINS",
+    "https://zeleralink.com,https://www.zeleralink.com"
 ).split(",")
 
 # Allow the X-Admin-Key custom header used by the admin panel

@@ -12,7 +12,7 @@ if (!base.endsWith('/api/') && !base.endsWith('/api')) {
 }
 if (!base.endsWith('/')) base += '/'
 const API = base
-const FRONTEND = 'https://zelera-deck.vercel.app'
+const FRONTEND = 'https://zeleralink.com'
 
 const adminApi = axios.create({ baseURL: API, timeout: 15000, headers: { 'X-Admin-Key': ADMIN_PASSWORD } })
 
@@ -153,7 +153,7 @@ function ShopCard({ shop, onRefresh }) {
         <p className="text-[10px] text-[#A3A3A3] mt-2">
           {shop.product_count} products · Joined {fmtDate(shop.created_at)} · {shop.last_login ? `Last login: ${timeAgo(shop.last_login)}` : 'Never logged in'}
         </p>
-        <p className="text-[10px] text-[#A3A3A3] mt-0.5 truncate">zelera-deck.vercel.app/store/{shop.slug}</p>
+        <p className="text-[10px] text-[#A3A3A3] mt-0.5 truncate">zeleralink.com/store/{shop.slug}</p>
         {shop.expires_at && (
           <p className={`text-[10px] mt-0.5 font-medium ${isExpired ? 'text-[#EF4444]' : shop.is_expiring_soon ? 'text-[#D97706]' : 'text-[#A3A3A3]'}`}>
             {isExpired ? 'Expired' : 'Expires'}: {fmtDate(shop.expires_at)}
@@ -426,7 +426,7 @@ export default function AdminPanel() {
             </div>
             <div className="mt-3">
               <p className="text-xs text-[#737373]">Store link</p>
-              <p className="text-sm font-mono text-[#0A0A0A] break-all">zelera-deck.vercel.app/store/{created.slug}</p>
+              <p className="text-sm font-mono text-[#0A0A0A] break-all">zeleralink.com/store/{created.slug}</p>
               <button onClick={() => copyText(`${FRONTEND}/store/${created.slug}`)} className="text-xs text-[#737373] underline mt-1">Copy link</button>
             </div>
             <div className="mt-3 bg-[#F8F8F8] rounded-xl p-3">

@@ -32,7 +32,7 @@ export default function AdminSettings() {
         <p className="text-sm font-semibold mb-3">Platform Info</p>
         <div className="space-y-0">
           {[
-            { l: 'Frontend URL', v: 'zelera-deck.vercel.app' },
+            { l: 'Frontend URL', v: 'zeleralink.com' },
             { l: 'Backend URL', v: 'zeleradeck.onrender.com' },
             { l: 'Version', v: '1.0.0 — Phase 3' },
             { l: 'Total Shops', v: stats?.total_shops ?? '—' },

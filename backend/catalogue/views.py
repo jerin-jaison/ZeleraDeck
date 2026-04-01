@@ -1,6 +1,7 @@
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.utils import timezone
+from django.conf import settings
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -31,7 +32,7 @@ class ShopMeView(APIView):
             'phone': shop.phone,
             'whatsapp_number': shop.whatsapp_number,
             'logo_url': shop.logo_url,
-            'public_url': f'https://zelera-deck.vercel.app/store/{shop.slug}',
+            'public_url': f'{settings.FRONTEND_URL}/store/{shop.slug}',
         })
 
 
@@ -412,8 +413,8 @@ def og_store_view(request, slug):
     except Shop.DoesNotExist:
         return HttpResponse("<html><body>Not found</body></html>", status=404)
 
-    real_url = f"https://zelera-deck.vercel.app/store/{slug}"
-    image_url = shop.logo_url or "https://zelera-deck.vercel.app/logo2.png"
+    real_url = f"{settings.FRONTEND_URL}/store/{slug}"
+    image_url = shop.logo_url or f"{settings.FRONTEND_URL}/logo2.png"
     title = escape(f"{shop.name} — Browse our products")
     description = escape(
         f"Browse {shop.name}'s product catalogue on ZeleraDeck. "
@@ -455,8 +456,8 @@ def og_product_view(request, slug, display_id):
     except (Shop.DoesNotExist, Product.DoesNotExist):
         return HttpResponse("<html><body>Not found</body></html>", status=404)
 
-    real_url = f"https://zelera-deck.vercel.app/store/{slug}/product/{display_id}"
-    image_url = product.image_url or shop.logo_url or "https://zelera-deck.vercel.app/logo2.png"
+    real_url = f"{settings.FRONTEND_URL}/store/{slug}/product/{display_id}"
+    image_url = product.image_url or shop.logo_url or f"{settings.FRONTEND_URL}/logo2.png"
     title = escape(f"{product.name} — ₹{product.price}")
     description = escape(
         f"Order {product.name} from {shop.name} on WhatsApp. ID: {product.display_id}"
