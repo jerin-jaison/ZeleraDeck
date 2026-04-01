@@ -6,7 +6,7 @@ import { adminApi } from './AdminDashboard'
 import imageCompression from 'browser-image-compression'
 import { useQueryClient } from '@tanstack/react-query'
 
-const FRONTEND = 'https://zeleralink.com'
+const FRONTEND = 'https://www.zeleradeck.com'
 
 function genPassword(len = 8) {
   const chars = 'abcdefghijkmnopqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ23456789'
@@ -76,7 +76,7 @@ export default function AdminCreateShop() {
 
   // Success panel
   if (result) {
-    const storeUrl = `${FRONTEND}/store/${result.slug}`
+    const storeUrl = `${FRONTEND}/${result.slug}`
     const shareText = `Your ZeleraDeck store:\n🔗 ${storeUrl}\n📱 Login: ${phone}\n🔑 Password: ${password}`
     return (
       <div style={{ animation: 'fadeIn 0.15s ease-out' }}>

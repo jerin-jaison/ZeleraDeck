@@ -22,7 +22,7 @@ export default function StoreInfo() {
 
   // API now returns { products: [...], pagination: {...} }
   const productList = productsData?.products ?? []
-  const storeUrl = shop ? `https://zeleralink.com/store/${shop.slug}` : ''
+  const storeUrl = shop ? `https://www.zeleradeck.com/${shop.slug}` : ''
   const total = productList.length > 0 ? (productsData?.pagination?.total ?? productList.length) : 0
   const inStock = productList.filter((p) => p.is_in_stock).length
   const outOfStock = productList.filter((p) => !p.is_in_stock).length
@@ -83,7 +83,7 @@ export default function StoreInfo() {
         <p className="text-xs text-[#737373] font-medium mb-3">Store link</p>
         <div className="bg-[#F8F8F8] rounded-xl p-3">
           <p className="font-mono text-sm text-[#0A0A0A] break-all select-all">
-            zeleralink.com/store/{shop.slug}
+            www.zeleradeck.com/{shop.slug}
           </p>
         </div>
         <div className="mt-3 grid grid-cols-2 gap-2">

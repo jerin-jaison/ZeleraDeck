@@ -7,7 +7,7 @@ import { adminApi, timeAgo } from './AdminDashboard'
 import Pagination from '../../components/Pagination'
 import imageCompression from 'browser-image-compression'
 
-const FRONTEND = 'https://zeleralink.com'
+const FRONTEND = 'https://www.zeleradeck.com'
 
 function fmtDate(d) {
   if (!d) return '—'
@@ -147,7 +147,7 @@ export default function AdminShops() {
                 <p className="text-[10px] text-[#A3A3A3] mt-2">
                   {shop.product_count} products · Joined {fmtDate(shop.created_at)} · {shop.last_login ? `Last login: ${timeAgo(shop.last_login)}` : 'Never logged in'}
                 </p>
-                <p className="text-[10px] text-[#A3A3A3] mt-0.5 truncate">zeleralink.com/store/{shop.slug}</p>
+                <p className="text-[10px] text-[#A3A3A3] mt-0.5 truncate">www.zeleradeck.com/{shop.slug}</p>
                 {shop.expires_at && (
                   <p className={`text-[10px] mt-0.5 font-medium ${isExpired ? 'text-[#EF4444]' : shop.is_expiring_soon ? 'text-[#D97706]' : 'text-[#A3A3A3]'}`}>
                     {isExpired ? 'Expired' : 'Expires'}: {fmtDate(shop.expires_at)}
@@ -159,7 +159,7 @@ export default function AdminShops() {
                     className={`text-xs rounded-xl px-3 py-2 font-medium ${shop.is_active ? 'bg-[#FEE2E2] text-[#991B1B]' : 'bg-[#DCFCE7] text-[#166534]'}`}>
                     {shop.is_active ? 'Disable' : 'Enable'}
                   </button>
-                  <a href={`${FRONTEND}/store/${shop.slug}`} target="_blank" rel="noopener noreferrer"
+                  <a href={`${FRONTEND}/${shop.slug}`} target="_blank" rel="noopener noreferrer"
                     className="text-xs rounded-xl px-3 py-2 font-medium bg-[#F8F8F8] text-[#0A0A0A] flex items-center gap-1">
                     <ExternalLink className="w-3 h-3" /> View Store
                   </a>

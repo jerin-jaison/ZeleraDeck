@@ -12,7 +12,7 @@ if (!base.endsWith('/api/') && !base.endsWith('/api')) {
 }
 if (!base.endsWith('/')) base += '/'
 const API = base
-const FRONTEND = 'https://zeleralink.com'
+const FRONTEND = 'https://www.zeleradeck.com'
 
 const adminApi = axios.create({ baseURL: API, timeout: 15000, headers: { 'X-Admin-Key': ADMIN_PASSWORD } })
 
@@ -153,7 +153,7 @@ function ShopCard({ shop, onRefresh }) {
         <p className="text-[10px] text-[#A3A3A3] mt-2">
           {shop.product_count} products · Joined {fmtDate(shop.created_at)} · {shop.last_login ? `Last login: ${timeAgo(shop.last_login)}` : 'Never logged in'}
         </p>
-        <p className="text-[10px] text-[#A3A3A3] mt-0.5 truncate">zeleralink.com/store/{shop.slug}</p>
+        <p className="text-[10px] text-[#A3A3A3] mt-0.5 truncate">www.zeleradeck.com/{shop.slug}</p>
         {shop.expires_at && (
           <p className={`text-[10px] mt-0.5 font-medium ${isExpired ? 'text-[#EF4444]' : shop.is_expiring_soon ? 'text-[#D97706]' : 'text-[#A3A3A3]'}`}>
             {isExpired ? 'Expired' : 'Expires'}: {fmtDate(shop.expires_at)}
@@ -171,7 +171,7 @@ function ShopCard({ shop, onRefresh }) {
             className={`text-xs rounded-xl px-3 py-2 font-medium disabled:opacity-50 ${
               shop.is_active ? 'bg-[#FEE2E2] text-[#991B1B]' : 'bg-[#DCFCE7] text-[#166534]'
             }`}>{toggling ? '…' : shop.is_active ? 'Disable' : 'Enable'}</button>
-          <a href={`${FRONTEND}/store/${shop.slug}`} target="_blank" rel="noopener noreferrer"
+          <a href={`${FRONTEND}/${shop.slug}`} target="_blank" rel="noopener noreferrer"
             className="text-xs rounded-xl px-3 py-2 font-medium bg-[#F8F8F8] text-[#0A0A0A]">View Store ↗</a>
           <button onClick={() => setShowEdit(v => !v)}
             className="text-xs rounded-xl px-3 py-2 font-medium bg-[#F8F8F8] text-[#0A0A0A] flex items-center gap-1">
@@ -360,7 +360,7 @@ export default function AdminPanel() {
 
   const shareOnWhatsApp = () => {
     if (!created) return
-    const msg = `Hi! Your ZeleraDeck store is ready.\n\n🔗 Store: ${FRONTEND}/store/${created.slug}\n📱 Login: ${FRONTEND}/login\nPhone: ${created.phone}\nPassword: ${created.password}\n\nLog in to add your products!`
+    const msg = `Hi! Your ZeleraDeck store is ready.\n\n🔗 Store: ${FRONTEND}/${created.slug}\n📱 Login: ${FRONTEND}/login\nPhone: ${created.phone}\nPassword: ${created.password}\n\nLog in to add your products!`
     window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank')
   }
 
@@ -426,8 +426,8 @@ export default function AdminPanel() {
             </div>
             <div className="mt-3">
               <p className="text-xs text-[#737373]">Store link</p>
-              <p className="text-sm font-mono text-[#0A0A0A] break-all">zeleralink.com/store/{created.slug}</p>
-              <button onClick={() => copyText(`${FRONTEND}/store/${created.slug}`)} className="text-xs text-[#737373] underline mt-1">Copy link</button>
+              <p className="text-sm font-mono text-[#0A0A0A] break-all">www.zeleradeck.com/{created.slug}</p>
+              <button onClick={() => copyText(`${FRONTEND}/${created.slug}`)} className="text-xs text-[#737373] underline mt-1">Copy link</button>
             </div>
             <div className="mt-3 bg-[#F8F8F8] rounded-xl p-3">
               <p className="text-xs text-[#737373] mb-2">Share these login details with the shop owner:</p>

@@ -29,7 +29,7 @@ ALLOWED_HOSTS = [
 ]
 
 # Frontend canonical URL used for building public shop links
-FRONTEND_URL = os.getenv("FRONTEND_URL", "https://zeleradeck.com")
+FRONTEND_URL = os.getenv("FRONTEND_URL", "https://www.zeleradeck.com")
 
 # ─── Installed Apps ───────────────────────────────────────────────────────────
 

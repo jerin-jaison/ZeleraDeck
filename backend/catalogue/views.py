@@ -32,7 +32,7 @@ class ShopMeView(APIView):
             'phone': shop.phone,
             'whatsapp_number': shop.whatsapp_number,
             'logo_url': shop.logo_url,
-            'public_url': f'{settings.FRONTEND_URL}/store/{shop.slug}',
+            'public_url': f'{settings.FRONTEND_URL}/{shop.slug}',
         })
 
 
@@ -413,7 +413,7 @@ def og_store_view(request, slug):
     except Shop.DoesNotExist:
         return HttpResponse("<html><body>Not found</body></html>", status=404)
 
-    real_url = f"{settings.FRONTEND_URL}/store/{slug}"
+    real_url = f"{settings.FRONTEND_URL}/{slug}"
     image_url = shop.logo_url or f"{settings.FRONTEND_URL}/logo2.png"
     title = escape(f"{shop.name} — Browse our products")
     description = escape(
@@ -456,7 +456,7 @@ def og_product_view(request, slug, display_id):
     except (Shop.DoesNotExist, Product.DoesNotExist):
         return HttpResponse("<html><body>Not found</body></html>", status=404)
 
-    real_url = f"{settings.FRONTEND_URL}/store/{slug}/product/{display_id}"
+    real_url = f"{settings.FRONTEND_URL}/{slug}/product/{display_id}"
     image_url = product.image_url or shop.logo_url or f"{settings.FRONTEND_URL}/logo2.png"
     title = escape(f"{product.name} — ₹{product.price}")
     description = escape(
