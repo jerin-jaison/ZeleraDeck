@@ -50,6 +50,8 @@ export default function AdminShopDetail() {
 
   // ── Edit form state ─────────────────────────────────────────────────────
   const [editing, setEditing] = useState(false)
+  const [editLogo, setEditLogo] = useState(null)
+  const [editLogoPreview, setEditLogoPreview] = useState(null)
   const [editName, setEditName] = useState('')
   const [editPhone, setEditPhone] = useState('')
   const [editExpiry, setEditExpiry] = useState('')
@@ -91,6 +93,8 @@ export default function AdminShopDetail() {
 
   // ── Start editing ───────────────────────────────────────────────────────
   const startEditing = () => {
+    setEditLogo(null)
+    setEditLogoPreview(shop.logo_url || null)
     setEditName(shop.name || '')
     setEditPhone(shop.phone || '')
     setEditExpiry(toDateInput(shop.expires_at))
@@ -114,27 +118,32 @@ export default function AdminShopDetail() {
     if (hasError) return
 
     setSaving(true)
-    const payload = {
-      name: editName.trim(),
-      phone: cleanPhone,
-      admin_notes: editNotes,
-    }
+    const formData = new FormData()
+    formData.append('name', editName.trim())
+    formData.append('phone', cleanPhone)
+    formData.append('admin_notes', editNotes)
 
     // Only send expires_at if the user changed it
     const originalExpiry = toDateInput(shop.expires_at)
     if (editClearExpiry) {
-      payload.expires_at = null
+      formData.append('expires_at', 'null')
     } else if (editExpiry && editExpiry !== originalExpiry) {
-      payload.expires_at = `${editExpiry}T00:00:00Z`
+      formData.append('expires_at', `${editExpiry}T00:00:00Z`)
     } else if (!editExpiry && originalExpiry) {
-      // User cleared the date input manually (without clicking "Clear expiry")
-      payload.expires_at = null
+      // User cleared the date input manually
+      formData.append('expires_at', 'null')
+    }
+
+    if (editLogo) {
+      formData.append('logo', editLogo)
     }
 
     const phoneChanged = cleanPhone !== shop.phone
 
     try {
-      await adminApi.patch(`admin/shops/${id}/edit/`, payload)
+      await adminApi.patch(`admin/shops/${id}/edit/`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      })
       refresh()
       setEditing(false)
       showToast('Shop updated successfully')
@@ -256,6 +265,51 @@ export default function AdminShopDetail() {
             <div className="bg-white rounded-2xl p-5 border border-[#F0F0F0]" style={{ animation: 'fadeIn 0.15s ease-out' }}>
               <p className="text-sm font-semibold mb-4">Edit Shop Details</p>
               <div className="space-y-4">
+
+                {/* ⓪ Logo Upload */}
+                <div>
+                  <label className="text-xs font-medium text-[#737373] mb-2 block">Shop Logo</label>
+                  <div className="flex items-center gap-4">
+                    {editLogoPreview ? (
+                      <div className="relative">
+                        <img src={editLogoPreview} alt="Preview" className="w-16 h-16 rounded-xl object-cover" />
+                        <button
+                          type="button"
+                          onClick={() => { setEditLogo(null); setEditLogoPreview(null); }}
+                          className="absolute -top-2 -right-2 w-6 h-6 bg-white border border-[#E5E5E5] rounded-full flex items-center justify-center hover:bg-[#F8F8F8]"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="w-16 h-16 rounded-xl border border-[#E5E5E5] bg-[#F8F8F8] flex items-center justify-center">
+                        <span className="text-[#A3A3A3] text-xs font-medium">None</span>
+                      </div>
+                    )}
+                    <label className="text-xs bg-[#F8F8F8] border border-[#E5E5E5] px-3 py-2 rounded-lg font-medium cursor-pointer hover:bg-[#F0F0F0] active:scale-[0.98] transition-all text-[#0A0A0A]">
+                      Select Image
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0]
+                          if (file) {
+                            try {
+                              const options = { maxSizeMB: 0.5, maxWidthOrHeight: 512, useWebWorker: true, fileType: "image/webp" }
+                              const compressedFile = await imageCompression(file, options)
+                              setEditLogo(compressedFile)
+                              setEditLogoPreview(URL.createObjectURL(compressedFile))
+                            } catch (err) {
+                              showToast('Image compression failed', 'error')
+                            }
+                          }
+                          e.target.value = ''
+                        }}
+                      />
+                    </label>
+                  </div>
+                </div>
 
                 {/* ① Shop Name */}
                 <div>
