@@ -114,15 +114,7 @@ class RefreshTokenView(APIView):
                 status=status.HTTP_401_UNAUTHORIZED
             )
 
-        # Check token_version — force logout if password changed or shop disabled
-        token_version_in_token = old_refresh.get('token_version', 0)
-        if token_version_in_token != shop.token_version:
-            return Response(
-                {'detail': 'Session expired. Please log in again.'},
-                status=status.HTTP_401_UNAUTHORIZED
-            )
-
-        # Check if shop is still active
+        # Check if shop is still active (Must run before version check)
         if not shop.is_active:
             return Response(
                 {'detail': 'Your store has been deactivated. Contact support.'},
@@ -133,6 +125,14 @@ class RefreshTokenView(APIView):
         if shop.expires_at and shop.expires_at < timezone.now():
             return Response(
                 {'detail': 'Your subscription has expired. Contact support.'},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+
+        # Check token_version — force logout if password changed
+        token_version_in_token = old_refresh.get('token_version', 0)
+        if token_version_in_token != shop.token_version:
+            return Response(
+                {'detail': 'Session expired. Please log in again.'},
                 status=status.HTTP_401_UNAUTHORIZED
             )
 

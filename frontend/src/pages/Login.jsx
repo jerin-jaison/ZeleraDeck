@@ -33,6 +33,13 @@ export default function Login() {
       params.delete('reason')
       const queryStr = params.toString() ? `?${params.toString()}` : ''
       navigate(`/login${queryStr}`, { replace: true })
+    } else if (reason === 'deactivated') {
+      showToast('Your store has been deactivated. Contact ZeleraDeck support.', 'error')
+      // Remove query param to clean the URL
+      const params = new URLSearchParams(searchParams)
+      params.delete('reason')
+      const queryStr = params.toString() ? `?${params.toString()}` : ''
+      navigate(`/login${queryStr}`, { replace: true })
     }
   }, [reason, searchParams, navigate, showToast])
 
@@ -67,14 +74,6 @@ export default function Login() {
         <p className="text-sm text-[#737373] mt-1 mb-6">Sign in to manage your store</p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Reason banners */}
-          {reason === 'deactivated' && (
-            <div className="bg-[#FEE2E2] rounded-xl p-3 mb-4 flex items-start gap-2">
-              <AlertCircle className="w-4 h-4 text-[#EF4444] flex-shrink-0 mt-0.5" />
-              <p className="text-xs text-[#991B1B]">Your store has been deactivated. Contact ZeleraDeck support.</p>
-            </div>
-          )}
-
           {/* Phone */}
           <div>
             <label className="block text-xs font-medium text-[#737373] mb-1.5">Phone Number</label>

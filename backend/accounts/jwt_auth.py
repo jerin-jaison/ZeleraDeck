@@ -9,6 +9,9 @@ from accounts.models import Shop
 class ShopJWTAuthentication(BaseAuthentication):
     """Authenticates shop owners via JWT tokens that contain shop_id in the payload."""
 
+    def authenticate_header(self, request):
+        return 'Bearer'
+
     def authenticate(self, request):
         auth_header = request.headers.get('Authorization', '')
         if not auth_header.startswith('Bearer '):
@@ -30,24 +33,23 @@ class ShopJWTAuthentication(BaseAuthentication):
         except Shop.DoesNotExist:
             raise AuthenticationFailed('Shop not found.')
 
-        # ── Token version check (force-logout on disable / pw reset) ─────
-        token_version_in_token = token.get('token_version', 0)
-        if token_version_in_token != shop.token_version:
-            raise AuthenticationFailed(
-                'Session expired. Please log in again.'
-            )
-
-
         # ── Subscription Expiry check ────────────────────────────────────
         if shop.expires_at and shop.expires_at < timezone.now():
             raise AuthenticationFailed(
                 'Your subscription has expired. Contact support.'
             )
 
-        # ── Active check ─────────────────────────────────────────────────
+        # ── Active check (must run before version check so user knows they are disabled) ──
         if not shop.is_active:
             raise AuthenticationFailed(
                 'Your store has been deactivated. Contact support.'
+            )
+
+        # ── Token version check (force-logout on disable / pw reset) ─────
+        token_version_in_token = token.get('token_version', 0)
+        if token_version_in_token != shop.token_version:
+            raise AuthenticationFailed(
+                'Session expired. Please log in again.'
             )
 
         return (shop, token)
