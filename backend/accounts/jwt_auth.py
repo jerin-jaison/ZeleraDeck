@@ -38,6 +38,12 @@ class ShopJWTAuthentication(BaseAuthentication):
             )
 
 
+        # ── Subscription Expiry check ────────────────────────────────────
+        if shop.expires_at and shop.expires_at < timezone.now():
+            raise AuthenticationFailed(
+                'Your subscription has expired. Contact support.'
+            )
+
         # ── Active check ─────────────────────────────────────────────────
         if not shop.is_active:
             raise AuthenticationFailed(

@@ -24,6 +24,18 @@ export default function Login() {
     }
   }, [auth.hydrated, auth.isAuthenticated])
 
+  // Process reason parameters via Toast instead of inline banners where required
+  useEffect(() => {
+    if (reason === 'expired') {
+      showToast('Your subscription has expired. Contact ZeleraDeck to renew.', 'error')
+      // Remove query param to clean the URL
+      const params = new URLSearchParams(searchParams)
+      params.delete('reason')
+      const queryStr = params.toString() ? `?${params.toString()}` : ''
+      navigate(`/login${queryStr}`, { replace: true })
+    }
+  }, [reason, searchParams, navigate, showToast])
+
   if (!auth.hydrated) return null
 
   const handleSubmit = async (e) => {

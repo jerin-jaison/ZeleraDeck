@@ -34,6 +34,8 @@ function handleForcedLogout(error) {
   localStorage.clear()
   if (msg.includes('deactivated')) {
     window.location.href = '/login?reason=deactivated'
+  } else if (msg.toLowerCase().includes('subscription')) {
+    window.location.href = '/login?reason=expired'
   } else {
     // Generic session timeout / bad token — just redirect silently
     window.location.href = '/login'
@@ -89,7 +91,7 @@ api.interceptors.response.use(
     if (error.response?.status === 403) {
       const isLoginUrl = originalRequest?.url?.includes('auth/login')
       const msg = error?.response?.data?.detail || error?.response?.data?.error || ''
-      const isAccountIssue = msg.includes('deactivated') || msg.includes('expired')
+      const isAccountIssue = msg.includes('deactivated') || msg.toLowerCase().includes('subscription')
       if (!isLoginUrl && isAccountIssue) {
         handleForcedLogout(error)
       }
