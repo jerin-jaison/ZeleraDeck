@@ -34,9 +34,6 @@ function handleForcedLogout(error) {
   localStorage.clear()
   if (msg.includes('deactivated')) {
     window.location.href = '/login?reason=deactivated'
-  } else if (msg.includes('expired')) {
-    // Server explicitly says subscription/plan expired
-    window.location.href = '/login?reason=expired'
   } else {
     // Generic session timeout / bad token — just redirect silently
     window.location.href = '/login'

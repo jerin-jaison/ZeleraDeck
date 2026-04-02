@@ -4,17 +4,18 @@ import { Eye, EyeOff, AlertCircle } from 'lucide-react'
 import api from '../api/axios'
 import Logo from '../components/Logo'
 import { useAuth } from '../hooks/useAuth'
+import { useToast } from '../context/ToastContext'
 
 export default function Login() {
   const navigate = useNavigate()
   const auth = useAuth()
+  const { showToast } = useToast()
   const [searchParams] = useSearchParams()
   const reason = searchParams.get('reason')
   const [phone, setPhone] = useState('')
   const [password, setPassword] = useState('')
   const [showPw, setShowPw] = useState(false)
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
 
   // Redirect if already logged in
   useEffect(() => {
@@ -27,14 +28,13 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    setError('')
     setLoading(true)
     try {
       const { data } = await api.post('auth/login/', { phone, password })
       auth.login(data.access, data.refresh, data.shop_name, data.slug)
       navigate('/dashboard', { replace: true })
     } catch (err) {
-      setError(err?.response?.data?.error || 'Login failed. Please try again.')
+      showToast(err?.response?.data?.error || 'Login failed. Please try again.', 'error')
     } finally {
       setLoading(false)
     }
@@ -60,12 +60,6 @@ export default function Login() {
             <div className="bg-[#FEE2E2] rounded-xl p-3 mb-4 flex items-start gap-2">
               <AlertCircle className="w-4 h-4 text-[#EF4444] flex-shrink-0 mt-0.5" />
               <p className="text-xs text-[#991B1B]">Your store has been deactivated. Contact ZeleraDeck support.</p>
-            </div>
-          )}
-          {reason === 'expired' && (
-            <div className="bg-[#FEF3C7] rounded-xl p-3 mb-4 flex items-start gap-2">
-              <AlertCircle className="w-4 h-4 text-[#D97706] flex-shrink-0 mt-0.5" />
-              <p className="text-xs text-[#92400E]">Your subscription has expired. Contact ZeleraDeck to renew.</p>
             </div>
           )}
 
@@ -110,13 +104,7 @@ export default function Login() {
             </div>
           </div>
 
-          {/* Error */}
-          {error && (
-            <div className="bg-[#FEE2E2] rounded-xl p-3 flex items-center gap-2">
-              <AlertCircle className="w-4 h-4 text-[#EF4444] flex-shrink-0" />
-              <p className="text-sm text-[#EF4444]">{error}</p>
-            </div>
-          )}
+
 
           {/* Submit */}
           <button

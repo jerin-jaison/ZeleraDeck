@@ -37,15 +37,6 @@ class ShopJWTAuthentication(BaseAuthentication):
                 'Session expired. Please log in again.'
             )
 
-        # ── Subscription expiry auto-disable ─────────────────────────────
-        if shop.expires_at and shop.expires_at < timezone.now():
-            if shop.is_active:
-                shop.is_active = False
-                shop.token_version += 1
-                shop.save(update_fields=['is_active', 'token_version'])
-            raise AuthenticationFailed(
-                'Your subscription has expired. Contact support.'
-            )
 
         # ── Active check ─────────────────────────────────────────────────
         if not shop.is_active:

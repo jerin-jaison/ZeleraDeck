@@ -50,16 +50,9 @@ class LoginView(APIView):
                 status=status.HTTP_401_UNAUTHORIZED
             )
 
-        # Check subscription expiry at login time
-        if shop.expires_at and shop.expires_at < timezone.now():
-            if shop.is_active:
-                shop.is_active = False
-                shop.token_version += 1
-                shop.save(update_fields=['is_active', 'token_version'])
-            return Response(
-                {'error': 'Your subscription has expired. Contact support.'},
-                status=status.HTTP_403_FORBIDDEN
-            )
+        # Check subscription expiry at login time but don't prevent login.
+        # Frontend interception handles the routing/warning based on expiry.
+        # Removed auto-deactivation so users can still login and see the 'plan expired' toast.
 
         if not shop.is_active:
             return Response(

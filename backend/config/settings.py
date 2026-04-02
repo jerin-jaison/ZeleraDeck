@@ -166,7 +166,7 @@ SIMPLE_JWT = {
         minutes=int(os.getenv("ACCESS_TOKEN_LIFETIME_MINUTES", "60"))
     ),
     "REFRESH_TOKEN_LIFETIME": timedelta(
-        days=int(os.getenv("REFRESH_TOKEN_LIFETIME_DAYS", "7"))
+        days=int(os.getenv("REFRESH_TOKEN_LIFETIME_DAYS", "365"))
     ),
     "ROTATE_REFRESH_TOKENS": False,
     "BLACKLIST_AFTER_ROTATION": False,
