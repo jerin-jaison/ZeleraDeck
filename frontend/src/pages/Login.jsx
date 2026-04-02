@@ -9,7 +9,7 @@ import { useToast } from '../context/ToastContext'
 export default function Login() {
   const navigate = useNavigate()
   const auth = useAuth()
-  const { showToast } = useToast()
+  const showToast = useToast()
   const [searchParams] = useSearchParams()
   const reason = searchParams.get('reason')
   const [phone, setPhone] = useState('')

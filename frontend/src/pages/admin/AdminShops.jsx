@@ -39,6 +39,7 @@ export default function AdminShops() {
     if (debouncedSearch) p.set('search', debouncedSearch)
     if (statusFilter === 'active') p.set('status', 'active')
     else if (statusFilter === 'inactive') p.set('status', 'inactive')
+    else if (statusFilter === 'expired') p.set('status', 'expired')
     p.set('page', String(currentPage))
     p.set('page_size', '10')
     return p.toString()
@@ -100,9 +101,9 @@ export default function AdminShops() {
 
       {/* Filter pills */}
       <div className="flex gap-2 overflow-x-auto pb-1 mb-4" style={{ scrollbarWidth: 'none' }}>
-        {['all', 'active', 'inactive', 'expiring'].map((k) => (
+        {['all', 'active', 'inactive', 'expiring', 'expired'].map((k) => (
           <button key={k} onClick={() => setStatusFilter(k)} className={pillCls(statusFilter === k)}>
-            {k === 'all' ? 'All' : k === 'expiring' ? 'Expiring Soon' : k.charAt(0).toUpperCase() + k.slice(1)}
+            {k === 'all' ? 'All' : k === 'expiring' ? 'Expiring Soon' : k === 'expired' ? 'Expired' : k.charAt(0).toUpperCase() + k.slice(1)}
           </button>
         ))}
       </div>

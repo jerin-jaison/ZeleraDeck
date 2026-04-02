@@ -50,9 +50,13 @@ class LoginView(APIView):
                 status=status.HTTP_401_UNAUTHORIZED
             )
 
-        # Check subscription expiry at login time but don't prevent login.
-        # Frontend interception handles the routing/warning based on expiry.
-        # Removed auto-deactivation so users can still login and see the 'plan expired' toast.
+        # Removed auto-deactivation so users can still remain logged in if already logged in.
+        # However, if they are formally logging in from the login screen, reject them.
+        if shop.expires_at and shop.expires_at < timezone.now():
+            return Response(
+                {'error': 'Your subscription has expired. Contact ZeleraDeck to renew.'},
+                status=status.HTTP_403_FORBIDDEN
+            )
 
         if not shop.is_active:
             return Response(
@@ -161,6 +165,8 @@ class AdminShopListCreateView(APIView):
             shops = shops.filter(is_active=True)
         elif status_filter == 'inactive':
             shops = shops.filter(is_active=False)
+        elif status_filter == 'expired':
+            shops = shops.filter(expires_at__lt=timezone.now())
 
         # Pagination
         page = request.query_params.get('page', '1')
