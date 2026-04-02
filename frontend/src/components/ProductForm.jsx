@@ -2,8 +2,45 @@ import { useState, useRef } from 'react'
 import { Camera } from 'lucide-react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import imageCompression from 'browser-image-compression'
+import Cropper from 'react-easy-crop'
 import api from '../api/axios'
 import CategoriesBottomSheet from './CategoriesBottomSheet'
+
+const createImage = (url) =>
+  new Promise((resolve, reject) => {
+    const image = new Image()
+    image.addEventListener('load', () => resolve(image))
+    image.addEventListener('error', (error) => reject(error))
+    image.src = url
+  })
+
+async function getCroppedImg(imageSrc, pixelCrop) {
+  const image = await createImage(imageSrc)
+  const canvas = document.createElement('canvas')
+  const ctx = canvas.getContext('2d')
+  if (!ctx) return null
+
+  canvas.width = pixelCrop.width
+  canvas.height = pixelCrop.height
+
+  ctx.drawImage(
+    image,
+    pixelCrop.x,
+    pixelCrop.y,
+    pixelCrop.width,
+    pixelCrop.height,
+    0,
+    0,
+    pixelCrop.width,
+    pixelCrop.height
+  )
+
+  return new Promise((resolve) => {
+    canvas.toBlob((blob) => {
+      resolve(blob)
+    }, 'image/jpeg')
+  })
+}
 
 export default function ProductForm({ initialData, onSubmit, isLoading }) {
   const qc = useQueryClient()
@@ -18,6 +55,11 @@ export default function ProductForm({ initialData, onSubmit, isLoading }) {
   const [showCategories, setShowCategories] = useState(false)
   const fileRef = useRef()
 
+  const [cropImageSrc, setCropImageSrc] = useState(null)
+  const [crop, setCrop] = useState({ x: 0, y: 0 })
+  const [zoom, setZoom] = useState(1)
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState(null)
+
   // Fetch categories
   const { data: categoriesData } = useQuery({
     queryKey: ['shop-categories'],
@@ -25,27 +67,36 @@ export default function ProductForm({ initialData, onSubmit, isLoading }) {
   })
   const categories = categoriesData || []
 
-  const handleImagePick = async (e) => {
+  const handleImagePick = (e) => {
     const file = e.target.files?.[0]
     if (!file) return
+    setCropImageSrc(URL.createObjectURL(file))
+    e.target.value = ''
+  }
 
-    const beforeKB = (file.size / 1024).toFixed(1)
-
+  const handleCropComplete = async () => {
     try {
-      const compressed = await imageCompression(file, {
+      if (!cropImageSrc || !croppedAreaPixels) return
+      const croppedBlob = await getCroppedImg(cropImageSrc, croppedAreaPixels)
+      if (!croppedBlob) return
+
+      const croppedFile = new File([croppedBlob], 'cropped.jpeg', { type: 'image/jpeg' })
+      const beforeKB = (croppedBlob.size / 1024).toFixed(1)
+
+      const compressed = await imageCompression(croppedFile, {
         maxSizeMB: 0.5,
         maxWidthOrHeight: 1200,
         useWebWorker: true,
       })
       const afterKB = (compressed.size / 1024).toFixed(1)
       setCompressionInfo(`Optimised: ${beforeKB}KB → ${afterKB}KB ✓`)
-      console.log(`Image: Before ${beforeKB}KB → After ${afterKB}KB`)
+      
       setImageFile(compressed)
       setPreviewUrl(URL.createObjectURL(compressed))
-    } catch {
-      setImageFile(file)
-      setPreviewUrl(URL.createObjectURL(file))
-      setCompressionInfo('')
+      setCropImageSrc(null)
+    } catch (err) {
+      console.error('Crop failed', err)
+      setCropImageSrc(null)
     }
   }
 
@@ -220,6 +271,38 @@ export default function ProductForm({ initialData, onSubmit, isLoading }) {
         isOpen={showCategories}
         onClose={handleCategoriesClose}
       />
+
+      {cropImageSrc && (
+        <div className="fixed inset-0 z-[100] bg-black flex flex-col">
+          <div className="relative flex-1">
+            <Cropper
+              image={cropImageSrc}
+              crop={crop}
+              zoom={zoom}
+              aspect={16 / 9}
+              onCropChange={setCrop}
+              onZoomChange={setZoom}
+              onCropComplete={(croppedArea, pixels) => setCroppedAreaPixels(pixels)}
+            />
+          </div>
+          <div className="p-4 bg-white flex justify-between gap-4">
+            <button
+              type="button"
+              onClick={() => setCropImageSrc(null)}
+              className="flex-1 py-4 font-semibold text-[#0A0A0A] bg-[#F8F8F8] border border-[#E5E5E5] rounded-xl"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={handleCropComplete}
+              className="flex-1 py-4 font-semibold text-white bg-[#0A0A0A] rounded-xl hover:bg-[#2A2A2A]"
+            >
+              Done Crop
+            </button>
+          </div>
+        </div>
+      )}
     </>
   )
 }
