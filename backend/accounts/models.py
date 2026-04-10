@@ -17,20 +17,6 @@ class Shop(models.Model):
     # ── Shop profile ─────────────────────────────────────────────────────────
     logo_url = models.URLField(max_length=500, blank=True, null=True)
 
-    # ── Plan ─────────────────────────────────────────────────────────────────
-    PLAN_CHOICES = [
-        ('starter', 'Starter'),
-        ('growth', 'Growth'),
-        ('premium', 'Premium'),
-    ]
-    plan = models.CharField(max_length=20, choices=PLAN_CHOICES, default='starter')
-
-    # ── Suspension ───────────────────────────────────────────────────────────
-    suspension_level = models.IntegerField(default=0)
-    suspension_date = models.DateTimeField(null=True, blank=True)
-    suspension_reason = models.TextField(blank=True, default='')
-    custom_domain = models.CharField(max_length=253, null=True, blank=True, unique=True)
-
     # ── Admin / subscription fields ──────────────────────────────────────────
     token_version = models.PositiveIntegerField(default=0)
     expires_at = models.DateTimeField(null=True, blank=True)
