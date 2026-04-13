@@ -192,11 +192,15 @@ export default function ProductForm({ initialData, onSubmit, isLoading }) {
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-[#737373] mb-1.5">
-              Description <span className="text-[#A3A3A3]">(optional)</span>
-            </label>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="block text-xs font-medium text-[#737373]">
+                Description <span className="text-[#A3A3A3]">(optional)</span>
+              </label>
+              <span className="text-[10px] text-[#A3A3A3]">{description.length}/500</span>
+            </div>
             <textarea
               value={description}
+              maxLength={500}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Describe your product..."
               rows={3}

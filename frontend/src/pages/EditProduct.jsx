@@ -111,7 +111,7 @@ export default function EditProduct() {
           ) : 'Save Changes'}
         </button>
         {slowWarning && loading && (
-          <p className="text-xs text-[#A3A3A3] text-center mt-2">Still uploading... Render backend may be starting up</p>
+          <p className="text-xs text-[#A3A3A3] text-center mt-2">This is taking a bit longer than usual, please wait...</p>
         )}
       </div>
 

@@ -78,7 +78,7 @@ export default function AddProduct() {
         </button>
         {slowWarning && loading && (
           <p className="text-xs text-[#A3A3A3] text-center mt-2">
-            Still uploading... Render backend may be starting up
+            This is taking a bit longer than usual, please wait...
           </p>
         )}
       </div>
