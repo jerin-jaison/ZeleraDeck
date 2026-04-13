@@ -1,0 +1,77 @@
+**Topic / Prompt Outline for Slidesgo AI Presentation Maker:**
+
+Create a highly detailed, visually stunning, and information-dense 8-slide business pitch presentation for "Zelera Deck" - a SAAS platform that helps local non-technical shop owners instantly create an online storefront and receive orders directly via WhatsApp. 
+
+The design must feel premium, modern, and highly attractive. Every single slide must be packed with rich information, engaging bullet points, relevant icons, and placeholders for high-quality images. The tone should be persuasive, empathetic to local business owners, and highly professional.
+
+Please follow this exact slide-by-slide structure, ensuring each slide is filled with comprehensive text, data points, and visual cues:
+
+**Slide 1: Title Slide - Welcome to the Future of Your Business**
+*   **Main Title:** Zelera Deck: Your Shop, Now in Every Customer's Pocket
+*   **Subtitle:** The Smarter, Faster Way to Sell Online Without Coding.
+*   **Visual Instructions:** Use a striking split-screen image layout. On the left, a traditional local shop. On the right, a glowing smartphone screen showing a highly modern e-commerce storefront. 
+*   **Key Information:** Add a brief introductory paragraph stating: "The world has shifted to digital commerce. Today's customers demand convenience and prefer shopping directly from their smartphones. If your store isn't on their screen, you are actively losing sales to larger competitors. Zelera Deck bridges this gap instantly."
+*   **Icons Needed:** Smartphone icon, Rocket (growth) icon, Shopping Bag icon.
+
+**Slide 2: The Problem with Traditional E-Commerce Websites**
+*   **Main Title:** Why Traditional Websites Are Failing Local Businesses
+*   **Visual Instructions:** Use infographics and warning icons. Show a frustrated business owner staring at a laptop computing code, surrounded by expensive bills.
+*   **Detailed Information:**
+    *   *High Upfront Costs & Hidden Fees:* Developing a traditional website costs tens of thousands of rupees, not including expensive monthly hosting and maintenance fees.
+    *   *Need for Technical Experts:* Managing servers, domains, and shopping carts requires hiring expensive "IT Guys" or agencies. You should be running your shop, not managing a server.
+    *   *Slow & Frustrating Updates:* Changing a product price, adding a new arrival, or marking an item as "out of stock" takes days instead of seconds.
+*   **Icons Needed:** Money bag with a red cross, Gear/Wrench (maintenance), Slow Clock.
+
+**Slide 3: The Solution - Meet Zelera Deck (Designed for You)**
+*   **Main Title:** The Ultimate Zero-Code Storefront Solution
+*   **Visual Instructions:** Showcase a beautiful, clean mobile UI of the Zelera Deck app alongside a WhatsApp chat interface. 
+*   **Detailed Information:**
+    *   *Zero Technical Skills Required:* If you can send a message on WhatsApp or post on Facebook, you can run a highly profitable Zelera Deck store.
+    *   *Direct WhatsApp Ordering System:* We eliminated the confusing, multi-step checkout carts. Customers browse your products online and send their exact orders directly to your WhatsApp with one click.
+    *   *100% Profit Retention:* Unlike huge food aggregators or e-commerce giants, we take absolutely ZERO commission on your sales. You deal directly with your customers and keep every single rupee.
+*   **Icons Needed:** WhatsApp logo (if possible) or chat bubble, Zero-Percent Commission Badge, Magic Wand (ease of use).
+
+**Slide 4: Why Your Customers Will Love It**
+*   **Main Title:** Delivering a Premium Shopping Experience to Your Buyers
+*   **Visual Instructions:** Use images of happy, stress-free customers buying from their couches using smartphones. Include UI mockups of smart search bars and category filters.
+*   **Detailed Information:**
+    *   *24/7 Accessibility:* Your customers can browse your entire digital catalog anytime, anywhere, without having to call and ask "What's in stock today?"
+    *   *Lightning-Fast Search & Filtering:* Our advanced category filters and smart search bar let buyers find exactly what they want in less than 3 seconds.
+    *   *The Personal Local Touch:* By routing orders through WhatsApp, you maintain the friendly, personal, and trusting relationship of a local business, combined with the convenience of Amazon-like browsing.
+*   **Icons Needed:** 24/7 Clock icon, Magnifying Glass with a Lightning Bolt, Handshake (trust/connection).
+
+**Slide 5: The Owner's Magic Dashboard**
+*   **Main Title:** Complete Control from the Palm of Your Hand
+*   **Visual Instructions:** A massive, high-quality dashboard mockup showing analytics, total items, and stock status indicators (green for in-stock, red for out-of-stock).
+*   **Detailed Information:**
+    *   *Live Inventory Management:* Mark an item as "Out of Stock" with a single tap. The storefront updates instantly for everyone, preventing disappointed customers.
+    *   *Professional Brand Identity:* Get your own custom, sleek shop link (e.g., store/your-shop-name) and upload your personalized logo. Perfect for adding to your Instagram bio, Facebook page, and WhatsApp status!
+    *   *Frictionless Operations:* Add new products, upload photos, set custom prices, and organize your store into neat categories—all entirely from your mobile phone. Absolutely no laptop required.
+*   **Icons Needed:** Dashboard/Analytics Graph, Custom Link icon, Update/Refresh icon.
+
+**Slide 6: Big Value, Tiny Price (The Special Pricing Plan)**
+*   **Main Title:** Unbeatable Value to Kickstart Your Digital Growth
+*   **Visual Instructions:** Use a striking, contrasting layout (like dark mode) to emphasize pricing tiers. Create a visualization comparing the daily cost to a small daily expense (like a cup of tea).
+*   **Detailed Information:** We want you to see massive growth without taking a financial risk. 
+    *   *The Launch Offer:* Just ₹1,599 for your entire first 3 months! (That calculates to roughly ~₹533 per month to modernize your entire business model).
+    *   *The Standard Plan:* After your initial 3-month growth phase, it’s just ₹699 per month. Cancel anytime!
+    *   *Our Ironclad Guarantee:* No hidden setup fees, no technical jargon, and zero commissions or cuts from your daily sales.
+*   **Icons Needed:** Sparkle/Offer Tag, Piggy Bank, Shield (Guarantee).
+
+**Slide 7: Strategic Growth & Expansion**
+*   **Main Title:** Beyond Just a Store - A Tool for Expansion
+*   **Visual Instructions:** Show graphics of networks, expanding reach, or a local map showing multiple delivery zones.
+*   **Detailed Information:** 
+    *   *Reach New Neighborhoods:* Break out of your physical street location and reach customers across the entire city.
+    *   *Customer Retention Engine:* Use your new professional link to run WhatsApp broadcast campaigns that bring past customers back to your store.
+    *   *Data-Driven Decisions:* Finally understand which products are your exact best-sellers based on real digital interactions.
+*   **Icons Needed:** Expanding Arrows, Target Audience icon, Chart pointing upwards.
+
+**Slide 8: Let’s Grow Your Business Today**
+*   **Main Title:** Take the Leap. Go Digital in Hours, Not Weeks.
+*   **Visual Instructions:** A powerful, highly motivating image of a business owner turning a sign to "OPEN", fully digitalized. Include a massive, impossible-to-miss "Call to Action" button.
+*   **Detailed Information:** 
+    *   Don’t let larger, heavily-funded competitors steal your loyal local customers. Modernize your shop today with Zelera Deck.
+    *   Contact us now to get your digital storefront LIVE by tonight!
+*   **Call to Action Details:** [Insert QR Code placeholder], [Insert Phone Number], [Insert Website/Email].
+*   **Icons Needed:** Checkmarks, Fast Forward icon, Contact Phone/Mail icons.

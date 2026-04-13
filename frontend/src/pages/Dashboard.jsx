@@ -319,7 +319,7 @@ export default function Dashboard() {
               totalItems={pagination.total}
               pageSize={pagination.page_size}
               onPageChange={handlePageChange}
-              isLoading={isFetching}
+              isLoading={isFetching} 
             />
           </>
         )}

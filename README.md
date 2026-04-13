@@ -30,12 +30,27 @@ ZeleraDeck is built with cutting-edge technology to ensure speed, security, and 
 
 ---
 
+## ✨ Additional Custom Services
+
+Beyond our flagship **Zelera Deck** product, **Zelera** operates as a full-service digital agency. If you need something custom-built, our team provides:
+
+- **Single Page Web Designing:** Fast and beautiful landing sites starting at just ₹999.
+- **Static & Dynamic Websites:** Professional sites tailored to your business identity.
+- **Web Development & E-Commerce:** Scalable bespoke platforms and full online stores.
+- **Dashboard & Management Systems:** Payroll software, advanced CRMs, etc.
+- **Booking & Reservation Web Apps:** Smooth booking flows for service industries.
+
+---
+
 ## 🤝 Contact Us
 
-Ready to take your business to the next level? Our team is here to support you every step of the way.
+Ready to take your business to the next level? Our team is here to build your vision.
 
-**📞 Support Hotline:**
+**📞 Phone / WhatsApp:**
 - +91 70127 83442
 - +91 95626 70230
 
-*ZeleraDeck — Your Digital Shop, Simplified.*
+**📧 Email:**
+- teamzelera@gmail.com
+
+*Zelera — Where growth begins.*

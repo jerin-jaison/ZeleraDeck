@@ -11,3 +11,5 @@ class IsAdminSecret(BasePermission):
         expected = os.environ.get('ADMIN_SECRET_KEY', '')
         provided = request.headers.get('X-Admin-Key', '')
         return bool(expected and provided == expected)
+
+    

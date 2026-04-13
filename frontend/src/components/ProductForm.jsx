@@ -137,7 +137,7 @@ export default function ProductForm({ initialData, onSubmit, isLoading }) {
           <button
             type="button"
             onClick={() => fileRef.current?.click()}
-            className="w-full aspect-video rounded-2xl overflow-hidden relative bg-[#F8F8F8] border-2 border-dashed border-[#D4D4D4]"
+            className="w-full aspect-square rounded-2xl overflow-hidden relative bg-[#F8F8F8] border-2 border-dashed border-[#D4D4D4]"
           >
             {previewUrl ? (
               <>
@@ -279,7 +279,7 @@ export default function ProductForm({ initialData, onSubmit, isLoading }) {
               image={cropImageSrc}
               crop={crop}
               zoom={zoom}
-              aspect={16 / 9}
+              aspect={1}
               onCropChange={setCrop}
               onZoomChange={setZoom}
               onCropComplete={(croppedArea, pixels) => setCroppedAreaPixels(pixels)}
