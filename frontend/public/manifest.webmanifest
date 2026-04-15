@@ -1,7 +1,7 @@
 {
   "name": "ZeleraDeck",
   "short_name": "ZeleraDeck",
-  "description": "Your shop. One link. Every customer.",
+  "description": "Where growth begins",
   "start_url": "https://www.zeleradeck.com/",
   "scope": "https://www.zeleradeck.com/",
   "display": "standalone",

@@ -31,23 +31,17 @@ const FEATURES = [
 
 const PRICING = [
   {
-    name: 'Starter',
-    price: '₹799',
-    desc: 'Perfect for new shops getting online for the first time.',
-    features: ['Up to 50 products', 'Shareable catalogue link', 'QR code', 'WhatsApp ordering'],
+    name: 'Standard Plan',
+    price: '₹699',
+    desc: 'Everything you need to run your digital shop. Cancel anytime.',
+    features: ['Unlimited products', 'Shareable catalogue link', 'QR code', 'WhatsApp ordering', 'Zero commissions on sales'],
   },
   {
-    name: 'Growth',
-    price: '₹1,499',
-    desc: 'For growing businesses that need more products and insights.',
-    features: ['Unlimited products', 'All Starter features', 'Analytics', 'Priority listing'],
+    name: 'Launch Offer (3 Months)',
+    price: '₹1,599',
+    desc: 'Jumpstart your digital growth for roughly ₹533/month!',
+    features: ['Everything in Standard', 'Full 3 months of access', 'Priority support', 'No hidden setup fees'],
     highlight: true,
-  },
-  {
-    name: 'Premium',
-    price: '₹2,499',
-    desc: 'For established shops that need the best support and features.',
-    features: ['All Growth features', 'Priority WhatsApp support', 'Advanced features', 'Early access to new tools'],
   },
 ]
 

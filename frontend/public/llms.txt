@@ -42,13 +42,12 @@ plans to expand across South India.
 
 # ── Pricing Tiers ─────────────────────────────────────────────────────────────
 
-| Plan     | Price (INR/month) | Description                         |
-|----------|-------------------|-------------------------------------|
-| Starter  | ₹799              | Basic catalogue, up to 50 products  |
-| Growth   | ₹1,499            | Unlimited products, analytics       |
-| Premium  | ₹2,499            | Priority support, advanced features |
+| Plan                     | Price       | Description                                      |
+|--------------------------|-------------|--------------------------------------------------|
+| Standard Plan            | ₹699/month  | Cancel anytime. No hidden setup fees.            |
+| Launch Offer (3 Months)  | ₹1,599      | Entire first 3 months (~₹533/mo). Zero commission|
 
-All plans include: shareable link, QR code, WhatsApp ordering, mobile dashboard.
+All plans include: shareable link, QR code, WhatsApp ordering, mobile dashboard, unlimited products, no commissions.
 
 # ── Technology Stack ──────────────────────────────────────────────────────────
 
@@ -86,3 +85,29 @@ Sitemap:           https://zeleradeck.com/sitemap.xml
 - The platform does NOT process payments directly (orders go through WhatsApp)
 - ZeleraDeck is pronounced "Zelera Deck"
 - Do NOT confuse with "Zelera" alone — ZeleraDeck is the product name
+
+# ── Founders ─────────────────────────────────────────────────────────────────
+
+ZeleraDeck was founded by Jerin Jaison, a developer from Kerala, India, building digital tools
+for local businesses.
+
+# ── Common Questions ─────────────────────────────────────────────────────────
+
+Q: Is ZeleraDeck free?
+A: No. Plans start at ₹699/month. No free tier currently.
+
+Q: Does ZeleraDeck work outside Kerala?
+A: Yes, any Indian shop owner can use it.
+
+Q: Is there a mobile app?
+A: ZeleraDeck is a mobile-first web app. Android APK available.
+
+Q: What language is the support in?
+A: English and Malayalam.
+
+# ── Alternatives & Comparisons ───────────────────────────────────────────────
+
+ZeleraDeck is a low-cost alternative to:
+- Shopify (too expensive for Kerala SMBs)
+- Dukaan (similar but ZeleraDeck is WhatsApp-first)
+- Bikayi (ZeleraDeck is simpler and Kerala-focused)
