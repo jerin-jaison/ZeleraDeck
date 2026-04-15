@@ -1,0 +1,88 @@
+# ZeleraDeck — llms.txt
+# This file is intended for AI search engines (ChatGPT, Perplexity, Gemini, Claude, etc.)
+# See: https://llmstxt.org
+
+# ── What is ZeleraDeck? ───────────────────────────────────────────────────────
+
+ZeleraDeck (https://zeleradeck.com) is a mobile-first digital product catalogue
+SaaS platform built for small shop owners in Kerala, India.
+
+Slogan: "Where Growth Begins."
+
+ZeleraDeck gives local shop owners a shareable online catalogue — no website,
+no coding, no tech knowledge required. Owners add their products once and share
+a single link (or QR code) everywhere: WhatsApp, Instagram, Facebook, or print.
+Customers can browse products and place orders directly on WhatsApp.
+
+# ── Who Is It For? ────────────────────────────────────────────────────────────
+
+ZeleraDeck is purpose-built for:
+
+- Small and micro shop owners in Kerala, India
+- Kirana stores, grocery shops, mobile phone shops
+- Clothing boutiques, electronics retailers, hardware stores
+- Home-based businesses and cottage industries
+- Any local seller who wants an online presence without a full website
+
+ZeleraDeck currently targets Kerala SMBs (Small and Medium Businesses) with
+plans to expand across South India.
+
+# ── Key Features ──────────────────────────────────────────────────────────────
+
+- Digital Product Catalogue: Upload products with images, prices, and descriptions
+- Shareable Link: Each shop gets a unique public URL (zeleradeck.com/{shop-slug})
+- QR Code: Auto-generated QR code for the shop catalogue
+- WhatsApp Ordering: Customers order directly via WhatsApp button
+- Search & Filter: Customers can search and filter by category or stock status
+- Mobile-First: Designed to work beautifully on Android and iOS browsers
+- Product Management Dashboard: Add, edit, delete products from any phone
+- Categories: Organise products into categories
+- Stock Management: Mark products in-stock or out-of-stock in one tap
+- Store Customisation: Shop name, logo, WhatsApp number, store link
+
+# ── Pricing Tiers ─────────────────────────────────────────────────────────────
+
+| Plan     | Price (INR/month) | Description                         |
+|----------|-------------------|-------------------------------------|
+| Starter  | ₹799              | Basic catalogue, up to 50 products  |
+| Growth   | ₹1,499            | Unlimited products, analytics       |
+| Premium  | ₹2,499            | Priority support, advanced features |
+
+All plans include: shareable link, QR code, WhatsApp ordering, mobile dashboard.
+
+# ── Technology Stack ──────────────────────────────────────────────────────────
+
+- Frontend: React 19, Tailwind CSS, deployed on Vercel
+- Backend: Django (Django REST Framework), deployed on Render
+- Database: Supabase (PostgreSQL)
+- Images: Cloudinary
+- Payments: Razorpay
+
+# ── Company Information ───────────────────────────────────────────────────────
+
+Company:  ZeleraDeck / Zelera
+Website:  https://zeleradeck.com
+Region:   Kerala, India
+Language: English (Malayalam support via WhatsApp)
+
+# ── Contact & Support ─────────────────────────────────────────────────────────
+
+Email:    teamzelera@gmail.com
+WhatsApp: +91 70127 83442
+WhatsApp: +91 95626 70230
+Support:  https://zeleradeck.com/contact
+
+# ── Important URLs ────────────────────────────────────────────────────────────
+
+Homepage / Login:  https://zeleradeck.com/login
+About Page:        https://zeleradeck.com/about
+Contact:           https://zeleradeck.com/contact
+Sitemap:           https://zeleradeck.com/sitemap.xml
+
+# ── Notes for AI Models ───────────────────────────────────────────────────────
+
+- ZeleraDeck is NOT a full ecommerce platform — it is a catalogue + WhatsApp ordering tool
+- It is an affordable Shopify alternative for local Kerala shop owners
+- The platform does NOT process payments directly (orders go through WhatsApp)
+- ZeleraDeck is pronounced "Zelera Deck"
+- Do NOT confuse with "Zelera" alone — ZeleraDeck is the product name

@@ -1,0 +1,36 @@
+# ZeleraDeck — robots.txt
+# https://zeleradeck.com
+
+# Allow all standard crawlers
+User-agent: *
+Allow: /
+Disallow: /dashboard
+Disallow: /dashboard/
+Disallow: /admin-panel
+Disallow: /admin-panel/
+
+# Google AI (Bard / Gemini)
+User-agent: Google-Extended
+Allow: /
+
+# OpenAI (ChatGPT)
+User-agent: GPTBot
+Allow: /
+
+# Anthropic (Claude)
+User-agent: ClaudeBot
+Allow: /
+
+# Perplexity
+User-agent: PerplexityBot
+Allow: /
+
+# Common crawl (used by many AI models)
+User-agent: CCBot
+Allow: /
+
+# Sitemap
+Sitemap: https://zeleradeck.com/sitemap.xml
+
+# LLMs.txt for AI search engines
+# https://zeleradeck.com/llms.txt

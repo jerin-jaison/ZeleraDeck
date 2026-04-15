@@ -8,6 +8,7 @@ from django.urls import path, include
 from django.http import JsonResponse
 
 from catalogue.views import og_store_view, og_product_view
+from config.seo_views import sitemap_stores_view
 
 
 def health_check(request):
@@ -36,4 +37,6 @@ urlpatterns = [
     # OG meta tag pages for WhatsApp / Telegram link previews
     path("og/store/<slug:slug>/", og_store_view, name="og-store"),
     path("og/store/<slug:slug>/product/<str:display_id>/", og_product_view, name="og-product"),
+    # SEO — dynamic sitemap with all active store slugs
+    path("sitemap-stores.xml", sitemap_stores_view, name="sitemap-stores"),
 ]

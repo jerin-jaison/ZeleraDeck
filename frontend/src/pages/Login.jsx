@@ -5,6 +5,99 @@ import api from '../api/axios'
 import Logo from '../components/Logo'
 import { useAuth } from '../hooks/useAuth'
 import { useToast } from '../context/ToastContext'
+import SEOHead from '../components/SEOHead'
+
+// ── Structured Data schemas for the homepage ─────────────────────────────────
+const softwareAppSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareApplication',
+  name: 'ZeleraDeck',
+  url: 'https://zeleradeck.com',
+  description: 'Digital product catalogue SaaS for small shop owners in Kerala, India.',
+  applicationCategory: 'BusinessApplication',
+  operatingSystem: 'Web, Android',
+  offers: {
+    '@type': 'AggregateOffer',
+    lowPrice: '799',
+    highPrice: '2499',
+    priceCurrency: 'INR',
+  },
+  areaServed: {
+    '@type': 'State',
+    name: 'Kerala, India',
+  },
+}
+
+const localBusinessSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'LocalBusiness',
+  name: 'ZeleraDeck',
+  url: 'https://zeleradeck.com',
+  logo: 'https://zeleradeck.com/logo2.png',
+  image: 'https://zeleradeck.com/logo2.png',
+  description:
+    'ZeleraDeck is a mobile-first digital product catalogue SaaS for small shop owners in Kerala, India.',
+  telephone: '+917012783442',
+  email: 'teamzelera@gmail.com',
+  address: {
+    '@type': 'PostalAddress',
+    addressRegion: 'Kerala',
+    addressCountry: 'IN',
+  },
+  areaServed: {
+    '@type': 'State',
+    name: 'Kerala',
+  },
+  priceRange: '₹799 - ₹2499/month',
+}
+
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: [
+    {
+      '@type': 'Question',
+      name: 'What is ZeleraDeck?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'ZeleraDeck is a digital product catalogue SaaS platform designed for small shop owners in Kerala, India. It lets you create a beautiful online catalogue, share it via a single link or QR code, and let customers order directly on WhatsApp.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'How much does ZeleraDeck cost?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'ZeleraDeck offers three pricing plans: Starter at ₹799/month, Growth at ₹1499/month, and Premium at ₹2499/month. All plans include a shareable catalogue link, QR code, and WhatsApp ordering.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Do I need a website to use ZeleraDeck?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'No! ZeleraDeck gives you a ready-made digital catalogue with a shareable link. No website, no coding required. Just sign up, add your products, and share your catalogue link anywhere.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Can I use ZeleraDeck on my phone?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Yes, ZeleraDeck is fully mobile-first. You can manage your products, view your catalogue, and share it — all from your smartphone.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Is ZeleraDeck available for shops in Kerala?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Yes, ZeleraDeck is built specifically for small shop owners in Kerala, India. Our support team communicates in both English and Malayalam via WhatsApp.',
+      },
+    },
+  ],
+}
+// ─────────────────────────────────────────────────────────────────────────────
 
 export default function Login() {
   const navigate = useNavigate()
@@ -60,6 +153,15 @@ export default function Login() {
   }
 
   return (
+    <>
+      <SEOHead
+        title="Login — Manage Your Digital Shop Catalogue"
+        description="Sign in to your ZeleraDeck account and manage your digital product catalogue for your local shop in Kerala. Where Growth Begins."
+        url="https://zeleradeck.com/login"
+        keywords="zeleradeck login, digital catalogue login, shop catalogue Kerala, online shop management Kerala"
+        schema={[softwareAppSchema, localBusinessSchema, faqSchema]}
+        noindex={false}
+      />
     <div className="min-h-screen bg-[#0A0A0A] flex flex-col">
       {/* Brand top */}
       <div className="flex-shrink-0 flex flex-col items-center justify-center pt-16 pb-10">
@@ -140,5 +242,6 @@ export default function Login() {
         </p>
       </div>
     </div>
+    </>
   )
 }

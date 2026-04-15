@@ -5,30 +5,73 @@
     <link rel="icon" type="image/png" href="/logo2.png" />
     <link rel="apple-touch-icon" href="/logo2.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- Primary Meta Tags -->
+
+    <!-- ── Google Search Console Verification ── -->
+    <!-- Replace XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX with your actual code -->
+    <meta name="google-site-verification" content="REPLACE_WITH_YOUR_GSC_VERIFICATION_CODE" />
+
+    <!-- ── Primary Meta Tags (fallback defaults — overridden per-page by SEOHead) ── -->
     <title>ZeleraDeck — Where Growth Begins</title>
     <meta name="title" content="ZeleraDeck — Where Growth Begins" />
-    <meta name="keywords" content="zeleradeck, zelera deck, zelera, zeleradeck.com, digital product catalogue app, online product catalogue for shops, mobile product catalogue India, shop product listing app, digital catalogue for small business, simple online catalogue, online catalogue for shop owners Kerala, bring my shop online, digital menu for shop, QR code product catalogue, share products on WhatsApp, whatsapp product link, online business Kerala, digital shop Kerala, small business online presence Kerala, shop catalogue app Malayalam, Kerala SMB digital tools, show products online, bring my business online India, affordable online store India, no website shop online, easy ecommerce for local shops, digital storefront, shopify alternative India, shopify alternative for small shops, shopify alternative Kerala, cheap shopify alternative, free online store builder India, simple shopify alternative, shopify for local business, shopify like website India, create online store without shopify, shopify too expensive alternative, how to sell online without website, how to create online catalogue free, how to list products online India, how to take my shop online, how to share product list on whatsapp, how to make digital menu for shop, how to get customers online small business, online store builder India, free product listing website India, ecommerce for small business India, mini ecommerce India, online shop creator India, product showcase website India, instant online store India, quick online store setup, retail shop online presence, kirana store online, grocery shop online catalogue, mobile shop product list online, clothing store online catalogue, electronics shop online listing, hardware store digital catalogue, restaurant digital menu India, SaaS for small business India, business software Kerala, affordable SaaS India, subscription business tools India, digital tools for retailers India" />
     <meta name="description" content="ZeleraDeck — Where Growth Begins. Your complete digital catalogue solution for local business. One link, every customer." />
+    <meta name="keywords" content="zeleradeck, digital product catalogue Kerala, online catalogue for shops, mobile catalogue app India, WhatsApp ordering, shop catalogue app, Kerala SMB digital tools" />
+    <meta name="robots" content="index, follow" />
+    <meta name="author" content="ZeleraDeck" />
 
-    <!-- Open Graph / Facebook -->
+    <!-- ── Open Graph / Facebook ── -->
     <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="ZeleraDeck" />
     <meta property="og:url" content="https://zeleradeck.com/" />
     <meta property="og:title" content="ZeleraDeck — Where Growth Begins" />
     <meta property="og:description" content="ZeleraDeck — Where Growth Begins. Your complete digital catalogue solution for local business. One link, every customer." />
     <meta property="og:image" content="https://zeleradeck.com/logo2.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale" content="en_IN" />
 
-    <!-- Twitter -->
+    <!-- ── Twitter Card ── -->
     <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:site" content="@zeleradeck" />
     <meta property="twitter:url" content="https://zeleradeck.com/" />
     <meta property="twitter:title" content="ZeleraDeck — Where Growth Begins" />
     <meta property="twitter:description" content="ZeleraDeck — Where Growth Begins. Your complete digital catalogue solution for local business. One link, every customer." />
     <meta property="twitter:image" content="https://zeleradeck.com/logo2.png" />
-    
-    <!-- Fonts -->
+
+    <!-- ── Performance: Preconnect to external origins ── -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- Cloudinary (product images) -->
+    <link rel="preconnect" href="https://res.cloudinary.com" />
+    <!-- Supabase (database / auth) -->
+    <link rel="preconnect" href="https://supabase.co" />
+    <!-- Razorpay (payments) -->
+    <link rel="preconnect" href="https://api.razorpay.com" />
+    <link rel="dns-prefetch" href="https://checkout.razorpay.com" />
+
+    <!-- ── Google Fonts ── -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+    <!-- ── Google Analytics 4 (GA4) ── -->
+    <!-- Replace G-XXXXXXXXXX with your actual GA4 Measurement ID -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-XXXXXXXXXX', {
+        send_page_view: false  /* Page views are sent manually via React Router */
+      });
+    </script>
+
+    <!-- ── Microsoft Clarity (heatmap & session recording) ── -->
+    <!-- Replace XXXXXXXXXX with your actual Clarity Project ID -->
+    <script type="text/javascript">
+      (function(c,l,a,r,i,t,y){
+        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+      })(window, document, "clarity", "script", "REPLACE_WITH_CLARITY_ID");
+    </script>
   </head>
   <body>
     <div id="root"></div>

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { MessageCircle, Mail, ArrowLeft, Send, CheckCircle } from 'lucide-react'
+import SEOHead from '../components/SEOHead'
 
 const SUPPORT_WA = '917012783442'
 const SUPPORT_WA2 = '919562670230'
@@ -70,6 +71,13 @@ export default function ContactPage() {
   }
 
   return (
+    <>
+      <SEOHead
+        title="Contact Support — ZeleraDeck"
+        description="Get help from the ZeleraDeck team. Reach us on WhatsApp or email for any issues with your digital shop catalogue."
+        url="https://zeleradeck.com/contact"
+        keywords="zeleradeck support, contact zeleradeck, help zeleradeck, shop catalogue support Kerala"
+      />
     <div className="bg-[#F8F8F8] min-h-screen pb-12" style={{ animation: 'fadeIn 0.15s ease-out' }}>
       {/* Header */}
       <div className="bg-white border-b border-[#F0F0F0] px-4 py-4 flex items-center gap-3 max-w-lg mx-auto">
@@ -200,5 +208,6 @@ export default function ContactPage() {
         </div>
       </div>
     </div>
+    </>
   )
 }
