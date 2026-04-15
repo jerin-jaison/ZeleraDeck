@@ -1,17 +1,39 @@
 {
-  "name": "ZeleraDeck",
+  "name": "ZeleraDeck — Where Growth Begins",
   "short_name": "ZeleraDeck",
-  "description": "Where growth begins",
-  "start_url": "https://www.zeleradeck.com/",
-  "scope": "https://www.zeleradeck.com/",
+  "description": "Mobile-first digital product catalogue for Kerala shop owners. Share your catalogue via WhatsApp in minutes.",
+  "start_url": "https://zeleradeck.com/",
+  "scope": "https://zeleradeck.com/",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#ffffff",
-  "theme_color": "#4f46e5",
+  "theme_color": "#0A0A0A",
+  "lang": "en-IN",
+  "categories": ["business", "productivity", "shopping"],
   "icons": [
     {
-      "src": "/favicon.svg",
+      "src": "/logo2.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/logo2.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/logo-new.png",
       "sizes": "any",
-      "type": "image/svg+xml"
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/logo2.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide"
     }
   ]
 }
