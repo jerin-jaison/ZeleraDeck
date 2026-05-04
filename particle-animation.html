@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ZeleraDeck — Particle Assembly</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      width: 100%; height: 100%;
+      background: #000;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    canvas {
+      display: block;
+      width: 100vw;
+      height: 100vh;
+    }
+    #replay-btn {
+      position: fixed;
+      bottom: 32px;
+      right: 32px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.18);
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      letter-spacing: 0.12em;
+      padding: 10px 22px;
+      border-radius: 24px;
+      cursor: pointer;
+      backdrop-filter: blur(8px);
+      transition: background 0.3s, transform 0.2s;
+      opacity: 0;
+      pointer-events: none;
+    }
+    #replay-btn.visible {
+      opacity: 1;
+      pointer-events: all;
+    }
+    #replay-btn:hover { background: rgba(255,255,255,0.16); transform: scale(1.04); }
+  </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@900&display=swap" rel="stylesheet">
+</head>
+<body>
+<canvas id="c"></canvas>
+<button id="replay-btn">↺ REPLAY</button>
+
+<script>
+'use strict';
+
+/* ─────────────────────────────────────────────
+   ZeleraDeck Particle Assembly Animation
+   6-second cinematic, locked camera, pure black.
+   ───────────────────────────────────────────── */
+
+const canvas  = document.getElementById('c');
+const ctx     = canvas.getContext('2d');
+const btn     = document.getElementById('replay-btn');
+
+// ── constants ──────────────────────────────────
+const DURATION    = 6000;   // ms — total animation
+const ASSEMBLE_T  = 0.72;   // 0→1 normalised time when assembly completes
+const PULSE_START = 0.76;   // heartbeat begins
+const N_PARTICLES = 520;
+
+// logo colours — matching reference
+const COL_Z   = '#ffffff';
+const COL_D   = '#00c8f0';
+const COL_TXT = '#ffffff';
+const COL_D2  = '#0084c8';
+
+// ── canvas sizing ─────────────────────────────
+function resize() {
+  canvas.width  = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+window.addEventListener('resize', () => { resize(); init(); });
+resize();
+
+// ── easing ────────────────────────────────────
+function easeInOutCubic(t) {
+  return t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2, 3)/2;
+}
+function easeOutExpo(t) {
+  return t === 1 ? 1 : 1 - Math.pow(2, -10*t);
+}
+function easeInOutSine(t) {
+  return -(Math.cos(Math.PI * t) - 1) / 2;
+}
+
+// ── logo path sampling ───────────────────────
+// We draw the logo onto an off-screen canvas and sample bright pixels.
+function buildLogoPoints(targetW, targetH, nPoints) {
+  // off-screen canvas
+  const oc = document.createElement('canvas');
+  oc.width  = targetW;
+  oc.height = targetH;
+  const oc2 = oc.getContext('2d');
+  drawLogo(oc2, targetW, targetH, 1);
+
+  const px = oc2.getImageData(0, 0, targetW, targetH).data;
+  const pts = [];
+
+  // collect all bright pixels (alpha > 80)
+  for (let y = 0; y < targetH; y++) {
+    for (let x = 0; x < targetW; x++) {
+      const i = (y * targetW + x) * 4;
+      const a = px[i+3];
+      const r = px[i];
+      const g = px[i+1];
+      const b = px[i+2];
+      if (a > 80) {
+        pts.push({ x, y, r, g, b, a });
+      }
+    }
+  }
+
+  // stratified sample
+  const step = Math.max(1, Math.floor(pts.length / nPoints));
+  const sample = [];
+  for (let i = 0; i < pts.length && sample.length < nPoints; i += step) {
+    sample.push(pts[i]);
+  }
+  // shuffle
+  for (let i = sample.length - 1; i > 0; i--) {
+    const j = (Math.random() * (i+1)) | 0;
+    [sample[i], sample[j]] = [sample[j], sample[i]];
+  }
+  return sample;
+}
+
+// ── logo renderer ────────────────────────────
+// Draws the full ZeleraDeck logo into a given context.
+function drawLogo(c, W, H, alpha) {
+  c.clearRect(0, 0, W, H);
+  c.save();
+  c.globalAlpha = alpha;
+
+  // ── scale + centre ──
+  const scale  = Math.min(W, H) / 900;
+  const logoW  = 680 * scale;
+  const logoH  = 420 * scale;
+  const ox     = (W - logoW) / 2;
+  const oy     = (H - logoH) / 2 - 30 * scale;
+
+  // ── Z letter ──
+  const zx = ox;
+  const zy = oy;
+  const zw = 290 * scale;
+  const zh = 280 * scale;
+
+  c.save();
+  c.shadowBlur  = 18 * scale;
+  c.shadowColor = 'rgba(255,255,255,0.5)';
+  c.fillStyle   = COL_Z;
+  c.beginPath();
+  // Z shape via polygon
+  const zpts = [
+    [0,    0],
+    [zw,   0],
+    [zw,   zh*0.22],
+    [zh*0.26, zh*0.78],
+    [zw,   zh*0.78],
+    [zw,   zh],
+    [0,    zh],
+    [0,    zh*0.78],
+    [zw - zh*0.26, zh*0.22],
+    [0,    zh*0.22],
+  ];
+  c.moveTo(zx + zpts[0][0], zy + zpts[0][1]);
+  for (let i = 1; i < zpts.length; i++) c.lineTo(zx + zpts[i][0], zy + zpts[i][1]);
+  c.closePath();
+  c.fill();
+  c.restore();
+
+  // ── D letter ──
+  const dx = ox + 270 * scale;
+  const dy = oy;
+  const dw = 310 * scale;
+  const dh = 280 * scale;
+
+  const dGrad = c.createLinearGradient(dx, dy, dx + dw, dy + dh);
+  dGrad.addColorStop(0,   '#00e5ff');
+  dGrad.addColorStop(0.4, '#00c8f0');
+  dGrad.addColorStop(1,   '#0058a8');
+
+  c.save();
+  c.shadowBlur  = 22 * scale;
+  c.shadowColor = 'rgba(0,200,240,0.6)';
+  c.fillStyle   = dGrad;
+  const cr = dh * 0.5;          // corner radius of the D arc
+  c.beginPath();
+  // Outer D path
+  c.moveTo(dx,        dy);
+  c.lineTo(dx + dw * 0.45, dy);
+  c.arc(dx + dw * 0.45, dy + cr, cr, -Math.PI/2, Math.PI/2, false);
+  c.lineTo(dx,        dy + dh);
+  c.closePath();
+  c.fill();
+  // cut inner arc
+  const ir = dh * 0.31;
+  const ix = dx + dw * 0.45;
+  const iy = dy + cr;
+  c.globalCompositeOperation = 'destination-out';
+  c.beginPath();
+  c.moveTo(ix, iy - ir);
+  c.arc(ix, iy, ir, -Math.PI/2, Math.PI/2, false);
+  c.lineTo(dx + dw * 0.18, dy + dh * 0.5 + ir);
+  c.lineTo(dx + dw * 0.18, dy + dh * 0.5 - ir);
+  c.closePath();
+  c.fill();
+  c.globalCompositeOperation = 'source-over';
+  c.restore();
+
+  // ── tagline text ──
+  const textY  = oy + 290 * scale;
+  const fontSize = 82 * scale;
+  c.font = `900 ${fontSize}px 'Inter', 'Arial Black', sans-serif`;
+  c.textAlign = 'center';
+  c.textBaseline = 'top';
+
+  // ZELERA
+  c.save();
+  c.shadowBlur  = 12 * scale;
+  c.shadowColor = 'rgba(255,255,255,0.4)';
+  c.fillStyle   = '#ffffff';
+  c.fillText('ZELERA', W / 2 - 147 * scale, textY);
+  c.restore();
+
+  // DECK
+  c.save();
+  c.shadowBlur  = 16 * scale;
+  c.shadowColor = 'rgba(0,200,240,0.6)';
+  const tGrad = c.createLinearGradient(W / 2 + 10 * scale, textY, W / 2 + 10 * scale, textY + fontSize);
+  tGrad.addColorStop(0, '#00e5ff');
+  tGrad.addColorStop(1, '#0090d0');
+  c.fillStyle = tGrad;
+  c.fillText('DECK', W / 2 + 210 * scale, textY);
+  c.restore();
+
+  c.restore();
+}
+
+// ── particle class ────────────────────────────
+class Particle {
+  constructor(tx, ty, r, g, b, cw, ch) {
+    // target (logo) position — store as relative centre offset
+    this.tx = tx;
+    this.ty = ty;
+    this.tr = r;
+    this.tg = g;
+    this.tb = b;
+
+    // random start position scattered all over / edges
+    const edge = Math.random();
+    if (edge < 0.25) {
+      this.x = Math.random() * cw;
+      this.y = -20 - Math.random() * 120;
+    } else if (edge < 0.5) {
+      this.x = Math.random() * cw;
+      this.y = ch + 20 + Math.random() * 120;
+    } else if (edge < 0.75) {
+      this.x = -20 - Math.random() * 120;
+      this.y = Math.random() * ch;
+    } else {
+      this.x = cw + 20 + Math.random() * 120;
+      this.y = Math.random() * ch;
+    }
+
+    // some start truly scattered mid-screen
+    if (Math.random() < 0.35) {
+      this.x = Math.random() * cw;
+      this.y = Math.random() * ch;
+    }
+
+    // random size — varies per particle
+    this.baseRadius = 1.2 + Math.random() * 2.2;
+    this.radius     = this.baseRadius;
+
+    // delay — outer logo particles arrive first (they have smallest dist from edge)
+    // We'll assign delay based on distance from centre to create outer→inner fill
+    const cx = cw / 2, cy = ch / 2;
+    const distFromCentre = Math.hypot(tx - cx, ty - cy);
+    // max expected dist — approx half-diagonal of logo
+    const maxDist = Math.hypot(cw * 0.35, ch * 0.28);
+    this.delay = 0.05 + (distFromCentre / maxDist) * 0.28; // outer = small delay, inner = more
+
+    // curve control point offset
+    this.cpOffsetX = (Math.random() - 0.5) * 280;
+    this.cpOffsetY = (Math.random() - 0.5) * 280;
+
+    // idle drift (before assembly begins)
+    this.driftAngle = Math.random() * Math.PI * 2;
+    this.driftSpeed = 0.15 + Math.random() * 0.3;
+    this.driftRadius = 8 + Math.random() * 20;
+    this.driftPhase  = Math.random() * Math.PI * 2;
+
+    // colour
+    this.r = 200 + Math.floor(Math.random() * 55);
+    this.g = 200 + Math.floor(Math.random() * 55);
+    this.b = 200 + Math.floor(Math.random() * 55);
+
+    // assembled glow
+    this.glowIntensity = 0;
+  }
+
+  update(t, cw, ch, pulseAlpha) {
+    // t = 0 → 1 normalised animation time
+
+    const assembleT = ASSEMBLE_T;
+
+    if (t < assembleT) {
+      // ── assembly phase ──
+      const localT = Math.max(0, (t / assembleT - this.delay / assembleT)) /
+                     (1 - this.delay / assembleT);
+      const et = Math.max(0, Math.min(1, localT));
+      const ease = easeInOutCubic(et);
+
+      // quadratic bezier from start → control → target
+      const midX = (this.x + this.tx) / 2 + this.cpOffsetX * (1 - et);
+      const midY = (this.y + this.ty) / 2 + this.cpOffsetY * (1 - et);
+
+      if (et < 0.001) {
+        // idle drift
+        const drift = Math.sin(t * 60 * this.driftSpeed + this.driftPhase);
+        this.cx = this.x + Math.cos(this.driftAngle) * drift * this.driftRadius;
+        this.cy = this.y + Math.sin(this.driftAngle) * drift * this.driftRadius;
+      } else {
+        // bezier
+        const inv = 1 - ease;
+        this.cx = inv * inv * this.x + 2 * inv * ease * midX + ease * ease * this.tx;
+        this.cy = inv * inv * this.y + 2 * inv * ease * midY + ease * ease * this.ty;
+      }
+
+      this.radius = this.baseRadius * (0.7 + 0.3 * ease);
+      this.glowIntensity = ease;
+
+      // colour lerp: random white → logo colour
+      const lr = ease;
+      this.cr = Math.round(this.r + (this.tr - this.r) * lr);
+      this.cg = Math.round(this.g + (this.tg - this.g) * lr);
+      this.cb = Math.round(this.b + (this.tb - this.b) * lr);
+
+    } else {
+      // ── settled position ──
+      this.cx = this.tx;
+      this.cy = this.ty;
+      this.cr = this.tr;
+      this.cg = this.tg;
+      this.cb = this.tb;
+      this.glowIntensity = 1;
+      this.radius = this.baseRadius;
+    }
+
+    this.pulseAlpha = pulseAlpha;
+  }
+
+  draw(ctx) {
+    const x = this.cx, y = this.cy, r = this.radius;
+    if (isNaN(x) || isNaN(y)) return;
+
+    const cr = Math.max(0, Math.min(255, this.cr || 255));
+    const cg = Math.max(0, Math.min(255, this.cg || 255));
+    const cb = Math.max(0, Math.min(255, this.cb || 255));
+
+    // core dot
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fillStyle = `rgb(${cr},${cg},${cb})`;
+    ctx.fill();
+
+    // glow halo
+    if (this.glowIntensity > 0.1) {
+      const glowR = r * (3 + this.glowIntensity * 2);
+      const grad = ctx.createRadialGradient(x, y, 0, x, y, glowR);
+      const ga   = this.glowIntensity * 0.45;
+      grad.addColorStop(0,   `rgba(${cr},${cg},${cb},${ga})`);
+      grad.addColorStop(0.4, `rgba(${cr},${cg},${cb},${ga * 0.4})`);
+      grad.addColorStop(1,   `rgba(${cr},${cg},${cb},0)`);
+      ctx.beginPath();
+      ctx.arc(x, y, glowR, 0, Math.PI * 2);
+      ctx.fillStyle = grad;
+      ctx.fill();
+    }
+  }
+}
+
+// ── state ─────────────────────────────────────
+let particles = [];
+let startTime = null;
+let rafId     = null;
+let logoPoints = [];
+
+// ── init ──────────────────────────────────────
+function init() {
+  if (rafId) cancelAnimationFrame(rafId);
+  startTime = null;
+  btn.classList.remove('visible');
+
+  const W = canvas.width;
+  const H = canvas.height;
+
+  // sample logo onto a high-res off-screen
+  const samplerW = Math.round(W * 0.92);
+  const samplerH = Math.round(H * 0.92);
+  logoPoints = buildLogoPoints(samplerW, samplerH, N_PARTICLES);
+
+  // offset: centre sampler output onto canvas
+  const offX = (W - samplerW) / 2;
+  const offY = (H - samplerH) / 2;
+
+  particles = logoPoints.map(lp => {
+    const p = new Particle(
+      lp.x + offX,
+      lp.y + offY,
+      lp.r, lp.g, lp.b,
+      W, H
+    );
+    return p;
+  });
+
+  rafId = requestAnimationFrame(loop);
+}
+
+// ── pulse helper ──────────────────────────────
+function getPulseAlpha(t) {
+  if (t < PULSE_START) return 0;
+  const pt = (t - PULSE_START) / (1 - PULSE_START);
+  // 3 heartbeat pulses
+  const period   = 0.28;
+  const cycle    = pt % period / period;
+  const beat     = Math.sin(cycle * Math.PI);
+  const decayEnv = Math.pow(1 - pt, 0.6);
+  return beat * decayEnv;
+}
+
+// ── main loop ─────────────────────────────────
+function loop(now) {
+  if (!startTime) startTime = now;
+  const elapsed = now - startTime;
+  const t = Math.min(elapsed / DURATION, 1);
+
+  const W = canvas.width;
+  const H = canvas.height;
+
+  // clear
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = '#000000';
+  ctx.fillRect(0, 0, W, H);
+
+  // pulse ring
+  const pulseA = getPulseAlpha(t);
+  if (t >= PULSE_START && pulseA > 0.005) {
+    const cx = W / 2, cy = H / 2;
+    const pt = (t - PULSE_START) / (1 - PULSE_START);
+    const maxR = Math.max(W, H) * 0.65;
+    const rr = pt * maxR;
+    const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, rr);
+    grad.addColorStop(0,   `rgba(255,255,255,0)`);
+    grad.addColorStop(0.7, `rgba(200,240,255,${pulseA * 0.12})`);
+    grad.addColorStop(0.9, `rgba(255,255,255,${pulseA * 0.25})`);
+    grad.addColorStop(1,   `rgba(255,255,255,0)`);
+    ctx.beginPath();
+    ctx.arc(cx, cy, rr, 0, Math.PI * 2);
+    ctx.fillStyle = grad;
+    ctx.fill();
+  }
+
+  // update + draw particles
+  particles.forEach(p => {
+    p.update(t, W, H, pulseA);
+    p.draw(ctx);
+  });
+
+  // steady luminescence overlay after assembly
+  if (t >= ASSEMBLE_T) {
+    const settledT = (t - ASSEMBLE_T) / (1 - ASSEMBLE_T);
+    const glowAlpha = Math.min(settledT, 1) * 0.06;
+    const cx = W / 2, cy = H / 2 - 20;
+    const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, W * 0.4);
+    grad.addColorStop(0,   `rgba(0,180,255,${glowAlpha})`);
+    grad.addColorStop(0.5, `rgba(100,200,255,${glowAlpha * 0.4})`);
+    grad.addColorStop(1,   `rgba(0,0,0,0)`);
+    ctx.beginPath();
+    ctx.ellipse(cx, cy, W * 0.4, H * 0.35, 0, 0, Math.PI * 2);
+    ctx.fillStyle = grad;
+    ctx.fill();
+  }
+
+  if (t < 1) {
+    rafId = requestAnimationFrame(loop);
+  } else {
+    btn.classList.add('visible');
+  }
+}
+
+// ── replay ────────────────────────────────────
+btn.addEventListener('click', init);
+
+// ── start ─────────────────────────────────────
+init();
+</script>
+</body>
+</html>
