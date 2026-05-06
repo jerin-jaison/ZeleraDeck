@@ -18,6 +18,10 @@ import StorePage from './pages/StorePage'
 import ProductPage from './pages/ProductPage'
 import ContactPage from './pages/ContactPage'
 import AboutPage from './pages/AboutPage'
+import HomePage from './pages/HomePage'
+import WhyUsPage from './pages/WhyUsPage'
+import SignupPage from './pages/SignupPage'
+import SocialProofToast from './components/SocialProofToast'
 
 // Admin pages
 import AdminLayout from './pages/admin/AdminLayout'
@@ -74,10 +78,16 @@ function NotFoundPage() {
   )
 }
 
+const PUBLIC_TOAST_PATHS = ['/', '/why-us', '/contact']
+
 function AppRoutes() {
+  const location = useLocation()
+  const showToast = PUBLIC_TOAST_PATHS.includes(location.pathname)
+
   return (
     <>
       <GA4PageTracker />
+      {showToast && <SocialProofToast />}
       <Routes>
         {/* Preview route — always accessible regardless of maintenance */}
         <Route path="/maintenance-preview" element={
@@ -89,7 +99,10 @@ function AppRoutes() {
           <MaintenanceGate>
             <AuthProvider>
               <Routes>
-                {/* Public */}
+                {/* Public marketing */}
+                <Route path="/" element={<HomePage />} />
+                <Route path="/why-us" element={<WhyUsPage />} />
+                <Route path="/signup" element={<SignupPage />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/about" element={<AboutPage />} />
                 <Route path="/contact" element={<ContactPage />} />
@@ -114,8 +127,6 @@ function AppRoutes() {
                   <Route path="maintenance" element={<AdminMaintenance />} />
                 </Route>
 
-                {/* Redirects */}
-                <Route path="/" element={<Navigate to="/login" replace />} />
                 {/* Store public route — must come last before 404 */}
                 <Route path="/:slug" element={<StorePage />} />
                 <Route path="*" element={<NotFoundPage />} />

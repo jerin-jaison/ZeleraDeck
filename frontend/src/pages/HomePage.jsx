@@ -2,7 +2,6 @@ import { Link } from 'react-router-dom'
 import { MessageCircle, Link2, Package, CheckCircle, Star, ArrowRight, QrCode } from 'lucide-react'
 import SEOHead from '../components/SEOHead'
 import PublicNavbar from '../components/PublicNavbar'
-import ScrollHero from '../components/ScrollHero'
 
 const WA = 'https://wa.me/917012783442?text=Hi%2C%20I%20want%20to%20get%20ZeleraDeck%20for%20my%20shop'
 
@@ -34,7 +33,30 @@ export default function HomePage() {
       <div className="bg-[#F8F8F8] min-h-screen" style={{ animation: 'fadeIn 0.15s ease-out' }}>
         <PublicNavbar transparent={true} />
         <main>
-          <ScrollHero />
+          {/* Hero */}
+          <section className="bg-[#0A0A0A] px-4 pt-28 pb-20 text-center">
+            <div className="max-w-2xl mx-auto">
+              <span className="inline-block text-xs font-semibold tracking-widest text-[#737373] uppercase mb-4">Digital Catalogue Platform</span>
+              <h1 className="text-4xl sm:text-5xl font-black text-white leading-tight">
+                Your shop. Online.
+                <span className="block text-[#00c8f0] mt-1">In minutes.</span>
+              </h1>
+              <p className="mt-5 text-[#A3A3A3] text-base max-w-lg mx-auto leading-relaxed">
+                ZeleraDeck gives Kerala shop owners a beautiful digital catalogue with a shareable link and WhatsApp ordering — no website, no app, no hassle.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center mt-8">
+                <a href={WA} target="_blank" rel="noopener noreferrer" id="hero-wa-cta"
+                  className="flex items-center justify-center gap-2 bg-[#25D366] text-white font-semibold text-sm px-7 py-3.5 rounded-xl hover:bg-[#1ebe5d] transition-colors">
+                  <MessageCircle className="w-4 h-4" /> Get Started on WhatsApp
+                </a>
+                <Link to="/about" id="hero-learn-more"
+                  className="flex items-center justify-center gap-1.5 border border-white/15 text-white/80 font-medium text-sm px-7 py-3.5 rounded-xl hover:border-white/30 transition-colors">
+                  Learn More <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
+              </div>
+            </div>
+          </section>
+
 
 
           {/* Features */}

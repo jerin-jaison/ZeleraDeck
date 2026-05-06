@@ -1,6 +1,15 @@
-import { useNavigate } from 'react-router-dom'
-import { ArrowLeft, CheckCircle, MessageCircle, Mail } from 'lucide-react'
+import { CheckCircle, MessageCircle, Mail, ArrowRight } from 'lucide-react'
 import SEOHead from '../components/SEOHead'
+import PublicNavbar from '../components/PublicNavbar'
+
+const WA = 'https://wa.me/917012783442?text=Hi%2C%20I%20want%20to%20get%20ZeleraDeck%20for%20my%20shop'
+
+const HOW_IT_WORKS = [
+  { step: '1', title: 'Contact us on WhatsApp', desc: 'Send us a message at +91 70127 83442. We reply within 24 hours and guide you through the setup.' },
+  { step: '2', title: 'We set up your digital catalogue', desc: 'Our team creates your personalised ZeleraDeck shop and sends you your login details — no tech work on your end.' },
+  { step: '3', title: 'Add your products', desc: 'Log in and upload your products with photos, prices, and categories. Takes just minutes.' },
+  { step: '4', title: 'Share your catalogue link with customers', desc: 'Share your unique catalogue link or QR code on WhatsApp, Instagram, or print it in-store. Customers browse and order instantly.' },
+]
 
 const FEATURES = [
   {
@@ -68,8 +77,6 @@ const aboutSchema = {
 }
 
 export default function AboutPage() {
-  const navigate = useNavigate()
-
   return (
     <>
       <SEOHead
@@ -82,20 +89,7 @@ export default function AboutPage() {
 
       {/* ── Semantic HTML page — readable by AI crawlers without JS ── */}
       <div className="bg-[#F8F8F8] min-h-screen pb-16" style={{ animation: 'fadeIn 0.15s ease-out' }}>
-
-        {/* Header */}
-        <header className="bg-white border-b border-[#F0F0F0]">
-          <div className="max-w-2xl mx-auto px-4 py-4 flex items-center gap-3">
-            <button
-              onClick={() => navigate(-1)}
-              className="p-1 text-[#0A0A0A]"
-              aria-label="Go back"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </button>
-            <h1 className="text-base font-bold text-[#0A0A0A]">About ZeleraDeck</h1>
-          </div>
-        </header>
+        <PublicNavbar />
 
         <main className="max-w-2xl mx-auto px-4 py-8 space-y-8">
 
@@ -295,6 +289,55 @@ export default function AboutPage() {
               >
                 Contact Support
               </button>
+            </div>
+          </section>
+
+
+          {/* How It Works */}
+          <section aria-labelledby="how-heading">
+            <h2 id="how-heading" className="text-lg font-bold text-[#0A0A0A] mb-4">How It Works</h2>
+            <div className="space-y-3">
+              {HOW_IT_WORKS.map((item) => (
+                <article key={item.step} className="bg-white rounded-2xl border border-[#F0F0F0] p-5 flex items-start gap-4">
+                  <div className="w-8 h-8 bg-[#0A0A0A] rounded-full flex items-center justify-center flex-shrink-0 text-xs font-bold text-white">
+                    {item.step}
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-[#0A0A0A]">{item.title}</h3>
+                    <p className="text-sm text-[#737373] mt-1 leading-relaxed">{item.desc}</p>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </section>
+
+          {/* Our Story */}
+          <section aria-labelledby="story-heading">
+            <div className="bg-white rounded-2xl border border-[#F0F0F0] p-6">
+              <h2 id="story-heading" className="text-lg font-bold text-[#0A0A0A]">Our Story</h2>
+              <p className="text-sm text-[#737373] mt-3 leading-relaxed">
+                ZeleraDeck was born out of a simple observation: Kerala has thousands of talented local shop owners
+                with amazing products, but no easy way to show them off online. Paper catalogues get lost.
+                Expensive websites need developers. Instagram is great, but not built for catalogues.
+              </p>
+              <p className="text-sm text-[#737373] mt-3 leading-relaxed">
+                We're a young Kerala startup that believes every local shop deserves a digital presence —
+                without the complexity or the cost. ZeleraDeck is our answer: a simple, WhatsApp-native
+                catalogue that any shop owner can set up and share in under 30 minutes.
+              </p>
+              <p className="text-sm text-[#737373] mt-3 leading-relaxed">
+                We started with a handful of shops in Kerala and we're growing every week. Our mission is simple:
+                help local businesses grow by making digital tools as easy as sending a WhatsApp message.
+              </p>
+              <a
+                href={WA}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-6 inline-flex items-center gap-2 bg-[#0A0A0A] text-white text-sm font-semibold px-5 py-3 rounded-xl hover:bg-[#2A2A2A] transition-colors"
+              >
+                <MessageCircle className="w-4 h-4" />
+                Get Started
+              </a>
             </div>
           </section>
 
