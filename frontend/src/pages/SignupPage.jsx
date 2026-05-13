@@ -29,7 +29,7 @@ export default function SignupPage() {
 
           {/* Hero card */}
           <div className="bg-[#0A0A0A] rounded-2xl p-8 text-center mb-6">
-            <img src="/logo-new.png" alt="ZeleraDeck" className="w-14 h-14 rounded-2xl object-cover mx-auto" />
+            <img src="/logo-zd-nobg.png" alt="ZeleraDeck" className="w-14 h-14 rounded-2xl object-cover mx-auto" />
             <h1 className="text-2xl font-black text-white mt-4">Create Your Account</h1>
             <p className="text-sm text-white/60 mt-3 leading-relaxed max-w-xs mx-auto">
               To get started with ZeleraDeck, contact us on WhatsApp. We'll set everything up for you personally — no forms, no hassle.

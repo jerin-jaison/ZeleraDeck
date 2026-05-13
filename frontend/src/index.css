@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./gold-rebrand.css";
 
 @theme {
   --color-zd-black: #0A0A0A;
@@ -108,4 +109,853 @@ input, textarea, select {
 @keyframes statusPulse {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.4; }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   ZeleraDeck Homepage Design System
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Fonts ─────────────────────────────────────────────────── */
+.zdeck-page h1,
+.zdeck-page h2,
+.zdeck-page h3,
+.zdeck-page h4,
+.zdeck-page button,
+.zdeck-page a.zdeck-btn-primary,
+.zdeck-page a.zdeck-btn-ghost {
+  font-family: 'Poppins', sans-serif;
+}
+
+/* ── Hero Orb Animations ───────────────────────────────────── */
+@keyframes orbFloat {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(30px, -40px) scale(1.05); }
+  66% { transform: translate(-20px, 20px) scale(0.97); }
+}
+@keyframes orbFloat2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  40% { transform: translate(-40px, 30px) scale(1.08); }
+  70% { transform: translate(25px, -25px) scale(0.95); }
+}
+@keyframes pulseDot {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(37,211,102,0.5); }
+  50% { opacity: 0.8; box-shadow: 0 0 0 5px rgba(37,211,102,0); }
+}
+
+.zdeck-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  will-change: transform;
+  pointer-events: none;
+}
+.zdeck-orb-1 {
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(37,99,235,0.25) 0%, transparent 70%);
+  top: -200px;
+  left: -100px;
+  animation: orbFloat 12s ease-in-out infinite;
+}
+.zdeck-orb-2 {
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(59,130,246,0.18) 0%, transparent 70%);
+  bottom: -150px;
+  right: -80px;
+  animation: orbFloat2 10s ease-in-out infinite;
+}
+.zdeck-orb-3 {
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(6,182,212,0.15) 0%, transparent 70%);
+  top: 40%;
+  left: 55%;
+  animation: orbFloat 16s ease-in-out infinite reverse;
+}
+
+.zdeck-grid-overlay {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events: none;
+}
+
+/* ── Hero Text ─────────────────────────────────────────────── */
+.zdeck-hero-headline {
+  font-family: 'Poppins', sans-serif;
+}
+.zdeck-gradient-text {
+  background: linear-gradient(135deg, #38BDF8 0%, #06B6D4 50%, #0EA5E9 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.zdeck-accent-line {
+  width: 48px;
+  height: 3px;
+  background: linear-gradient(90deg, #06B6D4, #2563EB);
+  border-radius: 99px;
+}
+.zdeck-pulse-dot {
+  animation: pulseDot 2s ease-in-out infinite;
+}
+
+/* ── Buttons ───────────────────────────────────────────────── */
+.zdeck-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background-color: #25D366;
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.9375rem;
+  padding: 0.875rem 1.75rem;
+  border-radius: 0.875rem;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 150ms ease, box-shadow 150ms ease, background-color 150ms ease;
+  will-change: transform;
+}
+.zdeck-btn-primary:hover {
+  background-color: #1ebe5d;
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 24px rgba(37,211,102,0.35);
+}
+.zdeck-btn-primary:focus-visible {
+  outline: 3px solid #2563EB;
+  outline-offset: 2px;
+}
+
+.zdeck-btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border: 1px solid rgba(255,255,255,0.2);
+  color: rgba(255,255,255,0.85);
+  font-weight: 600;
+  font-size: 0.9375rem;
+  padding: 0.875rem 1.75rem;
+  border-radius: 0.875rem;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 150ms ease, border-color 150ms ease, background-color 150ms ease;
+  background: transparent;
+}
+.zdeck-btn-ghost:hover {
+  border-color: rgba(255,255,255,0.45);
+  background: rgba(255,255,255,0.07);
+  transform: translateY(-2px);
+}
+.zdeck-btn-ghost:focus-visible {
+  outline: 3px solid #2563EB;
+  outline-offset: 2px;
+}
+
+/* ── Stats ─────────────────────────────────────────────────── */
+.zdeck-stat-value {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #0F172A;
+  line-height: 1;
+}
+.zdeck-stat-label {
+  font-family: 'Open Sans', sans-serif;
+  font-size: 0.75rem;
+  color: #64748B;
+  margin-top: 0.25rem;
+}
+
+/* ── Section Typography ────────────────────────────────────── */
+.zdeck-section-badge {
+  display: inline-block;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #2563EB;
+  background: #EFF6FF;
+  border: 1px solid #BFDBFE;
+  border-radius: 99px;
+  padding: 0.25rem 0.875rem;
+}
+.zdeck-section-badge-dark {
+  display: inline-block;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #06B6D4;
+  background: rgba(6,182,212,0.1);
+  border: 1px solid rgba(6,182,212,0.2);
+  border-radius: 99px;
+  padding: 0.25rem 0.875rem;
+}
+.zdeck-section-title {
+  font-family: 'Poppins', sans-serif;
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  font-weight: 900;
+  color: #0F172A;
+  line-height: 1.15;
+}
+.zdeck-section-sub {
+  font-family: 'Open Sans', sans-serif;
+  color: #64748B;
+  font-size: 1rem;
+  max-width: 40rem;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.7;
+}
+
+/* ── Feature Cards ─────────────────────────────────────────── */
+.zdeck-feature-card {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 1.25rem;
+  padding: 1.75rem;
+  cursor: default;
+  transition: transform 300ms cubic-bezier(0.34,1.2,0.64,1),
+              box-shadow 300ms cubic-bezier(0.34,1.2,0.64,1),
+              border-color 300ms ease;
+  will-change: transform;
+}
+.zdeck-feature-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 0 0 1px rgba(37,99,235,0.1),
+              0 8px 32px rgba(37,99,235,0.12),
+              0 0 40px var(--glow-color, rgba(37,99,235,0.08));
+  border-color: rgba(37,99,235,0.2);
+}
+.zdeck-card-title {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.0625rem;
+  font-weight: 700;
+  color: #0F172A;
+}
+.zdeck-card-desc {
+  font-family: 'Open Sans', sans-serif;
+  font-size: 0.875rem;
+  color: #64748B;
+  line-height: 1.65;
+}
+
+/* ── How It Works Steps ────────────────────────────────────── */
+.zdeck-step-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 1.25rem;
+  padding: 2rem 1.75rem;
+  backdrop-filter: blur(12px);
+  transition: background 300ms ease, border-color 300ms ease;
+}
+.zdeck-step-card:hover {
+  background: rgba(255,255,255,0.07);
+  border-color: rgba(37,99,235,0.3);
+}
+.zdeck-step-number {
+  font-family: 'Poppins', sans-serif;
+  font-size: 2.5rem;
+  font-weight: 900;
+  background: linear-gradient(135deg, #38BDF8, #2563EB);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  line-height: 1;
+}
+
+/* ── Founding Banner ───────────────────────────────────────── */
+.zdeck-founding-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.875rem;
+  background: linear-gradient(135deg, #FFF7ED, #FEF3C7);
+  border: 1px solid #FED7AA;
+  border-radius: 1rem;
+  padding: 1rem 1.25rem;
+}
+
+/* ── Billing Toggle ────────────────────────────────────────── */
+.zdeck-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding: 0.5rem 1.25rem;
+  border-radius: 0.625rem;
+  cursor: pointer;
+  transition: all 200ms ease;
+  border: 1px solid #E2E8F0;
+}
+.zdeck-toggle-active {
+  background: #0F172A;
+  color: #fff;
+  border-color: #0F172A;
+}
+.zdeck-toggle-inactive {
+  background: #fff;
+  color: #64748B;
+}
+.zdeck-toggle-inactive:hover {
+  color: #0F172A;
+  border-color: #94A3B8;
+}
+.zdeck-save-badge {
+  font-size: 0.6875rem;
+  background: #25D366;
+  color: #fff;
+  padding: 0.15rem 0.5rem;
+  border-radius: 99px;
+  font-weight: 700;
+}
+
+/* ── Pricing Cards ─────────────────────────────────────────── */
+.zdeck-pricing-card {
+  background: #fff;
+  border: 1px solid #E2E8F0;
+  border-radius: 1.5rem;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  transition: transform 300ms ease, box-shadow 300ms ease;
+}
+.zdeck-pricing-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 48px rgba(15,23,42,0.1);
+}
+.zdeck-pricing-selected {
+  border-color: #2563EB;
+  box-shadow: 0 0 0 1px #2563EB;
+}
+.zdeck-pricing-highlight {
+  background: #0F172A;
+  border-color: transparent;
+  border-left: 4px solid #2563EB;
+  box-shadow: 0 20px 60px rgba(15,23,42,0.4);
+}
+.zdeck-pricing-highlight:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 24px 72px rgba(15,23,42,0.5);
+}
+.zdeck-best-value-badge {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.25rem;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  padding: 0.3rem 0.75rem;
+  border-radius: 99px;
+  background: linear-gradient(135deg, #EA580C, #F97316);
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.zdeck-pricing-plan-name {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #0F172A;
+}
+.zdeck-pricing-highlight .zdeck-pricing-plan-name {
+  color: #fff;
+}
+.zdeck-pricing-price {
+  font-family: 'Poppins', sans-serif;
+  font-size: 2.25rem;
+  font-weight: 900;
+  color: #0F172A;
+  line-height: 1;
+}
+.zdeck-pricing-highlight .zdeck-pricing-price {
+  color: #fff;
+}
+.zdeck-pricing-btn-primary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: #25D366;
+  color: #fff;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  font-size: 0.9375rem;
+  padding: 0.875rem 1.5rem;
+  border-radius: 0.875rem;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 150ms ease, transform 150ms ease, box-shadow 150ms ease;
+}
+.zdeck-pricing-btn-primary:hover {
+  background: #1ebe5d;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(37,211,102,0.35);
+}
+.zdeck-pricing-btn-secondary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: #0F172A;
+  color: #fff;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  font-size: 0.9375rem;
+  padding: 0.875rem 1.5rem;
+  border-radius: 0.875rem;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 150ms ease, transform 150ms ease;
+}
+.zdeck-pricing-btn-secondary:hover {
+  background: #1E293B;
+  transform: translateY(-1px);
+}
+
+/* ── Bottom CTA Section ─────────────────────────────────────── */
+.zdeck-cta-section {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+  padding: 6rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.zdeck-cta-orb {
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(37,99,235,0.2) 0%, transparent 70%);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  filter: blur(60px);
+}
+
+/* ── Accessibility & Motion ─────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .zdeck-orb, .zdeck-pulse-dot { animation: none; }
+  .zdeck-feature-card, .zdeck-pricing-card, .zdeck-btn-primary, .zdeck-btn-ghost {
+    transition: none;
+  }
+}
+
+/* ── Responsive tweaks ──────────────────────────────────────── */
+@media (max-width: 640px) {
+  .zdeck-pricing-highlight { border-left-width: 0; border-top: 4px solid #2563EB; }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   DARK MODE  —  [data-theme="dark"]
+   Hero / How-It-Works / CTA / Footer are already dark-first,
+   so only light sections need overrides here.
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Global body & page background ─────────────────────────── */
+[data-theme="dark"] body {
+  background-color: #0F172A;
+  color: #E2E8F0;
+}
+[data-theme="dark"] .zdeck-page {
+  background-color: #0F172A;
+}
+
+/* ── Stats bar ──────────────────────────────────────────────── */
+[data-theme="dark"] .zdeck-stats-bar,
+[data-theme="dark"] section.bg-white.border-y {
+  background-color: #0F172A !important;
+  border-color: #1E293B !important;
+}
+[data-theme="dark"] .zdeck-stat-value {
+  color: #F1F5F9;
+}
+[data-theme="dark"] .zdeck-stat-label {
+  color: #64748B;
+}
+[data-theme="dark"] .bg-\[\#EFF6FF\] {
+  background-color: rgba(37, 99, 235, 0.15) !important;
+}
+
+/* ── Section typography ─────────────────────────────────────── */
+[data-theme="dark"] .zdeck-section-title {
+  color: #F1F5F9;
+}
+[data-theme="dark"] .zdeck-section-sub {
+  color: #64748B;
+}
+[data-theme="dark"] .zdeck-section-badge {
+  background: rgba(37, 99, 235, 0.15);
+  border-color: rgba(37, 99, 235, 0.3);
+  color: #60A5FA;
+}
+
+/* ── Features section background ───────────────────────────── */
+[data-theme="dark"] .zdeck-features-section,
+[data-theme="dark"] section.py-20.max-w-6xl {
+  background-color: transparent;
+}
+
+/* ── Feature cards ──────────────────────────────────────────── */
+[data-theme="dark"] .zdeck-feature-card {
+  background: #1E293B;
+  border-color: #334155;
+}
+[data-theme="dark"] .zdeck-feature-card:hover {
+  background: #1E293B;
+  border-color: rgba(59, 130, 246, 0.35);
+  box-shadow:
+    0 0 0 1px rgba(59, 130, 246, 0.15),
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    0 0 40px var(--glow-color, rgba(37, 99, 235, 0.12));
+}
+[data-theme="dark"] .zdeck-card-title {
+  color: #F1F5F9;
+}
+[data-theme="dark"] .zdeck-card-desc {
+  color: #64748B;
+}
+
+/* ── Pricing section background ─────────────────────────────── */
+[data-theme="dark"] .bg-\[\#F8FAFC\] {
+  background-color: #0F172A !important;
+}
+
+/* ── Founding banner ────────────────────────────────────────── */
+[data-theme="dark"] .zdeck-founding-banner {
+  background: linear-gradient(135deg, rgba(234,88,12,0.12), rgba(251,191,36,0.08));
+  border-color: rgba(234, 88, 12, 0.3);
+}
+[data-theme="dark"] .zdeck-founding-banner p.text-sm.font-bold {
+  color: #F1F5F9;
+}
+[data-theme="dark"] .zdeck-founding-banner p.text-xs {
+  color: #64748B;
+}
+
+/* ── Billing toggle ─────────────────────────────────────────── */
+[data-theme="dark"] .zdeck-toggle-btn {
+  border-color: #334155;
+}
+[data-theme="dark"] .zdeck-toggle-active {
+  background: #2563EB;
+  border-color: #2563EB;
+  color: #fff;
+}
+[data-theme="dark"] .zdeck-toggle-inactive {
+  background: #1E293B;
+  color: #64748B;
+}
+[data-theme="dark"] .zdeck-toggle-inactive:hover {
+  color: #F1F5F9;
+  border-color: #475569;
+}
+
+/* ── Monthly pricing card (light variant) ───────────────────── */
+[data-theme="dark"] .zdeck-pricing-card:not(.zdeck-pricing-highlight) {
+  background: #1E293B;
+  border-color: #334155;
+}
+[data-theme="dark"] .zdeck-pricing-card:not(.zdeck-pricing-highlight):hover {
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4);
+  border-color: #475569;
+}
+[data-theme="dark"] .zdeck-pricing-plan-name {
+  color: #F1F5F9;
+}
+[data-theme="dark"] .zdeck-pricing-price {
+  color: #F1F5F9;
+}
+[data-theme="dark"] .zdeck-pricing-btn-secondary {
+  background: #0F172A;
+  border: 1px solid #334155;
+}
+[data-theme="dark"] .zdeck-pricing-btn-secondary:hover {
+  background: #0A0F1E;
+}
+
+/* ── Ghost button (on non-hero sections) ────────────────────── */
+[data-theme="dark"] a.zdeck-btn-ghost:not(.zdeck-hero *) {
+  border-color: rgba(255,255,255,0.15);
+  color: rgba(255,255,255,0.75);
+}
+
+/* ── Footer ─────────────────────────────────────────────────── */
+[data-theme="dark"] footer {
+  background-color: #060D1A !important;
+  border-color: rgba(255,255,255,0.05) !important;
+}
+
+/* ── Navbar (non-transparent) ───────────────────────────────── */
+[data-theme="dark"] header.sticky {
+  background-color: #0F172A;
+  border-color: #1E293B;
+}
+
+/* ── Bottom CTA section sub-text ────────────────────────────── */
+[data-theme="dark"] .zdeck-cta-section p {
+  color: #64748B;
+}
+
+/* ── Theme toggle button transition ─────────────────────────── */
+#theme-toggle {
+  transition: transform 200ms ease, background-color 200ms ease, color 200ms ease;
+}
+#theme-toggle svg {
+  transition: transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+#theme-toggle:hover svg {
+  transform: rotate(20deg) scale(1.1);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   About / WhyUs / Contact — New Component Classes
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Ghost button on light backgrounds (dark text/border) ── */
+.zdeck-btn-ghost-dark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border: 1px solid #E2E8F0;
+  color: #1E293B;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  padding: 0.875rem 1.75rem;
+  border-radius: 0.875rem;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 150ms ease, border-color 150ms ease, background-color 150ms ease;
+  background: transparent;
+  font-family: 'Poppins', sans-serif;
+}
+.zdeck-btn-ghost-dark:hover {
+  border-color: #94A3B8;
+  background: #F8FAFC;
+  transform: translateY(-2px);
+}
+.zdeck-btn-ghost-dark:focus-visible {
+  outline: 3px solid #2563EB;
+  outline-offset: 2px;
+}
+
+/* ── About page — checklist pill grid ── */
+.zdeck-about-card-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+.zdeck-about-pill {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  background: #fff;
+  border: 1px solid #E2E8F0;
+  border-radius: 0.875rem;
+  padding: 0.875rem 1rem;
+  transition: border-color 200ms ease, box-shadow 200ms ease;
+}
+.zdeck-about-pill:hover {
+  border-color: var(--pill-color, #2563EB);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--pill-color, #2563EB) 12%, transparent);
+}
+
+/* ── Contact page — method cards ── */
+.zdeck-contact-method-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border-radius: 1rem;
+  text-decoration: none;
+  cursor: pointer;
+  background: var(--contact-bg, #F8FAFC);
+  border: 1px solid rgba(0,0,0,0.06);
+  transition: transform 200ms ease, box-shadow 200ms ease, background 200ms ease;
+}
+.zdeck-contact-method-card:first-child {
+  background: #25D366;
+  border-color: transparent;
+}
+.zdeck-contact-method-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+  background: var(--contact-hover, #F1F5F9);
+}
+.zdeck-contact-method-card:first-child:hover {
+  background: #1ebe5d;
+  box-shadow: 0 8px 24px rgba(37,211,102,0.3);
+}
+.zdeck-contact-method-card:focus-visible {
+  outline: 3px solid #2563EB;
+  outline-offset: 2px;
+}
+
+/* ── Contact form input / textarea ── */
+.zdeck-contact-input {
+  width: 100%;
+  border: 1px solid #E2E8F0;
+  border-radius: 0.75rem;
+  padding: 0.75rem 1rem;
+  font-size: 0.9375rem;
+  color: #1E293B;
+  background: #fff;
+  font-family: 'Open Sans', sans-serif;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+  outline: none;
+}
+.zdeck-contact-input::placeholder {
+  color: #94A3B8;
+}
+.zdeck-contact-input:focus {
+  border-color: #2563EB;
+  box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
+}
+
+/* ── Page hero gradient fade (from dark section) ── */
+[data-theme="dark"] .absolute.bottom-0.bg-gradient-to-t {
+  background-image: linear-gradient(to top, #0F172A, transparent) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Dark Mode — About / WhyUs / Contact additions
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Light sections background ── */
+[data-theme="dark"] .bg-\[\#F8FAFC\],
+[data-theme="dark"] section.bg-\[\#F8FAFC\] {
+  background-color: #0F172A !important;
+}
+
+/* ── White cards in sections ── */
+[data-theme="dark"] .bg-white.border.border-\[\#E2E8F0\],
+[data-theme="dark"] .bg-white.border.border-\[\#F0F0F0\] {
+  background: #1E293B !important;
+  border-color: #334155 !important;
+}
+
+/* ── Section text on light pages ── */
+[data-theme="dark"] .text-\[\#1E293B\],
+[data-theme="dark"] .text-\[\#0A0A0A\] {
+  color: #F1F5F9 !important;
+}
+[data-theme="dark"] .text-\[\#475569\],
+[data-theme="dark"] .text-\[\#64748B\],
+[data-theme="dark"] .text-\[\#737373\],
+[data-theme="dark"] .text-\[\#404040\] {
+  color: #64748B !important;
+}
+
+/* ── About pills ── */
+[data-theme="dark"] .zdeck-about-pill {
+  background: #1E293B;
+  border-color: #334155;
+}
+[data-theme="dark"] .zdeck-about-pill span {
+  color: #F1F5F9 !important;
+}
+
+/* ── Ghost dark button ── */
+[data-theme="dark"] .zdeck-btn-ghost-dark {
+  border-color: #334155;
+  color: #F1F5F9;
+}
+[data-theme="dark"] .zdeck-btn-ghost-dark:hover {
+  background: #1E293B;
+  border-color: #475569;
+}
+
+/* ── Contact method cards (non-WhatsApp) ── */
+[data-theme="dark"] .zdeck-contact-method-card:not(:first-child) {
+  background: #1E293B;
+  border-color: #334155;
+}
+[data-theme="dark"] .zdeck-contact-method-card:not(:first-child):hover {
+  background: #253348;
+  border-color: #475569;
+}
+
+/* ── Contact form input ── */
+[data-theme="dark"] .zdeck-contact-input {
+  background: #1E293B;
+  border-color: #334155;
+  color: #F1F5F9;
+}
+[data-theme="dark"] .zdeck-contact-input::placeholder {
+  color: #475569;
+}
+[data-theme="dark"] .zdeck-contact-input:focus {
+  border-color: #2563EB;
+  box-shadow: 0 0 0 3px rgba(37,99,235,0.2);
+}
+
+/* ── Comparison table ── */
+[data-theme="dark"] .bg-white.rounded-2xl.border.border-\[\#E2E8F0\] {
+  background: #1E293B !important;
+  border-color: #334155 !important;
+}
+[data-theme="dark"] .bg-\[\#F8FAFC\].border-b.border-\[\#E2E8F0\] {
+  background: #0F172A !important;
+  border-color: #334155 !important;
+}
+[data-theme="dark"] .hover\:bg-\[\#F8FAFC\]:hover {
+  background-color: rgba(255,255,255,0.03) !important;
+}
+[data-theme="dark"] .border-b.border-\[\#F1F5F9\] {
+  border-color: #1E293B !important;
+}
+
+/* ── Success card & form card ── */
+[data-theme="dark"] .bg-white.border.border-\[\#E2E8F0\].rounded-2xl {
+  background: #1E293B !important;
+  border-color: #334155 !important;
+}
+[data-theme="dark"] .hover\:bg-\[\#F8FAFC\] {
+  background: #1E293B !important;
+}
+[data-theme="dark"] .hover\:bg-\[\#F8FAFC\]:hover {
+  background: #253348 !important;
+}
+
+/* ── FAQ items ── */
+[data-theme="dark"] .bg-white.border.border-\[\#E2E8F0\].rounded-xl {
+  background: #1E293B !important;
+  border-color: #334155 !important;
+}
+[data-theme="dark"] .hover\:border-\[\#2563EB\]\/30:hover {
+  border-color: rgba(37,99,235,0.4) !important;
+}
+
+/* ── Who-for checklist items ── */
+[data-theme="dark"] .zdeck-about-pill span.text-\[\#1E293B\] {
+  color: #F1F5F9 !important;
+}
+
+/* ── Testimonial cards ── */
+[data-theme="dark"] .bg-white.border.border-\[\#E2E8F0\].rounded-2xl.p-5 {
+  background: #1E293B !important;
+  border-color: #334155 !important;
+}
+[data-theme="dark"] .text-\[\#475569\].leading-relaxed {
+  color: #94A3B8 !important;
+}
+
+/* ── Page hero bottom fade ── */
+[data-theme="dark"] .from-\[\#F8FAFC\] {
+  --tw-gradient-from: #0F172A !important;
 }

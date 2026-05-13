@@ -165,7 +165,7 @@ export default function Login() {
     <div className="min-h-screen bg-[#0A0A0A] flex flex-col">
       {/* Brand top */}
       <div className="flex-shrink-0 flex flex-col items-center justify-center pt-16 pb-10">
-        <img src="/logo-new.png" alt="ZeleraDeck" className="w-16 h-16 rounded-2xl object-cover" />
+        <img src="/logo-zd-nobg.png" alt="ZeleraDeck" className="w-16 h-16 rounded-2xl object-cover" />
         <h1 className="text-2xl font-bold text-white mt-4">ZeleraDeck</h1>
         <p className="text-xs tracking-[0.2em] text-white/60 mt-2 font-semibold">WHERE GROWTH BEGINS</p>
       </div>

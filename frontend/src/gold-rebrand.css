@@ -1,0 +1,324 @@
+
+/* ═══════════════════════════════════════════════════════════════
+   SPLASH SCREEN — keyframes + classes
+   ═══════════════════════════════════════════════════════════════ */
+
+@keyframes splashLogoIn {
+  0%   { opacity:0; transform:scale(0.3); }
+  65%  { opacity:1; transform:scale(1.08); }
+  80%  { transform:scale(0.96); }
+  100% { opacity:1; transform:scale(1); }
+}
+@keyframes splashFadeIn {
+  from { opacity:0; transform:translateY(10px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+@keyframes splashBreathe {
+  0%,100% { opacity:0.35; }
+  50%     { opacity:0.75; }
+}
+@keyframes splashGoldPulse {
+  0%,100% { box-shadow:0 0 40px rgba(201,168,76,.2),0 0 80px rgba(201,168,76,.08); }
+  50%     { box-shadow:0 0 80px rgba(201,168,76,.4),0 0 140px rgba(201,168,76,.18); }
+}
+@keyframes splashGrain {
+  0%  { transform:translate(0,0); }
+  20% { transform:translate(-5%,-8%); }
+  40% { transform:translate(-12%,5%); }
+  60% { transform:translate(8%,-15%); }
+  80% { transform:translate(-5%,12%); }
+  100%{ transform:translate(0,0); }
+}
+@keyframes splashProgress { from{width:0} to{width:100%} }
+@keyframes splashLineExpand { from{width:0;opacity:0} to{width:3.5rem;opacity:.5} }
+@keyframes splashContentOut { to{opacity:0;transform:scale(1.08)} }
+
+.splash-root {
+  position:fixed; inset:0; z-index:9999; overflow:hidden;
+  cursor:pointer; background:#0F0F0F;
+}
+.splash-grain {
+  position:absolute; inset:-50%; width:200%; height:200%;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.07'/%3E%3C/svg%3E");
+  background-size:256px 256px;
+  animation:splashGrain 8s steps(10) infinite;
+  pointer-events:none; z-index:0;
+}
+.splash-curtain {
+  position:absolute; left:0; right:0; background:#0F0F0F; z-index:3;
+  transition:transform 860ms cubic-bezier(0.86,0,0.07,1);
+}
+.splash-curtain-top    { top:0;    height:51%; }
+.splash-curtain-bottom { bottom:0; height:51%; }
+.splash-exiting .splash-curtain-top    { transform:translateY(-100%); }
+.splash-exiting .splash-curtain-bottom { transform:translateY(100%); }
+.splash-content {
+  position:relative; z-index:2; height:100%;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  text-align:center; padding:2rem;
+}
+.splash-exiting .splash-content { animation:splashContentOut 400ms ease-in forwards; }
+.splash-logo-wrap {
+  position:relative; display:inline-flex; align-items:center;
+  justify-content:center; margin-bottom:1.5rem;
+}
+.splash-visible .splash-logo-wrap { animation:splashGoldPulse 3s ease-in-out infinite; }
+.splash-logo-glow {
+  position:absolute; width:160%; height:160%; border-radius:50%;
+  background:radial-gradient(circle, rgba(201,168,76,.15) 0%, transparent 70%);
+  pointer-events:none;
+}
+.splash-logo {
+  width:120px; height:120px; object-fit:contain;
+  opacity:0; transform:scale(0.3);
+}
+.splash-visible .splash-logo,
+.splash-exiting .splash-logo {
+  animation:splashLogoIn 1.2s cubic-bezier(0.34,1.56,0.64,1) .1s forwards;
+}
+.splash-brand {
+  font-family:'Cinzel',serif; font-size:clamp(1.4rem,4vw,2.4rem); font-weight:700;
+  color:#C9A84C; letter-spacing:.15em; margin:0 0 .5rem; opacity:0;
+}
+.splash-visible .splash-brand { animation:splashFadeIn .6s ease-out 1.1s forwards; }
+.splash-slogan {
+  font-family:'Cinzel',serif; font-size:clamp(.6rem,1.4vw,.85rem); font-weight:500;
+  color:#C9A84C; letter-spacing:.4em; text-transform:uppercase; margin:0 0 1.5rem; opacity:0;
+}
+.splash-visible .splash-slogan { animation:splashFadeIn .6s ease-out 1.5s forwards; }
+.splash-divider {
+  display:flex; align-items:center; gap:.75rem; margin-bottom:1.5rem;
+}
+.splash-line {
+  height:1px; background:#C9A84C; opacity:0; width:0;
+}
+.splash-visible .splash-line { animation:splashLineExpand .6s ease-out 2s forwards; }
+.splash-star {
+  font-size:.8rem; color:#C9A84C; opacity:0;
+}
+.splash-visible .splash-star { animation:splashFadeIn .4s ease-out 1.9s forwards; }
+.splash-hint {
+  font-family:'Jost',sans-serif; font-size:.75rem; letter-spacing:.12em;
+  color:rgba(201,168,76,.45); opacity:0;
+}
+.splash-visible .splash-hint {
+  animation:splashBreathe 2.5s ease-in-out 2.5s infinite; opacity:.45;
+}
+.splash-progress-track {
+  position:absolute; bottom:0; left:0; right:0; height:2px;
+  background:rgba(201,168,76,.1);
+}
+.splash-progress-bar { height:100%; background:#C9A84C; width:0; }
+.splash-progress-run { animation:splashProgress 10s linear forwards; }
+
+/* ═══════════════════════════════════════════════════════════════
+   GOLD / CHARCOAL REBRAND — overrides all prior zdeck-* colours
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Base ── */
+body { background-color:#0F0F0F; color:#B0A898; font-family:'Jost',sans-serif; }
+.zdeck-page { background-color:#0F0F0F; font-family:'Jost',sans-serif; }
+
+/* ── Fonts scoped to zdeck-page ── */
+.zdeck-page h1,.zdeck-page h2 { font-family:'Cinzel',serif; color:#C9A84C; }
+.zdeck-page h3,.zdeck-page h4 { font-family:'Cinzel',serif; color:#F5F0E8; }
+.zdeck-page p,.zdeck-page span:not(.zdeck-section-badge):not(.zdeck-section-badge-dark) {
+  font-family:'Jost',sans-serif;
+}
+
+/* ── Hero ── */
+.zdeck-gradient-text {
+  background:linear-gradient(135deg,#C9A84C 0%,#E2C06A 50%,#C9A84C 100%);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+}
+.zdeck-orb-1 { background:radial-gradient(circle,rgba(201,168,76,.35) 0%,transparent 70%); }
+.zdeck-orb-2 { background:radial-gradient(circle,rgba(226,192,106,.2) 0%,transparent 70%); }
+.zdeck-grid-overlay {
+  background-image:linear-gradient(rgba(201,168,76,.04) 1px,transparent 1px),
+                   linear-gradient(90deg,rgba(201,168,76,.04) 1px,transparent 1px);
+}
+
+/* ── Badges ── */
+.zdeck-section-badge {
+  background:rgba(201,168,76,.1); border-color:rgba(201,168,76,.3); color:#C9A84C;
+  font-family:'Cinzel',serif; font-size:.7rem; letter-spacing:.1em;
+}
+.zdeck-section-badge-dark {
+  background:rgba(201,168,76,.1); border-color:rgba(201,168,76,.3); color:#C9A84C;
+  font-family:'Cinzel',serif; font-size:.7rem; letter-spacing:.1em;
+}
+
+/* ── Section text ── */
+.zdeck-section-title { color:#F5F0E8; font-family:'Cinzel',serif; }
+.zdeck-section-sub   { color:#B0A898; font-family:'Jost',sans-serif; }
+
+/* ── Buttons ── */
+.zdeck-btn-primary {
+  background:#C9A84C; color:#0F0F0F; border:none; font-family:'Jost',sans-serif; font-weight:700;
+}
+.zdeck-btn-primary:hover { background:#E2C06A; box-shadow:0 8px 24px rgba(201,168,76,.35); }
+.zdeck-btn-ghost {
+  border-color:rgba(201,168,76,.4); color:#C9A84C; font-family:'Jost',sans-serif;
+}
+.zdeck-btn-ghost:hover { background:rgba(201,168,76,.08); border-color:#C9A84C; }
+.zdeck-btn-ghost-dark {
+  border-color:rgba(201,168,76,.3); color:#C9A84C; background:transparent;
+  font-family:'Jost',sans-serif;
+}
+.zdeck-btn-ghost-dark:hover { background:rgba(201,168,76,.08); border-color:#C9A84C; }
+
+/* ── Stats bar ── */
+.zdeck-stats-bar { background-color:#0F0F0F !important; border-color:rgba(201,168,76,.2) !important; }
+.zdeck-stat-value { color:#C9A84C; font-family:'Cinzel',serif; }
+.zdeck-stat-label { color:#6B6158; font-family:'Jost',sans-serif; }
+
+/* ── Feature cards ── */
+.zdeck-feature-card {
+  background:#1A1A1A; border-color:rgba(201,168,76,.15);
+}
+.zdeck-feature-card:hover {
+  background:#1E1C15; border-color:rgba(201,168,76,.4);
+  box-shadow:0 0 0 1px rgba(201,168,76,.15),0 8px 32px rgba(0,0,0,.5),
+             0 0 40px var(--glow-color,rgba(201,168,76,.08));
+}
+.zdeck-card-title { color:#F5F0E8; font-family:'Cinzel',serif; font-weight:600; font-size:.875rem; }
+.zdeck-card-desc  { color:#B0A898; font-family:'Jost',sans-serif; }
+
+/* ── Step cards ── */
+.zdeck-step-card {
+  background:rgba(201,168,76,.05); border:1px solid rgba(201,168,76,.18);
+  border-radius:1rem; padding:1.5rem;
+}
+.zdeck-step-number {
+  color:#C9A84C; font-family:'Cinzel',serif; font-size:2rem; font-weight:900;
+  opacity:.6;
+}
+
+/* ── Pricing ── */
+.zdeck-pricing-card { background:#1A1A1A; border-color:rgba(201,168,76,.15); }
+.zdeck-pricing-card:hover { border-color:rgba(201,168,76,.35); }
+.zdeck-pricing-highlight {
+  background:linear-gradient(145deg,#1a1506,#201d0d);
+  border-color:#C9A84C;
+  box-shadow:0 0 0 1px #C9A84C,0 20px 60px rgba(201,168,76,.2);
+}
+.zdeck-pricing-plan-name { color:#F5F0E8; font-family:'Cinzel',serif; }
+.zdeck-pricing-highlight .zdeck-pricing-plan-name { color:#C9A84C; }
+.zdeck-pricing-price { color:#C9A84C; font-family:'Cinzel',serif; }
+.zdeck-pricing-highlight .zdeck-pricing-price { color:#E2C06A; }
+.zdeck-best-value-badge {
+  background:linear-gradient(135deg,#C9A84C,#8B6914); color:#0F0F0F;
+  font-family:'Cinzel',serif;
+}
+.zdeck-pricing-btn-primary {
+  background:#C9A84C; color:#0F0F0F; font-family:'Jost',sans-serif; font-weight:700;
+}
+.zdeck-pricing-btn-primary:hover { background:#E2C06A; }
+.zdeck-pricing-btn-secondary {
+  background:transparent; border:1px solid rgba(201,168,76,.4); color:#C9A84C;
+  font-family:'Jost',sans-serif;
+}
+.zdeck-pricing-btn-secondary:hover { background:rgba(201,168,76,.08); }
+
+/* ── Billing toggle ── */
+.zdeck-toggle-active { background:#C9A84C; border-color:#C9A84C; color:#0F0F0F; font-family:'Jost',sans-serif; }
+.zdeck-toggle-inactive { background:#1A1A1A; border-color:rgba(201,168,76,.2); color:#6B6158; font-family:'Jost',sans-serif; }
+.zdeck-toggle-inactive:hover { color:#C9A84C; border-color:rgba(201,168,76,.5); }
+
+/* ── Founding banner ── */
+.zdeck-founding-banner {
+  background:rgba(201,168,76,.07); border-color:rgba(201,168,76,.3);
+}
+
+/* ── CTA section ── */
+.zdeck-cta-section {
+  background:linear-gradient(135deg,#0a0805 0%,#110f07 100%);
+  border-color:rgba(201,168,76,.12);
+}
+.zdeck-cta-orb {
+  background:radial-gradient(ellipse 60% 50% at 50% 50%,rgba(201,168,76,.12),transparent);
+}
+
+/* ── About pills ── */
+.zdeck-about-pill { background:#1A1A1A; border-color:rgba(201,168,76,.2); }
+.zdeck-about-pill:hover { border-color:var(--pill-color,#C9A84C); }
+.zdeck-about-pill span { color:#F5F0E8 !important; }
+
+/* ── Contact ── */
+.zdeck-contact-method-card:not(:first-child) {
+  background:#1A1A1A; border:1px solid rgba(201,168,76,.2);
+}
+.zdeck-contact-method-card:not(:first-child):hover { background:#201e16; border-color:rgba(201,168,76,.45); }
+.zdeck-contact-input { background:#1A1A1A; border-color:rgba(201,168,76,.2); color:#F5F0E8; }
+.zdeck-contact-input:focus { border-color:#C9A84C; box-shadow:0 0 0 3px rgba(201,168,76,.15); }
+.zdeck-contact-input::placeholder { color:#6B6158; }
+
+/* ── Page section bg overrides (inline Tailwind classes on pages) ── */
+.zdeck-page .bg-white,
+.zdeck-page .bg-\[\#F8FAFC\],
+.zdeck-page .bg-\[\#F8F8F8\],
+.zdeck-page section.bg-\[\#F8FAFC\] { background-color:#1A1A1A !important; }
+.zdeck-page .bg-\[\#0F172A\]        { background-color:#0F0F0F !important; }
+.zdeck-page .border-\[\#E2E8F0\]   { border-color:rgba(201,168,76,.2) !important; }
+.zdeck-page .border-\[\#F0F0F0\]   { border-color:rgba(201,168,76,.15) !important; }
+.zdeck-page .text-\[\#1E293B\],
+.zdeck-page .text-\[\#0A0A0A\]      { color:#F5F0E8 !important; }
+.zdeck-page .text-\[\#475569\],
+.zdeck-page .text-\[\#64748B\],
+.zdeck-page .text-\[\#737373\],
+.zdeck-page .text-\[\#94A3B8\]      { color:#B0A898 !important; }
+
+/* ── White card borders inside pages ── */
+.zdeck-page .bg-white.border.border-\[\#E2E8F0\],
+.zdeck-page .bg-white.border.border-\[\#F0F0F0\],
+.zdeck-page .bg-white.border.border-\[\#E5E5E5\],
+.zdeck-page .bg-white.rounded-2xl { background:#1A1A1A !important; border-color:rgba(201,168,76,.18) !important; }
+
+/* ── Page hero gradient fade ── */
+.zdeck-page .from-\[\#F8FAFC\] { --tw-gradient-from:#0F0F0F !important; }
+.zdeck-page .from-\[\#F8F8F8\] { --tw-gradient-from:#0F0F0F !important; }
+
+/* ── Hero page bottom fade ── */
+.zdeck-page .absolute.bottom-0.bg-gradient-to-t { background-image:linear-gradient(to top,#0F0F0F,transparent) !important; }
+
+/* ── Footer override ── */
+footer { background-color:#080604 !important; border-color:rgba(201,168,76,.12) !important; }
+
+/* ── Navbar override ── */
+header.sticky { background-color:#0F0F0F !important; border-color:rgba(201,168,76,.15) !important; }
+
+/* ── Comparison table (WhyUs) ── */
+.zdeck-page .bg-white.rounded-2xl.border.border-\[\#E2E8F0\] { background:#1A1A1A !important; border-color:rgba(201,168,76,.2) !important; }
+.zdeck-page .bg-\[\#F8FAFC\].border-b.border-\[\#E2E8F0\]    { background:#111 !important; border-color:rgba(201,168,76,.15) !important; }
+.zdeck-page .border-b.border-\[\#F1F5F9\]                    { border-color:rgba(201,168,76,.08) !important; }
+
+/* ── Testimonial stars ── */
+.zdeck-page .text-\[\#F59E0B\] { color:#C9A84C !important; }
+.zdeck-page .fill-\[\#F59E0B\] { fill:#C9A84C !important; }
+
+/* ── Badge colours (revenue, check icons) ── */
+.zdeck-page .text-\[\#059669\]  { color:#C9A84C !important; }
+.zdeck-page .bg-\[\#DCFCE7\]   { background:rgba(201,168,76,.1) !important; }
+.zdeck-page .text-\[\#16A34A\]  { color:#C9A84C !important; }
+.zdeck-page .bg-\[\#EFF6FF\]   { background:rgba(201,168,76,.08) !important; }
+.zdeck-page .text-\[\#2563EB\]  { color:#C9A84C !important; }
+.zdeck-page .bg-\[\#2563EB\]   { background:#C9A84C !important; }
+
+/* ── Navbar gold logo glow on hover ── */
+#navbar-logo:hover img,
+.navbar-logo:hover img {
+  filter:drop-shadow(0 0 8px rgba(201,168,76,.6));
+}
+
+/* ── Keep WhatsApp green (brand colour — do not replace) ── */
+.bg-\[\#25D366\] { background-color:#25D366 !important; }
+.text-\[\#25D366\] { color:#25D366 !important; }
+.hover\:bg-\[\#1ebe5d\]:hover { background-color:#1ebe5d !important; }
+
+/* ── dark-mode overrides reset to charcoal gold ── */
+[data-theme="dark"] body { background-color:#080604; color:#B0A898; }
+[data-theme="dark"] .zdeck-page { background-color:#080604; }
+[data-theme="dark"] .zdeck-feature-card { background:#111009; }
+[data-theme="dark"] .zdeck-pricing-card:not(.zdeck-pricing-highlight) { background:#111009; }
+[data-theme="dark"] header.sticky { background-color:#080604 !important; }
+[data-theme="dark"] footer { background-color:#040302 !important; }

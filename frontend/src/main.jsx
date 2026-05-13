@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-route
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { HelmetProvider } from 'react-helmet-async'
 import { ToastProvider } from './context/ToastContext'
+import { ThemeProvider } from './context/ThemeContext'
 import { AuthProvider, useAuth } from './hooks/useAuth'
 import MaintenanceGate from './components/MaintenanceGate'
 import MaintenancePage from './pages/MaintenancePage'
@@ -22,6 +23,7 @@ import HomePage from './pages/HomePage'
 import WhyUsPage from './pages/WhyUsPage'
 import SignupPage from './pages/SignupPage'
 import SocialProofToast from './components/SocialProofToast'
+import SplashScreen from './components/SplashScreen'
 
 // Admin pages
 import AdminLayout from './pages/admin/AdminLayout'
@@ -86,6 +88,7 @@ function AppRoutes() {
 
   return (
     <>
+      <SplashScreen />
       <GA4PageTracker />
       {showToast && <SocialProofToast />}
       <Routes>
@@ -142,13 +145,15 @@ function AppRoutes() {
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <HelmetProvider>
-      <QueryClientProvider client={queryClient}>
-        <ToastProvider>
-          <BrowserRouter>
-            <AppRoutes />
-          </BrowserRouter>
-        </ToastProvider>
-      </QueryClientProvider>
+      <ThemeProvider>
+        <QueryClientProvider client={queryClient}>
+          <ToastProvider>
+            <BrowserRouter>
+              <AppRoutes />
+            </BrowserRouter>
+          </ToastProvider>
+        </QueryClientProvider>
+      </ThemeProvider>
     </HelmetProvider>
   </StrictMode>
 )
