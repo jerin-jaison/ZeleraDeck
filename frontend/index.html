@@ -69,7 +69,35 @@
     </script>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!-- High-performance pre-loader shown before React hydration -->
+      <style>
+        .initial-load {
+          position: fixed;
+          inset: 0;
+          background: #0F0F0F;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          z-index: 9999;
+          font-family: sans-serif;
+        }
+        .initial-logo {
+          width: 80px;
+          height: 80px;
+          object-contain: contain;
+          animation: initial-pulse 2s infinite ease-in-out;
+        }
+        @keyframes initial-pulse {
+          0%, 100% { opacity: 0.4; transform: scale(0.92); }
+          50% { opacity: 1; transform: scale(1); }
+        }
+      </style>
+      <div class="initial-load">
+        <img src="/logo-zd-nobg.png" class="initial-logo" alt="ZeleraDeck" />
+      </div>
+    </div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
