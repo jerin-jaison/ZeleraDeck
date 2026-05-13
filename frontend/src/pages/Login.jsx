@@ -156,7 +156,7 @@ export default function Login() {
     <>
       <SEOHead
         title="Login — Manage Your Digital Shop Catalogue"
-        description="Sign in to your ZeleraDeck account and manage your digital product catalogue for your local shop in Kerala. Where Growth Begins."
+        description="Sign in to your ZeleraDeck account and manage your digital product catalogue for your local shop in Kerala. Where We Grow Together."
         url="https://zeleradeck.com/login"
         keywords="zeleradeck login, digital catalogue login, shop catalogue Kerala, online shop management Kerala"
         schema={[softwareAppSchema, localBusinessSchema, faqSchema]}
@@ -167,7 +167,7 @@ export default function Login() {
       <div className="flex-shrink-0 flex flex-col items-center justify-center pt-16 pb-10">
         <img src="/logo-zd-nobg.png" alt="ZeleraDeck" className="w-16 h-16 rounded-2xl object-cover" />
         <h1 className="text-2xl font-bold text-white mt-4">ZeleraDeck</h1>
-        <p className="text-xs tracking-[0.2em] text-white/60 mt-2 font-semibold">WHERE GROWTH BEGINS</p>
+        <p className="text-xs tracking-[0.2em] text-white/60 mt-2 font-semibold">WHERE WE GROW TOGETHER</p>
       </div>
 
       {/* White bottom sheet */}

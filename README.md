@@ -53,4 +53,4 @@ Ready to take your business to the next level? Our team is here to build your vi
 **📧 Email:**
 - teamzelera@gmail.com
 
-*Zelera — Where growth begins.*
+*Zelera — Where We Grow Together.*

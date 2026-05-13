@@ -1,10 +1,10 @@
 import { Helmet } from 'react-helmet-async'
 
 const SITE_NAME = 'ZeleraDeck'
-const DEFAULT_TITLE = 'ZeleraDeck — Where Growth Begins'
+const DEFAULT_TITLE = 'ZeleraDeck — Where We Grow Together'
 const DEFAULT_DESC =
   'ZeleraDeck is a mobile-first digital product catalogue SaaS for small shop owners in Kerala, India. Create your digital catalogue, share one link, and let customers browse and order on WhatsApp.'
-const DEFAULT_IMAGE = 'https://zeleradeck.com/logo2.png'
+const DEFAULT_IMAGE = 'https://zeleradeck.com/logo-zd-nobg.png'
 const DEFAULT_URL = 'https://zeleradeck.com'
 
 /**

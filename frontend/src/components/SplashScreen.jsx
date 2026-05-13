@@ -76,7 +76,7 @@ export default function SplashScreen() {
         <h1 className="splash-brand">ZeleraDeck</h1>
 
         {/* Slogan */}
-        <p className="splash-slogan">WHERE GROWTH BEGINS</p>
+        <p className="splash-slogan">WHERE WE GROW TOGETHER</p>
 
         {/* Decorative divider */}
         <div className="splash-divider" aria-hidden="true">

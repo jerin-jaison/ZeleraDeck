@@ -7,7 +7,7 @@
 ZeleraDeck (https://zeleradeck.com) is a mobile-first digital product catalogue
 SaaS platform built for small shop owners in Kerala, India.
 
-Slogan: "Where Growth Begins."
+Slogan: "Where We Grow Together."
 
 ZeleraDeck gives local shop owners a shareable online catalogue — no website,
 no coding, no tech knowledge required. Owners add their products once and share
