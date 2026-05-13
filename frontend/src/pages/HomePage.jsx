@@ -115,7 +115,7 @@ export default function HomePage() {
           {/* ══════════════════════════════════════════════
               HERO — Dark navy, animated orb, editorial type
           ══════════════════════════════════════════════ */}
-          <section className="zdeck-hero relative overflow-hidden min-h-screen flex flex-col justify-center bg-[#0F172A]">
+          <section className="zdeck-hero relative overflow-hidden min-h-screen flex flex-col justify-center bg-white">
             {/* Animated orb background */}
             <div className="zdeck-orb zdeck-orb-1" aria-hidden="true" />
             <div className="zdeck-orb zdeck-orb-2" aria-hidden="true" />
@@ -128,11 +128,11 @@ export default function HomePage() {
               {/* Pill badge */}
               <div className="inline-flex items-center gap-2 bg-white/8 border border-white/12 rounded-full px-4 py-1.5 mb-8" style={{ backdropFilter: 'blur(12px)' }}>
                 <span className="w-1.5 h-1.5 rounded-full bg-[#25D366] zdeck-pulse-dot" />
-                <span className="text-xs font-semibold text-white/70 tracking-wide uppercase">Shop Management Platform for Kerala</span>
+                <span className="text-xs font-semibold text-[#64748B] tracking-wide uppercase">Shop Management Platform for Kerala</span>
               </div>
 
               {/* Main headline */}
-              <h1 className="zdeck-hero-headline text-5xl sm:text-6xl lg:text-7xl font-black text-white leading-[1.05] tracking-tight">
+              <h1 className="zdeck-hero-headline text-5xl sm:text-6xl lg:text-7xl font-black text-[#1E293B] leading-[1.05] tracking-tight">
                 Your Shop.{' '}
                 <span className="zdeck-gradient-text">Online.</span>
                 <br />
@@ -144,7 +144,7 @@ export default function HomePage() {
 
               <p className="mt-8 text-[#94A3B8] text-lg sm:text-xl max-w-2xl mx-auto leading-relaxed font-light" style={{ fontFamily: "'Open Sans', sans-serif" }}>
                 ZeleraDeck gives Kerala shop owners a beautiful digital storefront with WhatsApp ordering — no website, no app, no hassle.
-                <span className="text-white/60"> Where we grow together.</span>
+                <span className="text-[#64748B]/60"> Where we grow together.</span>
               </p>
 
               {/* CTA Buttons */}
@@ -162,7 +162,7 @@ export default function HomePage() {
                 <Link
                   to="/why-us"
                   id="hero-learn-more"
-                  className="zdeck-btn-ghost"
+                  className="zdeck-btn-ghost-dark"
                 >
                   See How It Works
                   <ArrowRight className="w-4 h-4" />
@@ -172,7 +172,7 @@ export default function HomePage() {
               {/* Trust micro-badges */}
               <div className="flex flex-wrap items-center justify-center gap-5 mt-12">
                 {['Free setup assistance', 'No coding needed', 'WhatsApp support'].map((t) => (
-                  <div key={t} className="flex items-center gap-1.5 text-white/50 text-sm">
+                  <div key={t} className="flex items-center gap-1.5 text-[#64748B] text-sm">
                     <CheckCircle className="w-3.5 h-3.5 text-[#25D366]" />
                     {t}
                   </div>
@@ -181,7 +181,7 @@ export default function HomePage() {
             </div>
 
             {/* Hero bottom wave */}
-            <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-[#F8FAFC] to-transparent" aria-hidden="true" />
+            <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent" aria-hidden="true" />
           </section>
 
           {/* ══════════════════════════════════════════════
@@ -241,10 +241,10 @@ export default function HomePage() {
           {/* ══════════════════════════════════════════════
               HOW IT WORKS — 3-step timeline
           ══════════════════════════════════════════════ */}
-          <section className="bg-[#0F172A] px-4 py-20" aria-labelledby="how-heading">
+          <section className="bg-white px-4 py-20 border-y border-[#E2E8F0]" aria-labelledby="how-heading">
             <div className="max-w-4xl mx-auto text-center mb-14">
-              <span className="zdeck-section-badge-dark">Getting Started</span>
-              <h2 id="how-heading" className="text-3xl sm:text-4xl font-black text-white mt-3 leading-tight" style={{ fontFamily: "'Poppins', sans-serif" }}>
+              <span className="zdeck-section-badge">Getting Started</span>
+              <h2 id="how-heading" className="text-3xl sm:text-4xl font-black text-[#1E293B] mt-3 leading-tight" style={{ fontFamily: "'Poppins', sans-serif" }}>
                 From chaos to clarity<br />
                 <span className="zdeck-gradient-text">in three steps</span>
               </h2>
@@ -257,7 +257,7 @@ export default function HomePage() {
               ].map(({ step, title, desc }) => (
                 <div key={step} className="zdeck-step-card">
                   <span className="zdeck-step-number">{step}</span>
-                  <h3 className="text-white font-bold text-xl mt-4 mb-2" style={{ fontFamily: "'Poppins', sans-serif" }}>{title}</h3>
+                  <h3 className="text-[#1E293B] font-bold text-xl mt-4 mb-2" style={{ fontFamily: "'Poppins', sans-serif" }}>{title}</h3>
                   <p className="text-[#64748B] text-sm leading-relaxed" style={{ fontFamily: "'Open Sans', sans-serif" }}>{desc}</p>
                 </div>
               ))}
@@ -351,19 +351,19 @@ export default function HomePage() {
 
                   <div className="flex items-start justify-between mb-4">
                     <div>
-                      <h3 className="zdeck-pricing-plan-name text-white">Quarterly</h3>
-                      <p className="text-xs text-white/60 mt-0.5" style={{ fontFamily: "'Open Sans', sans-serif" }}>3-month plan, billed once</p>
+                      <h3 className="zdeck-pricing-plan-name text-[#1E293B]">Quarterly</h3>
+                      <p className="text-xs text-[#64748B] mt-0.5" style={{ fontFamily: "'Open Sans', sans-serif" }}>3-month plan, billed once</p>
                     </div>
                   </div>
                   <div className="flex items-baseline gap-1 mb-1">
-                    <span className="zdeck-pricing-price text-white">₹1,499</span>
-                    <span className="text-sm text-white/60">/ 3 months</span>
+                    <span className="zdeck-pricing-price text-[#1E293B]">₹1,499</span>
+                    <span className="text-sm text-[#64748B]">/ 3 months</span>
                   </div>
-                  <p className="text-xs text-white/40 mb-6" style={{ fontFamily: "'Open Sans', sans-serif" }}>₹16/day — <span className="text-[#25D366] font-semibold">Save ₹600</span> vs monthly</p>
+                  <p className="text-xs text-[#94A3B8] mb-6" style={{ fontFamily: "'Open Sans', sans-serif" }}>₹16/day — <span className="text-[#059669] font-semibold">Save ₹600</span> vs monthly</p>
                   <ul className="space-y-2.5 mb-8 flex-1">
                     {QUARTERLY_FEATURES.map((feat) => (
-                      <li key={feat} className="flex items-center gap-2.5 text-sm text-white/80" style={{ fontFamily: "'Open Sans', sans-serif" }}>
-                        <CheckCircle className="w-4 h-4 text-[#25D366] flex-shrink-0" />
+                      <li key={feat} className="flex items-center gap-2.5 text-sm text-[#475569]" style={{ fontFamily: "'Open Sans', sans-serif" }}>
+                        <CheckCircle className="w-4 h-4 text-[#059669] flex-shrink-0" />
                         {feat}
                       </li>
                     ))}
@@ -382,7 +382,7 @@ export default function HomePage() {
                     href={WA}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="block text-center text-xs text-white/40 hover:text-white/60 mt-3 transition-colors"
+                    className="block text-center text-xs text-[#94A3B8] hover:text-[#1E293B] mt-3 transition-colors"
                   >
                     Talk to sales first
                   </a>
@@ -398,10 +398,10 @@ export default function HomePage() {
           {/* ══════════════════════════════════════════════
               BOTTOM CTA — Full-width dark gradient block
           ══════════════════════════════════════════════ */}
-          <section className="zdeck-cta-section" aria-labelledby="cta-heading">
+          <section className="bg-[#F8FAFC] py-20 relative overflow-hidden" aria-labelledby="cta-heading">
             <div className="zdeck-cta-orb" aria-hidden="true" />
             <div className="relative z-10 max-w-3xl mx-auto px-4 text-center">
-              <h2 id="cta-heading" className="text-3xl sm:text-4xl lg:text-5xl font-black text-white leading-tight mb-4" style={{ fontFamily: "'Poppins', sans-serif" }}>
+              <h2 id="cta-heading" className="text-3xl sm:text-4xl lg:text-5xl font-black text-[#1E293B] leading-tight mb-4" style={{ fontFamily: "'Poppins', sans-serif" }}>
                 Ready to Transform<br />
                 <span className="zdeck-gradient-text">Your Shop?</span>
               </h2>
@@ -422,7 +422,7 @@ export default function HomePage() {
                 <Link
                   to="/contact"
                   id="bottom-contact-cta"
-                  className="zdeck-btn-ghost"
+                  className="zdeck-btn-ghost-dark"
                 >
                   Contact Us
                 </Link>
@@ -434,26 +434,26 @@ export default function HomePage() {
         {/* ══════════════════════════════════════════════
             FOOTER
         ══════════════════════════════════════════════ */}
-        <footer className="bg-[#0F172A] border-t border-white/8 px-4 py-10">
+        <footer className="bg-white border-t border-[#E2E8F0] px-4 py-10">
           <div className="max-w-5xl mx-auto">
             <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
               <div className="flex items-center gap-2.5">
                 <img src="/logo-zd-nobg.png" alt="ZeleraDeck" className="w-10 h-10 object-contain" />
                 <div>
-                  <span className="text-sm font-bold text-white block" style={{ fontFamily: "'Poppins', sans-serif" }}>ZeleraDeck</span>
-                  <span className="text-xs text-[#475569]">Where we grow together</span>
+                  <span className="text-sm font-bold text-[#1E293B] block" style={{ fontFamily: "'Poppins', sans-serif" }}>ZeleraDeck</span>
+                  <span className="text-xs text-[#64748B]">Where we grow together</span>
                 </div>
               </div>
               <nav className="flex flex-wrap justify-center gap-x-6 gap-y-2" aria-label="Footer navigation">
                 {[['Home', '/'], ['About', '/about'], ['Why Us', '/why-us'], ['Contact', '/contact']].map(([l, t]) => (
-                  <Link key={t} to={t} className="text-xs text-[#475569] hover:text-white transition-colors">
+                  <Link key={t} to={t} className="text-xs text-[#64748B] hover:text-[#1E293B] transition-colors">
                     {l}
                   </Link>
                 ))}
               </nav>
               <div className="text-right">
-                <p className="text-xs text-[#334155]">© {new Date().getFullYear()} ZeleraDeck</p>
-                <p className="text-xs text-[#334155] mt-0.5">teamzelera@gmail.com</p>
+                <p className="text-xs text-[#94A3B8]">© {new Date().getFullYear()} ZeleraDeck</p>
+                <p className="text-xs text-[#94A3B8] mt-0.5">teamzelera@gmail.com</p>
               </div>
             </div>
           </div>

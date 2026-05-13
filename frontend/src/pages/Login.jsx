@@ -162,12 +162,12 @@ export default function Login() {
         schema={[softwareAppSchema, localBusinessSchema, faqSchema]}
         noindex={false}
       />
-    <div className="min-h-screen bg-[#0A0A0A] flex flex-col">
+    <div className="min-h-screen bg-white flex flex-col">
       {/* Brand top */}
       <div className="flex-shrink-0 flex flex-col items-center justify-center pt-16 pb-10">
         <img src="/logo-zd-nobg.png" alt="ZeleraDeck" className="w-16 h-16 rounded-2xl object-cover" />
-        <h1 className="text-2xl font-bold text-white mt-4">ZeleraDeck</h1>
-        <p className="text-xs tracking-[0.2em] text-white/60 mt-2 font-semibold">WHERE WE GROW TOGETHER</p>
+        <h1 className="text-2xl font-bold text-[#0A0A0A] mt-4">ZeleraDeck</h1>
+        <p className="text-xs tracking-[0.2em] text-[#737373] mt-2 font-semibold">WHERE WE GROW TOGETHER</p>
       </div>
 
       {/* White bottom sheet */}

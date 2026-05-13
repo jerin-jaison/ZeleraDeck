@@ -49,13 +49,13 @@ export default function WhyUsPage() {
         <main>
 
           {/* ── Page Hero ── */}
-          <section className="relative overflow-hidden bg-[#0F172A] pt-20 pb-16 px-4 text-center" aria-labelledby="whyus-heading">
+          <section className="relative overflow-hidden bg-white pt-20 pb-16 px-4 text-center" aria-labelledby="whyus-heading">
             <div className="zdeck-orb zdeck-orb-1" aria-hidden="true" style={{ opacity: 0.5 }} />
             <div className="zdeck-orb zdeck-orb-2" aria-hidden="true" style={{ opacity: 0.3 }} />
             <div className="zdeck-grid-overlay" aria-hidden="true" />
             <div className="relative z-10 max-w-3xl mx-auto">
-              <span className="zdeck-section-badge-dark">Why ZeleraDeck</span>
-              <h1 id="whyus-heading" className="text-4xl sm:text-5xl font-black text-white mt-4 leading-tight" style={{ fontFamily: "'Poppins', sans-serif" }}>
+              <span className="zdeck-section-badge">Why ZeleraDeck</span>
+              <h1 id="whyus-heading" className="text-4xl sm:text-5xl font-black text-[#1E293B] mt-4 leading-tight" style={{ fontFamily: "'Poppins', sans-serif" }}>
                 Why Kerala Shops<br />
                 <span className="zdeck-gradient-text">Choose Us</span>
               </h1>
@@ -63,7 +63,7 @@ export default function WhyUsPage() {
                 We're not just another app. We're built for Kerala's local shop owners — affordable, simple, and WhatsApp-native.
               </p>
             </div>
-            <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-[#F8FAFC] to-transparent" aria-hidden="true" />
+            <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-white to-transparent" aria-hidden="true" />
           </section>
 
           {/* ── 6 Reasons ── */}
@@ -171,10 +171,10 @@ export default function WhyUsPage() {
           </section>
 
           {/* ── Bottom CTA ── */}
-          <section className="zdeck-cta-section" aria-labelledby="whyus-cta-heading">
+          <section className="bg-[#F8FAFC] py-16 relative overflow-hidden" aria-labelledby="whyus-cta-heading">
             <div className="zdeck-cta-orb" aria-hidden="true" />
             <div className="relative z-10 text-center px-4">
-              <h2 id="whyus-cta-heading" className="text-3xl sm:text-4xl font-black text-white mb-4" style={{ fontFamily: "'Poppins', sans-serif" }}>
+              <h2 id="whyus-cta-heading" className="text-3xl sm:text-4xl font-black text-[#1E293B] mb-4" style={{ fontFamily: "'Poppins', sans-serif" }}>
                 Ready to go digital?
               </h2>
               <p className="text-[#64748B] mb-8 text-lg" style={{ fontFamily: "'Open Sans', sans-serif" }}>
@@ -185,22 +185,22 @@ export default function WhyUsPage() {
                   <MessageCircle className="w-5 h-5" />
                   Get Started on WhatsApp
                 </a>
-                <Link to="/contact" className="zdeck-btn-ghost">
+                <Link to="/contact" className="zdeck-btn-ghost-dark">
                   Contact Us <ArrowRight className="w-4 h-4" />
                 </Link>
               </div>
-              <p className="text-xs text-white/30 mt-6" style={{ fontFamily: "'Open Sans', sans-serif" }}>No online payment needed. Just WhatsApp or call us.</p>
+              <p className="text-xs text-[#94A3B8] mt-6" style={{ fontFamily: "'Open Sans', sans-serif" }}>No online payment needed. Just WhatsApp or call us.</p>
             </div>
           </section>
 
         </main>
 
-        <footer className="bg-[#0F172A] border-t border-white/8 px-4 py-10">
+        <footer className="bg-white border-t border-[#E2E8F0] px-4 py-10">
           <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
             <div className="flex items-center gap-2.5">
               <img src="/logo-zd-nobg.png" alt="ZeleraDeck" className="w-10 h-10 object-contain" />
               <div>
-                <span className="text-sm font-bold text-white block" style={{ fontFamily: "'Poppins', sans-serif" }}>ZeleraDeck</span>
+                <span className="text-sm font-bold text-[#1E293B] block" style={{ fontFamily: "'Poppins', sans-serif" }}>ZeleraDeck</span>
                 <span className="text-xs text-[#475569]">Where we grow together</span>
               </div>
             </div>

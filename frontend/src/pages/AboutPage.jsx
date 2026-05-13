@@ -64,12 +64,12 @@ export default function AboutPage() {
         <main>
 
           {/* ── Page Hero ── */}
-          <section className="relative overflow-hidden bg-[#0F172A] pt-20 pb-16 px-4 text-center" aria-labelledby="about-hero-heading">
+          <section className="relative overflow-hidden bg-white pt-20 pb-16 px-4 text-center" aria-labelledby="about-hero-heading">
             <div className="zdeck-orb zdeck-orb-1" aria-hidden="true" style={{ opacity: 0.5 }} />
             <div className="zdeck-grid-overlay" aria-hidden="true" />
             <div className="relative z-10 max-w-3xl mx-auto">
-              <span className="zdeck-section-badge-dark">About Us</span>
-              <h1 id="about-hero-heading" className="text-4xl sm:text-5xl font-black text-white mt-4 leading-tight" style={{ fontFamily: "'Poppins', sans-serif" }}>
+              <span className="zdeck-section-badge">About Us</span>
+              <h1 id="about-hero-heading" className="text-4xl sm:text-5xl font-black text-[#1E293B] mt-4 leading-tight" style={{ fontFamily: "'Poppins', sans-serif" }}>
                 Built for Kerala's<br />
                 <span className="zdeck-gradient-text">Local Shop Owners</span>
               </h1>
@@ -89,7 +89,7 @@ export default function AboutPage() {
                 ))}
               </div>
             </div>
-            <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-[#F8FAFC] to-transparent [data-theme='dark']:from-[#0F172A]" aria-hidden="true" />
+            <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-white to-transparent" aria-hidden="true" />
           </section>
 
           {/* ── What is ZeleraDeck ── */}
@@ -142,7 +142,7 @@ export default function AboutPage() {
                 {FEATURES.map((f) => {
                   const Icon = f.icon
                   return (
-                    <article key={f.title} className="zdeck-feature-card group" style={{ '--glow-color': f.color + '4D' }}>
+                    <article key={f.title} className="zdeck-feature-card group bg-white border-[#E2E8F0]" style={{ '--glow-color': f.color + '4D' }}>
                       <div className="w-11 h-11 rounded-xl flex items-center justify-center mb-4 transition-transform duration-300 group-hover:scale-110" style={{ background: f.bg }}>
                         <Icon className="w-5 h-5" style={{ color: f.color }} strokeWidth={1.75} />
                       </div>
@@ -172,11 +172,11 @@ export default function AboutPage() {
           </section>
 
           {/* ── How It Works ── */}
-          <section className="bg-[#0F172A] px-4 py-16" aria-labelledby="how-heading">
+          <section className="bg-white border-y border-[#E2E8F0] px-4 py-16" aria-labelledby="how-heading">
             <div className="max-w-4xl mx-auto">
               <div className="text-center mb-12">
-                <span className="zdeck-section-badge-dark">Process</span>
-                <h2 id="how-heading" className="text-3xl font-black text-white mt-3" style={{ fontFamily: "'Poppins', sans-serif" }}>
+                <span className="zdeck-section-badge">Process</span>
+                <h2 id="how-heading" className="text-3xl font-black text-[#1E293B] mt-3" style={{ fontFamily: "'Poppins', sans-serif" }}>
                   How it works
                 </h2>
               </div>
@@ -184,7 +184,7 @@ export default function AboutPage() {
                 {HOW_IT_WORKS.map(({ step, title, desc }) => (
                   <div key={step} className="zdeck-step-card">
                     <span className="zdeck-step-number">{step}</span>
-                    <h3 className="text-white font-bold text-lg mt-3 mb-2" style={{ fontFamily: "'Poppins', sans-serif" }}>{title}</h3>
+                    <h3 className="text-[#1E293B] font-bold text-lg mt-3 mb-2" style={{ fontFamily: "'Poppins', sans-serif" }}>{title}</h3>
                     <p className="text-[#64748B] text-sm leading-relaxed" style={{ fontFamily: "'Open Sans', sans-serif" }}>{desc}</p>
                   </div>
                 ))}
@@ -219,11 +219,11 @@ export default function AboutPage() {
           </section>
 
           {/* ── Contact Strip ── */}
-          <section className="zdeck-cta-section" aria-labelledby="about-cta-heading">
+          <section className="bg-[#F8FAFC] py-16 relative overflow-hidden" aria-labelledby="about-cta-heading">
             <div className="zdeck-cta-orb" aria-hidden="true" />
             <div className="relative z-10 text-center px-4">
               <ShieldCheck className="w-10 h-10 text-[#2563EB] mx-auto mb-4" strokeWidth={1.5} />
-              <h2 id="about-cta-heading" className="text-3xl font-black text-white mb-3" style={{ fontFamily: "'Poppins', sans-serif" }}>
+              <h2 id="about-cta-heading" className="text-3xl font-black text-[#1E293B] mb-3" style={{ fontFamily: "'Poppins', sans-serif" }}>
                 Any questions? We're here.
               </h2>
               <p className="text-[#64748B] mb-8" style={{ fontFamily: "'Open Sans', sans-serif" }}>
@@ -234,7 +234,7 @@ export default function AboutPage() {
                   <MessageCircle className="w-5 h-5" />
                   WhatsApp: +91 70127 83442
                 </a>
-                <a href="mailto:teamzelera@gmail.com" className="zdeck-btn-ghost">
+                <a href="mailto:teamzelera@gmail.com" className="zdeck-btn-ghost-dark">
                   <Mail className="w-5 h-5" />
                   teamzelera@gmail.com
                 </a>
@@ -244,12 +244,12 @@ export default function AboutPage() {
 
         </main>
 
-        <footer className="bg-[#0F172A] border-t border-white/8 px-4 py-10">
+        <footer className="bg-white border-t border-[#E2E8F0] px-4 py-10">
           <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
             <div className="flex items-center gap-2.5">
               <img src="/logo-zd-nobg.png" alt="ZeleraDeck" className="w-10 h-10 object-contain" />
               <div>
-                <span className="text-sm font-bold text-white block" style={{ fontFamily: "'Poppins', sans-serif" }}>ZeleraDeck</span>
+                <span className="text-sm font-bold text-[#1E293B] block" style={{ fontFamily: "'Poppins', sans-serif" }}>ZeleraDeck</span>
                 <span className="text-xs text-[#475569]">Where we grow together</span>
               </div>
             </div>
