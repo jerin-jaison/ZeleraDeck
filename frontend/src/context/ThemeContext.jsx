@@ -1,8 +1,10 @@
 import { createContext, useContext, useEffect, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 
 const ThemeContext = createContext({ theme: 'light', toggleTheme: () => {} })
 
 export function ThemeProvider({ children }) {
+  const { pathname } = useLocation()
   const [theme, setTheme] = useState(() => {
     // 1. Prefer saved preference
     const saved = localStorage.getItem('zdeck-theme')
@@ -13,9 +15,15 @@ export function ThemeProvider({ children }) {
   })
 
   useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme)
+    // List of paths that support dark mode
+    const darkModeSupportedPaths = ['/', '/about', '/contact', '/why-us']
+    
+    // If current path is not in the list, force light mode visually
+    const effectiveTheme = darkModeSupportedPaths.includes(pathname) ? theme : 'light'
+    
+    document.documentElement.setAttribute('data-theme', effectiveTheme)
     localStorage.setItem('zdeck-theme', theme)
-  }, [theme])
+  }, [theme, pathname])
 
   const toggleTheme = () => setTheme((t) => (t === 'dark' ? 'light' : 'dark'))
 

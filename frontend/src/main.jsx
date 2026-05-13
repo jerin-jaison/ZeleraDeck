@@ -145,15 +145,15 @@ function AppRoutes() {
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <HelmetProvider>
-      <ThemeProvider>
-        <QueryClientProvider client={queryClient}>
-          <ToastProvider>
-            <BrowserRouter>
+      <QueryClientProvider client={queryClient}>
+        <ToastProvider>
+          <BrowserRouter>
+            <ThemeProvider>
               <AppRoutes />
-            </BrowserRouter>
-          </ToastProvider>
-        </QueryClientProvider>
-      </ThemeProvider>
+            </ThemeProvider>
+          </BrowserRouter>
+        </ToastProvider>
+      </QueryClientProvider>
     </HelmetProvider>
   </StrictMode>
 )

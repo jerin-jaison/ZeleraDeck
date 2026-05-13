@@ -74,12 +74,12 @@ export default function PublicNavbar({ transparent = false }) {
 
         {/* Right: theme toggle + CTA + hamburger */}
         <div className="flex items-center gap-2">
-          {/* Theme toggle */}
+          {/* Theme toggle hidden from user view but kept in codebase */}
           <button
             id="theme-toggle"
             onClick={toggleTheme}
             aria-label={isDark ? 'Switch to lighter mode' : 'Switch to deeper dark'}
-            className="w-9 h-9 rounded-xl flex items-center justify-center cursor-pointer
+            className="hidden w-9 h-9 rounded-xl items-center justify-center cursor-pointer
               transition-all duration-200 hover:scale-110
               text-[#C9A84C]/60 hover:text-[#C9A84C] hover:bg-[rgba(201,168,76,0.08)]"
           >
@@ -133,10 +133,10 @@ export default function PublicNavbar({ transparent = false }) {
             </Link>
           ))}
 
-          {/* Mobile theme toggle row */}
+          {/* Mobile theme toggle hidden */}
           <button
             onClick={toggleTheme}
-            className={`flex items-center gap-2 py-3 text-sm font-medium w-full border-b cursor-pointer transition-colors ${drawerLink}`}
+            className={`hidden items-center gap-2 py-3 text-sm font-medium w-full border-b cursor-pointer transition-colors ${drawerLink}`}
           >
             {isDark
               ? <><Sun  className="w-4 h-4" /> Switch to Light Mode</>
