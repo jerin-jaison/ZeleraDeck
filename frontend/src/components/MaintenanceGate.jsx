@@ -33,23 +33,26 @@ export default function MaintenanceGate({ children }) {
     return () => clearInterval(interval)
   }, [])
 
-  // Still loading — dark spinner
+  // Still loading — clean light spinner
   if (status === null) {
     return (
       <div style={{
         minHeight: '100vh',
-        background: '#0A0A0A',
+        background: '#FFFFFF',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
       }}>
         <div style={{
-          width: 36, height: 36,
-          border: '3px solid #222',
-          borderTop: '3px solid #25D366',
+          width: 32, height: 32,
+          border: '3px solid #F0F0F0',
+          borderTop: '3px solid #0A0A0A',
           borderRadius: '50%',
           animation: 'spin 0.8s linear infinite',
         }} />
+        <style>{`
+          @keyframes spin { to { transform: rotate(360deg); } }
+        `}</style>
       </div>
     )
   }

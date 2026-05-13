@@ -70,32 +70,21 @@
   </head>
   <body>
     <div id="root">
-      <!-- High-performance pre-loader shown before React hydration -->
       <style>
-        .initial-load {
-          position: fixed;
-          inset: 0;
-          background: #0F0F0F;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
+        .loading-screen {
+          position: fixed; inset: 0; background: #FFFFFF;
+          display: flex; align-items: center; justify-content: center;
           z-index: 9999;
-          font-family: sans-serif;
         }
-        .initial-logo {
-          width: 80px;
-          height: 80px;
-          object-contain: contain;
-          animation: initial-pulse 2s infinite ease-in-out;
+        .loading-spinner {
+          width: 28px; height: 28px;
+          border: 3px solid #F0F0F0; border-top: 3px solid #0A0A0A;
+          border-radius: 50%; animation: spin 0.8s linear infinite;
         }
-        @keyframes initial-pulse {
-          0%, 100% { opacity: 0.4; transform: scale(0.92); }
-          50% { opacity: 1; transform: scale(1); }
-        }
+        @keyframes spin { to { transform: rotate(360deg); } }
       </style>
-      <div class="initial-load">
-        <img src="/logo-zd-nobg.png" class="initial-logo" alt="ZeleraDeck" />
+      <div class="loading-screen">
+        <div class="loading-spinner"></div>
       </div>
     </div>
     <script type="module" src="/src/main.jsx"></script>

@@ -88,7 +88,6 @@ function AppRoutes() {
 
   return (
     <>
-      <SplashScreen />
       <GA4PageTracker />
       {showToast && <SocialProofToast />}
       <Routes>
