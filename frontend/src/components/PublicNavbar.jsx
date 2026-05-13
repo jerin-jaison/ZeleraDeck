@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { Menu, X, MessageCircle, Sun, Moon } from 'lucide-react'
+import { useTheme } from '../context/ThemeContext'
 
 const WA_URL =
   'https://wa.me/917012783442?text=Hi%2C%20I%20want%20to%20get%20ZeleraDeck%20for%20my%20shop'
@@ -16,20 +17,22 @@ const NAV_LINKS = [
 export default function PublicNavbar({ transparent = false }) {
   const [open, setOpen] = useState(false)
   const { pathname } = useLocation()
-  const isDark = false
+  const { theme, toggleTheme } = useTheme()
 
-  // Clean light theme colours
-  const textColor    = transparent ? 'text-[#1E293B]' : 'text-[#1E293B]'
+  const isDark = theme === 'dark'
+
+  // Gold/charcoal brand colours
+  const textColor    = transparent ? 'text-[#F5F0E8]' : 'text-[#F5F0E8]'
   const mutedColor   = transparent
-    ? 'text-[#64748B] hover:text-[#2563EB]'
-    : 'text-[#64748B] hover:text-[#2563EB]'
-  const activeColor  = 'text-[#2563EB]'
+    ? 'text-[#B0A898] hover:text-[#C9A84C]'
+    : 'text-[#B0A898] hover:text-[#C9A84C]'
+  const activeColor  = 'text-[#C9A84C]'
   const headerBg     = transparent
     ? 'bg-transparent border-transparent'
-    : 'bg-white border-[#E2E8F0]'
-  const drawerBg     = 'bg-white border-[#E2E8F0]'
-  const drawerLink   = 'text-[#64748B] border-[#F1F5F9]'
-  const drawerActive = 'text-[#2563EB]'
+    : 'bg-[#0F0F0F] border-[rgba(201,168,76,0.15)]'
+  const drawerBg     = 'bg-[#0F0F0F] border-[rgba(201,168,76,0.15)]'
+  const drawerLink   = 'text-[#B0A898] border-[rgba(201,168,76,0.1)]'
+  const drawerActive = 'text-[#C9A84C]'
 
   return (
     <header className={`${transparent ? 'absolute' : 'sticky'} top-0 w-full z-40 ${headerBg} ${!transparent ? 'border-b' : ''}`}>
@@ -71,6 +74,20 @@ export default function PublicNavbar({ transparent = false }) {
 
         {/* Right: theme toggle + CTA + hamburger */}
         <div className="flex items-center gap-2">
+          {/* Theme toggle hidden from user view but kept in codebase */}
+          <button
+            id="theme-toggle"
+            onClick={toggleTheme}
+            aria-label={isDark ? 'Switch to lighter mode' : 'Switch to deeper dark'}
+            className="hidden w-9 h-9 rounded-xl items-center justify-center cursor-pointer
+              transition-all duration-200 hover:scale-110
+              text-[#C9A84C]/60 hover:text-[#C9A84C] hover:bg-[rgba(201,168,76,0.08)]"
+          >
+            {isDark
+              ? <Sun  className="w-4.5 h-4.5" strokeWidth={1.75} />
+              : <Moon className="w-4.5 h-4.5" strokeWidth={1.75} />
+            }
+          </button>
 
           {/* WhatsApp CTA */}
           <a
@@ -116,6 +133,16 @@ export default function PublicNavbar({ transparent = false }) {
             </Link>
           ))}
 
+          {/* Mobile theme toggle hidden */}
+          <button
+            onClick={toggleTheme}
+            className={`hidden items-center gap-2 py-3 text-sm font-medium w-full border-b cursor-pointer transition-colors ${drawerLink}`}
+          >
+            {isDark
+              ? <><Sun  className="w-4 h-4" /> Switch to Light Mode</>
+              : <><Moon className="w-4 h-4" /> Switch to Dark Mode</>
+            }
+          </button>
 
           <a
             href={WA_URL}

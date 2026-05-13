@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-route
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { HelmetProvider } from 'react-helmet-async'
 import { ToastProvider } from './context/ToastContext'
+import { ThemeProvider } from './context/ThemeContext'
 import { AuthProvider, useAuth } from './hooks/useAuth'
 import MaintenanceGate from './components/MaintenanceGate'
 import MaintenancePage from './pages/MaintenancePage'
@@ -146,7 +147,9 @@ createRoot(document.getElementById('root')).render(
       <QueryClientProvider client={queryClient}>
         <ToastProvider>
           <BrowserRouter>
-            <AppRoutes />
+            <ThemeProvider>
+              <AppRoutes />
+            </ThemeProvider>
           </BrowserRouter>
         </ToastProvider>
       </QueryClientProvider>
