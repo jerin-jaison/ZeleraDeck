@@ -67,13 +67,21 @@ function MediaCarousel({ slides }) {
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
-      {/* Slide track — width stays 100%, each slide is min-w-full */}
+      {/* Slide track — N slides wide, each exactly 1/N of track = 100% of container */}
       <div
-        className="flex h-full transition-transform duration-300 ease-in-out"
-        style={{ transform: `translateX(-${current * 100}%)` }}
+        className="flex h-full"
+        style={{
+          width: `${slides.length * 100}%`,
+          transform: `translateX(-${current * (100 / slides.length)}%)`,
+          transition: 'transform 300ms ease-in-out',
+        }}
       >
         {slides.map((s, i) => (
-          <div key={i} className="min-w-full h-full flex-shrink-0">
+          <div
+            key={i}
+            className="h-full flex-shrink-0"
+            style={{ width: `${100 / slides.length}%` }}
+          >
             {s.type === 'video' ? (
               <video
                 src={s.url}
