@@ -2,15 +2,29 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ChevronLeft } from 'lucide-react'
 import { useToast } from '../context/ToastContext'
+import { useAuth } from '../hooks/useAuth'
 import api from '../api/axios'
 import ProductForm from '../components/ProductForm'
 
 export default function AddProduct() {
   const navigate = useNavigate()
   const showToast = useToast()
+  const { isPro: isProCtx, updateIsPro } = useAuth()
+  const [isPro, setIsPro] = useState(null) // null = loading
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
   const [slowWarning, setSlowWarning] = useState(false)
+
+  // Always confirm isPro from server on mount to handle existing sessions
+  useEffect(() => {
+    api.get('shop/me/')
+      .then(r => {
+        const val = Boolean(r.data.is_pro ?? false)
+        setIsPro(val)
+        updateIsPro(val)
+      })
+      .catch(() => setIsPro(Boolean(isProCtx)))
+  }, [])
 
   useEffect(() => {
     let timer
@@ -51,7 +65,16 @@ export default function AddProduct() {
         <h1 className="text-sm font-semibold text-[#0A0A0A]">Add Product</h1>
       </div>
 
-      <ProductForm onSubmit={handleSubmit} isLoading={loading} />
+      {/* Show skeleton while confirming pro status from server */}
+      {isPro === null ? (
+        <div className="px-4 mt-4 space-y-4">
+          <div className="aspect-square skeleton rounded-2xl" />
+          <div className="h-12 skeleton rounded-xl" />
+          <div className="h-12 skeleton rounded-xl" />
+        </div>
+      ) : (
+        <ProductForm onSubmit={handleSubmit} isLoading={loading} isPro={isPro} />
+      )}
 
       {/* Sticky submit */}
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-[#F0F0F0] p-4 z-40 max-w-md mx-auto">

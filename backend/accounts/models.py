@@ -11,6 +11,7 @@ class Shop(models.Model):
     phone = models.CharField(max_length=15, unique=True)
     password = models.CharField(max_length=255)
     is_active = models.BooleanField(default=True)
+    is_pro = models.BooleanField(default=False)
     # Only increments. Never decrements. Used for display_id generation.
     product_counter = models.PositiveIntegerField(default=0)
 

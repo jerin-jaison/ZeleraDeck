@@ -74,6 +74,7 @@ class LoginView(APIView):
             'shop_id': str(shop.id),
             'shop_name': shop.name,
             'slug': shop.slug,
+            'is_pro': shop.is_pro,
         }, status=status.HTTP_200_OK)
 
 
@@ -221,6 +222,11 @@ class AdminShopListCreateView(APIView):
         if 'admin_notes' in request.data:
             shop.admin_notes = request.data.get('admin_notes', '')
 
+        # Pro Mode toggle
+        if 'is_pro' in request.data:
+            raw_is_pro = str(request.data.get('is_pro', 'false')).strip().lower()
+            shop.is_pro = raw_is_pro in ('true', '1', 'yes')
+
         shop.save()  # slug auto-generated inside model.save()
 
         return Response({
@@ -339,6 +345,11 @@ class AdminShopEditView(APIView):
         # ── Admin Notes ───────────────────────────────────────────────────
         if 'admin_notes' in data:
             shop.admin_notes = data['admin_notes'] or ''
+
+        # ── Pro Mode toggle ─────────────────────────────────────────
+        if 'is_pro' in data:
+            raw_is_pro = str(data.get('is_pro', 'false')).strip().lower()
+            shop.is_pro = raw_is_pro in ('true', '1', 'yes')
 
         # ── Expires At ────────────────────────────────────────────────────
         if 'expires_at' in data:

@@ -20,6 +20,19 @@ def upload_product_image(image_file, shop_slug):
         raise CloudinaryUploadError(f"Image upload failed: {e}")
 
 
+def upload_product_video(video_file, shop_slug):
+    """Upload a product video to Cloudinary (Pro users only). No transcoding."""
+    try:
+        result = cloudinary.uploader.upload(
+            video_file,
+            resource_type='video',
+            folder=f"zeleradeck/{shop_slug}/videos",
+        )
+        return result['secure_url']
+    except Exception as e:
+        raise CloudinaryUploadError(f"Video upload failed: {e}")
+
+
 def upload_shop_logo(image_file, shop_slug):
     """Upload a shop logo to Cloudinary. 400x400 square crop."""
     try:

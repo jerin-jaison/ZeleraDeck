@@ -27,6 +27,7 @@ export default function AdminCreateShop() {
   const [logoPreview, setLogoPreview] = useState('')
   const [expiresAt, setExpiresAt] = useState('')
   const [notes, setNotes] = useState('')
+  const [isPro, setIsPro] = useState(false)
   const [saving, setSaving] = useState(false)
   const [result, setResult] = useState(null)
   const logoRef = useRef()
@@ -55,6 +56,7 @@ export default function AdminCreateShop() {
       if (logo) fd.append('logo', logo, 'logo.jpg')
       if (expiresAt) fd.append('expires_at', new Date(expiresAt).toISOString())
       if (notes.trim()) fd.append('admin_notes', notes.trim())
+      fd.append('is_pro', String(isPro))
 
       const { data } = await adminApi.post('admin/shops/', fd, { headers: { 'Content-Type': 'multipart/form-data' } })
       setResult(data)
@@ -69,7 +71,7 @@ export default function AdminCreateShop() {
   const resetForm = () => {
     setName(''); setPhone(''); setPassword(genPassword()); setAutoGen(true)
     setShowPw(true); setLogo(null); setLogoPreview(''); setExpiresAt('')
-    setNotes(''); setResult(null)
+    setNotes(''); setIsPro(false); setResult(null)
   }
 
   const copyText = (t) => { navigator.clipboard.writeText(t); showToast('Copied!') }
@@ -202,6 +204,28 @@ export default function AdminCreateShop() {
           <label className="text-xs text-[#737373] block mb-1.5">Admin Notes <span className="text-[#A3A3A3]">(optional)</span></label>
           <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2}
             className="w-full border border-[#E5E5E5] rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#111111] resize-none" />
+        </div>
+
+        {/* Pro Mode */}
+        <div className="mb-6 p-4 bg-[#F8F8F8] rounded-xl border border-[#F0F0F0]">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-semibold text-[#0A0A0A] flex items-center gap-1.5">
+                <span className="text-amber-500">⚡</span> Pro Mode
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setIsPro(!isPro)}
+              className="relative w-12 h-6 rounded-full transition-colors flex-shrink-0 ml-3"
+              style={{ backgroundColor: isPro ? '#C9A84C' : '#D4D4D4' }}
+            >
+              <div
+                className="absolute top-0.5 w-5 h-5 bg-white rounded-full shadow-sm transition-transform"
+                style={{ transform: isPro ? 'translateX(24px)' : 'translateX(2px)' }}
+              />
+            </button>
+          </div>
         </div>
 
         <button type="submit" disabled={saving}

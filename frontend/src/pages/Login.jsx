@@ -143,7 +143,7 @@ export default function Login() {
     setLoading(true)
     try {
       const { data } = await api.post('auth/login/', { phone, password })
-      auth.login(data.access, data.refresh, data.shop_name, data.slug)
+      auth.login(data.access, data.refresh, data.shop_name, data.slug, data.is_pro ?? false)
       navigate('/dashboard', { replace: true })
     } catch (err) {
       showToast(err?.response?.data?.error || 'Login failed. Please try again.', 'error')

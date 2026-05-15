@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { ChevronLeft } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import { useToast } from '../context/ToastContext'
+import { useAuth } from '../hooks/useAuth'
 import api from '../api/axios'
 import ProductForm from '../components/ProductForm'
 
@@ -10,11 +11,24 @@ export default function EditProduct() {
   const { id } = useParams()
   const navigate = useNavigate()
   const showToast = useToast()
+  const { isPro: isProCtx, updateIsPro } = useAuth()
+  const [isPro, setIsPro] = useState(null) // null = loading
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
   const [slowWarning, setSlowWarning] = useState(false)
   const [showDeleteSheet, setShowDeleteSheet] = useState(false)
   const [deleting, setDeleting] = useState(false)
+
+  // Always confirm isPro from server on mount to handle existing sessions
+  useEffect(() => {
+    api.get('shop/me/')
+      .then(r => {
+        const val = Boolean(r.data.is_pro ?? false)
+        setIsPro(val)
+        updateIsPro(val)
+      })
+      .catch(() => setIsPro(Boolean(isProCtx)))
+  }, [])
 
   const { data: product, isLoading: fetching } = useQuery({
     queryKey: ['product', id],
@@ -59,14 +73,16 @@ export default function EditProduct() {
     }
   }
 
-  if (fetching) {
+  if (fetching || isPro === null) {
     return (
       <div className="bg-white min-h-screen max-w-md mx-auto">
         <div className="px-4 py-4 border-b border-[#F0F0F0]">
           <div className="h-4 w-32 skeleton rounded" />
         </div>
-        <div className="px-4 mt-4">
-          <div className="aspect-video skeleton rounded-2xl" />
+        <div className="px-4 mt-4 space-y-4">
+          <div className="aspect-square skeleton rounded-2xl" />
+          <div className="h-12 skeleton rounded-xl" />
+          <div className="h-12 skeleton rounded-xl" />
         </div>
       </div>
     )
@@ -81,7 +97,9 @@ export default function EditProduct() {
         <h1 className="text-sm font-semibold text-[#0A0A0A]">Edit Product</h1>
       </div>
 
-      {product && <ProductForm initialData={product} onSubmit={handleSubmit} isLoading={loading} />}
+      {product && isPro !== null && (
+        <ProductForm initialData={product} onSubmit={handleSubmit} isLoading={loading} isPro={isPro} />
+      )}
 
       {/* Delete button */}
       <div className="px-4 pb-28">

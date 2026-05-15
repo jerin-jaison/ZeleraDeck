@@ -15,7 +15,7 @@ from catalogue.serializers import (
     ProductUpdateSerializer, ProductPublicSerializer,
     CategorySerializer, CategoryCreateSerializer
 )
-from catalogue.cloudinary_utils import upload_product_image, CloudinaryUploadError
+from catalogue.cloudinary_utils import upload_product_image, upload_product_video, CloudinaryUploadError
 
 
 # ─── Shop Owner Views ─────────────────────────────────────────────────────────
@@ -32,6 +32,7 @@ class ShopMeView(APIView):
             'phone': shop.phone,
             'whatsapp_number': shop.whatsapp_number,
             'logo_url': shop.logo_url,
+            'is_pro': shop.is_pro,
             'public_url': f'{settings.FRONTEND_URL}/{shop.slug}',
         })
 
@@ -184,7 +185,18 @@ class ShopProductListCreateView(APIView):
         data = serializer.validated_data
         shop = request.user
 
-        # Read image directly from FILES to bypass ImageField extension validation
+        # ── Pro media enforcement ──────────────────────────────────────────
+        extra_images = [request.FILES.get(f'image_{i}') for i in range(2, 5)]
+        video_file = request.FILES.get('video')
+
+        if not shop.is_pro:
+            if any(extra_images) or video_file:
+                return Response(
+                    {'error': 'Extra photos and video upload require Pro Mode. Contact admin to upgrade.'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+        # Read primary image directly from FILES to bypass ImageField extension validation
         # (browser-image-compression produces blobs with no file extension)
         image_file = request.FILES.get('image')
         if not image_file:
@@ -212,6 +224,41 @@ class ShopProductListCreateView(APIView):
             is_in_stock=data.get('is_in_stock', True),
             category=category,
         )
+
+        # ── Pro: upload extra images 2–4 ────────────────────────────────────
+        if shop.is_pro:
+            url_fields = ['image_url_2', 'image_url_3', 'image_url_4']
+            for img_file, url_field in zip(extra_images, url_fields):
+                if img_file:
+                    try:
+                        url = upload_product_image(img_file, shop.slug)
+                        setattr(product, url_field, url)
+                    except CloudinaryUploadError as e:
+                        product.delete()
+                        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+            # ── Pro: upload video ─────────────────────────────────────────
+            if video_file:
+                allowed_mime = {'video/mp4', 'video/webm', 'video/quicktime'}
+                if video_file.content_type not in allowed_mime:
+                    product.delete()
+                    return Response(
+                        {'error': f'Invalid video type. Allowed: mp4, webm, mov.'},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+                if video_file.size > 2 * 1024 * 1024:  # 2MB
+                    product.delete()
+                    return Response(
+                        {'error': 'Video must be under 2MB.'},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+                try:
+                    product.video_url = upload_product_video(video_file, shop.slug)
+                except CloudinaryUploadError as e:
+                    product.delete()
+                    return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+            product.save()
 
         return Response(ProductSerializer(product).data, status=status.HTTP_201_CREATED)
 
@@ -256,6 +303,18 @@ class ShopProductDetailView(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         data = serializer.validated_data
+        shop = request.user
+
+        # ── Pro media enforcement ──────────────────────────────────────────
+        extra_images = [request.FILES.get(f'image_{i}') for i in range(2, 5)]
+        video_file = request.FILES.get('video')
+
+        if not shop.is_pro:
+            if any(extra_images) or video_file:
+                return Response(
+                    {'error': 'Extra photos and video upload require Pro Mode. Contact admin to upgrade.'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
 
         # Handle category_id
         if has_category_update:
@@ -267,16 +326,45 @@ class ShopProductDetailView(APIView):
                 except (Category.DoesNotExist, ValueError):
                     pass  # silently ignore invalid category
 
-        # Read image directly from FILES to bypass ImageField extension validation
+        # Read primary image directly from FILES to bypass ImageField extension validation
         image_file = request.FILES.get('image')
         if image_file:
             try:
-                data['image_url'] = upload_product_image(image_file, request.user.slug)
+                data['image_url'] = upload_product_image(image_file, shop.slug)
             except CloudinaryUploadError as e:
                 return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
         for field, value in data.items():
             setattr(product, field, value)
+
+        # ── Pro: upload extra images 2–4 ────────────────────────────────────
+        if shop.is_pro:
+            url_fields = ['image_url_2', 'image_url_3', 'image_url_4']
+            for img_file, url_field in zip(extra_images, url_fields):
+                if img_file:
+                    try:
+                        setattr(product, url_field, upload_product_image(img_file, shop.slug))
+                    except CloudinaryUploadError as e:
+                        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+            # ── Pro: upload video ─────────────────────────────────────────
+            if video_file:
+                allowed_mime = {'video/mp4', 'video/webm', 'video/quicktime'}
+                if video_file.content_type not in allowed_mime:
+                    return Response(
+                        {'error': 'Invalid video type. Allowed: mp4, webm, mov.'},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+                if video_file.size > 2 * 1024 * 1024:  # 2MB
+                    return Response(
+                        {'error': 'Video must be under 2MB.'},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+                try:
+                    product.video_url = upload_product_video(video_file, shop.slug)
+                except CloudinaryUploadError as e:
+                    return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
         product.save()
 
         return Response(ProductSerializer(product).data)

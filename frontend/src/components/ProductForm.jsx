@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react'
-import { Camera } from 'lucide-react'
+import { Camera, Video, X, Zap } from 'lucide-react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import imageCompression from 'browser-image-compression'
 import Cropper from 'react-easy-crop'
@@ -36,47 +36,119 @@ async function getCroppedImg(imageSrc, pixelCrop) {
   )
 
   return new Promise((resolve) => {
-    canvas.toBlob((blob) => {
-      resolve(blob)
-    }, 'image/jpeg')
+    canvas.toBlob((blob) => { resolve(blob) }, 'image/jpeg')
   })
 }
 
-export default function ProductForm({ initialData, onSubmit, isLoading }) {
+// ── Single image slot component ───────────────────────────────────────────────
+function ImageSlot({ slotIndex, required, file, previewUrl, compressionInfo, onPick }) {
+  const fileRef = useRef()
+  const label = slotIndex === 1 ? 'Photo 1 (Required)' : `Photo ${slotIndex} (Optional)`
+
+  return (
+    <div>
+      {slotIndex > 1 && (
+        <p className="text-xs font-medium text-[#737373] mb-1.5">
+          {label}
+        </p>
+      )}
+      <input
+        ref={fileRef}
+        type="file"
+        accept="image/jpeg,image/png,image/webp"
+        onChange={(e) => { onPick(e); e.target.value = '' }}
+        className="hidden"
+      />
+      <button
+        type="button"
+        onClick={() => fileRef.current?.click()}
+        className={`w-full rounded-xl overflow-hidden relative bg-[#F8F8F8] border-2 border-dashed transition-colors ${
+          previewUrl ? 'border-transparent' : 'border-[#D4D4D4] hover:border-[#A3A3A3]'
+        } ${slotIndex === 1 ? 'aspect-square' : 'aspect-video'}`}
+      >
+        {previewUrl ? (
+          <>
+            <img src={previewUrl} alt={`Preview ${slotIndex}`} className="w-full h-full object-cover" />
+            <div className="absolute inset-x-0 bottom-0 bg-black/50 py-2">
+              <p className="text-xs text-white text-center">Change photo</p>
+            </div>
+          </>
+        ) : (
+          <div className="flex flex-col items-center justify-center h-full py-6">
+            <Camera className="w-8 h-8 text-[#A3A3A3]" />
+            {slotIndex === 1 ? (
+              <>
+                <p className="text-sm text-[#737373] mt-2">Tap to add photo</p>
+                <p className="text-xs text-[#A3A3A3] mt-1">JPG, PNG or WebP</p>
+              </>
+            ) : (
+              <p className="text-xs text-[#A3A3A3] mt-1">Optional</p>
+            )}
+          </div>
+        )}
+      </button>
+      {compressionInfo && (
+        <p className="text-xs text-[#737373] mt-1">{compressionInfo}</p>
+      )}
+    </div>
+  )
+}
+
+// ── Main form ─────────────────────────────────────────────────────────────────
+export default function ProductForm({ initialData, onSubmit, isLoading, isPro = false }) {
   const qc = useQueryClient()
   const [name, setName] = useState(initialData?.name || '')
   const [price, setPrice] = useState(initialData?.price || '')
   const [description, setDescription] = useState(initialData?.description || '')
   const [isInStock, setIsInStock] = useState(initialData?.is_in_stock ?? true)
   const [categoryId, setCategoryId] = useState(initialData?.category?.id || null)
-  const [imageFile, setImageFile] = useState(null)
-  const [previewUrl, setPreviewUrl] = useState(initialData?.image_url || '')
-  const [compressionInfo, setCompressionInfo] = useState('')
   const [showCategories, setShowCategories] = useState(false)
-  const fileRef = useRef()
 
+  // Image slots: 1 required + 3 optional (pro only)
+  const SLOT_COUNT = isPro ? 4 : 1
+  const [imageFiles, setImageFiles] = useState(Array(4).fill(null))
+  const [previewUrls, setPreviewUrls] = useState([
+    initialData?.image_url || '',
+    initialData?.image_url_2 || '',
+    initialData?.image_url_3 || '',
+    initialData?.image_url_4 || '',
+  ])
+  const [compressionInfos, setCompressionInfos] = useState(Array(4).fill(''))
+
+  // Video (pro only)
+  const videoRef = useRef()
+  const [videoFile, setVideoFile] = useState(null)
+  const [videoPreviewUrl, setVideoPreviewUrl] = useState(initialData?.video_url || '')
+  const [videoError, setVideoError] = useState('')
+
+  // Cropper state
+  const [cropSlotIndex, setCropSlotIndex] = useState(null) // which slot is being cropped
   const [cropImageSrc, setCropImageSrc] = useState(null)
   const [crop, setCrop] = useState({ x: 0, y: 0 })
   const [zoom, setZoom] = useState(1)
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null)
 
-  // Fetch categories
+  // Categories
   const { data: categoriesData } = useQuery({
     queryKey: ['shop-categories'],
     queryFn: () => api.get('shop/categories/').then((r) => r.data),
   })
   const categories = categoriesData || []
 
-  const handleImagePick = (e) => {
+  // ── Image pick handler (opens cropper) ─────────────────────────────────────
+  const handleImagePick = (e, slotIndex) => {
     const file = e.target.files?.[0]
     if (!file) return
+    setCropSlotIndex(slotIndex)
     setCropImageSrc(URL.createObjectURL(file))
-    e.target.value = ''
+    setCrop({ x: 0, y: 0 })
+    setZoom(1)
   }
 
+  // ── Crop complete ────────────────────────────────────────────────────────────
   const handleCropComplete = async () => {
     try {
-      if (!cropImageSrc || !croppedAreaPixels) return
+      if (!cropImageSrc || !croppedAreaPixels || cropSlotIndex === null) return
       const croppedBlob = await getCroppedImg(cropImageSrc, croppedAreaPixels)
       if (!croppedBlob) return
 
@@ -89,17 +161,51 @@ export default function ProductForm({ initialData, onSubmit, isLoading }) {
         useWebWorker: true,
       })
       const afterKB = (compressed.size / 1024).toFixed(1)
-      setCompressionInfo(`Optimised: ${beforeKB}KB → ${afterKB}KB ✓`)
-      
-      setImageFile(compressed)
-      setPreviewUrl(URL.createObjectURL(compressed))
+
+      const newFiles = [...imageFiles]
+      newFiles[cropSlotIndex] = compressed
+      setImageFiles(newFiles)
+
+      const newPreviews = [...previewUrls]
+      newPreviews[cropSlotIndex] = URL.createObjectURL(compressed)
+      setPreviewUrls(newPreviews)
+
+      const newInfos = [...compressionInfos]
+      newInfos[cropSlotIndex] = `Optimised: ${beforeKB}KB → ${afterKB}KB ✓`
+      setCompressionInfos(newInfos)
+
       setCropImageSrc(null)
+      setCropSlotIndex(null)
     } catch (err) {
       console.error('Crop failed', err)
       setCropImageSrc(null)
+      setCropSlotIndex(null)
     }
   }
 
+  // ── Video pick ───────────────────────────────────────────────────────────────
+  const handleVideoPick = (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setVideoError('')
+
+    const allowedTypes = ['video/mp4', 'video/webm', 'video/quicktime']
+    if (!allowedTypes.includes(file.type)) {
+      setVideoError('Only MP4, WebM, or MOV files are allowed.')
+      e.target.value = ''
+      return
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      setVideoError('Video must be under 2MB.')
+      e.target.value = ''
+      return
+    }
+    setVideoFile(file)
+    setVideoPreviewUrl(URL.createObjectURL(file))
+    e.target.value = ''
+  }
+
+  // ── Submit ───────────────────────────────────────────────────────────────────
   const handleSubmit = (e) => {
     e.preventDefault()
     const formData = new FormData()
@@ -107,13 +213,16 @@ export default function ProductForm({ initialData, onSubmit, isLoading }) {
     formData.append('price', price)
     formData.append('description', description || '')
     formData.append('is_in_stock', isInStock)
-    if (imageFile) formData.append('image', imageFile)
-    if (categoryId) {
-      formData.append('category_id', categoryId)
+    if (imageFiles[0]) formData.append('image', imageFiles[0])
+    if (categoryId) formData.append('category_id', categoryId)
+
+    if (isPro) {
+      if (imageFiles[1]) formData.append('image_2', imageFiles[1])
+      if (imageFiles[2]) formData.append('image_3', imageFiles[2])
+      if (imageFiles[3]) formData.append('image_4', imageFiles[3])
+      if (videoFile) formData.append('video', videoFile)
     }
-    // When categoryId is null (no category selected), we don't send
-    // category_id at all for new products. For editing, the backend
-    // handles the absence by not changing the category.
+
     onSubmit(formData)
   }
 
@@ -125,41 +234,74 @@ export default function ProductForm({ initialData, onSubmit, isLoading }) {
   return (
     <>
       <form id="product-form" onSubmit={handleSubmit}>
-        {/* Image upload zone */}
-        <div className="px-4 mt-4">
-          <input
-            ref={fileRef}
-            type="file"
-            accept="image/jpeg,image/png,image/webp"
-            onChange={handleImagePick}
-            className="hidden"
-          />
-          <button
-            type="button"
-            onClick={() => fileRef.current?.click()}
-            className="w-full aspect-square rounded-2xl overflow-hidden relative bg-[#F8F8F8] border-2 border-dashed border-[#D4D4D4]"
-          >
-            {previewUrl ? (
-              <>
-                <img src={previewUrl} alt="Preview" className="w-full h-full object-cover" />
-                <div className="absolute inset-x-0 bottom-0 bg-black/50 py-2">
-                  <p className="text-xs text-white text-center">Change photo</p>
-                </div>
-              </>
-            ) : (
-              <div className="flex flex-col items-center justify-center h-full">
-                <Camera className="w-10 h-10 text-[#A3A3A3]" />
-                <p className="text-sm text-[#737373] mt-2">Tap to add photo</p>
-                <p className="text-xs text-[#A3A3A3] mt-1">JPG, PNG or WebP</p>
-              </div>
-            )}
-          </button>
-          {compressionInfo && (
-            <p className="text-xs text-[#737373] mt-2">{compressionInfo}</p>
-          )}
+
+        {/* ── Pro badge ──────────────────────────────────────────────────────── */}
+        {isPro && (
+          <div className="px-4 mt-4">
+            <div className="inline-flex items-center gap-1.5 bg-amber-50 border border-amber-200 text-amber-700 rounded-full px-3 py-1">
+              <Zap className="w-3.5 h-3.5 fill-amber-500 stroke-amber-500" />
+              <span className="text-xs font-semibold">Pro</span>
+            </div>
+          </div>
+        )}
+
+        {/* ── Image upload zone(s) ───────────────────────────────────────────── */}
+        <div className={`px-4 mt-4 ${isPro ? 'grid grid-cols-2 gap-3' : ''}`}>
+          {Array.from({ length: SLOT_COUNT }).map((_, i) => (
+            <ImageSlot
+              key={i}
+              slotIndex={i + 1}
+              required={i === 0}
+              file={imageFiles[i]}
+              previewUrl={previewUrls[i]}
+              compressionInfo={compressionInfos[i]}
+              onPick={(e) => handleImagePick(e, i)}
+            />
+          ))}
         </div>
 
-        {/* Fields */}
+        {/* ── Video upload (Pro only) ────────────────────────────────────────── */}
+        {isPro && (
+          <div className="px-4 mt-4">
+            <label className="block text-xs font-medium text-[#737373] mb-1.5">
+              Product Video <span className="text-[#A3A3A3]">(optional, max 2MB)</span>
+            </label>
+            <input
+              ref={videoRef}
+              type="file"
+              accept="video/mp4,video/webm,.mov,video/quicktime"
+              onChange={handleVideoPick}
+              className="hidden"
+            />
+            {videoPreviewUrl ? (
+              <div className="relative rounded-xl overflow-hidden bg-black aspect-video">
+                <video src={videoPreviewUrl} controls className="w-full h-full object-contain" />
+                <button
+                  type="button"
+                  onClick={() => { setVideoFile(null); setVideoPreviewUrl(''); setVideoError('') }}
+                  className="absolute top-2 right-2 w-7 h-7 bg-black/60 rounded-full flex items-center justify-center"
+                >
+                  <X className="w-4 h-4 text-white" />
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => videoRef.current?.click()}
+                className="w-full border-2 border-dashed border-[#D4D4D4] rounded-xl py-5 flex flex-col items-center gap-1 hover:border-[#A3A3A3] transition-colors"
+              >
+                <Video className="w-7 h-7 text-[#A3A3A3]" />
+                <p className="text-sm text-[#737373]">Tap to add video</p>
+                <p className="text-xs text-[#A3A3A3]">MP4, WebM or MOV · max 2MB</p>
+              </button>
+            )}
+            {videoError && (
+              <p className="text-xs text-red-500 mt-1.5 font-medium">{videoError}</p>
+            )}
+          </div>
+        )}
+
+        {/* ── Fields ────────────────────────────────────────────────────────── */}
         <div className="px-4 mt-6 space-y-4 pb-32">
           <div>
             <label className="block text-xs font-medium text-[#737373] mb-1.5">Product Name *</label>
@@ -276,6 +418,7 @@ export default function ProductForm({ initialData, onSubmit, isLoading }) {
         onClose={handleCategoriesClose}
       />
 
+      {/* ── Crop modal ─────────────────────────────────────────────────────── */}
       {cropImageSrc && (
         <div className="fixed inset-0 z-[100] bg-black flex flex-col">
           <div className="relative flex-1">
@@ -292,7 +435,7 @@ export default function ProductForm({ initialData, onSubmit, isLoading }) {
           <div className="p-4 bg-white flex justify-between gap-4">
             <button
               type="button"
-              onClick={() => setCropImageSrc(null)}
+              onClick={() => { setCropImageSrc(null); setCropSlotIndex(null) }}
               className="flex-1 py-4 font-semibold text-[#0A0A0A] bg-[#F8F8F8] border border-[#E5E5E5] rounded-xl"
             >
               Cancel

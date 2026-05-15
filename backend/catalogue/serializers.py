@@ -42,7 +42,8 @@ class ProductSerializer(serializers.ModelSerializer):
         model = Product
         fields = [
             'id', 'display_id', 'name', 'price', 'description',
-            'image_url', 'is_in_stock', 'category', 'category_id',
+            'image_url', 'image_url_2', 'image_url_3', 'image_url_4',
+            'video_url', 'is_in_stock', 'category', 'category_id',
             'created_at', 'updated_at'
         ]
         read_only_fields = ['id', 'display_id', 'created_at', 'updated_at']
@@ -73,7 +74,9 @@ class ProductPublicSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Product
-        fields = ['display_id', 'name', 'price', 'description', 'image_url', 'is_in_stock', 'category_name']
+        fields = ['display_id', 'name', 'price', 'description',
+                  'image_url', 'image_url_2', 'image_url_3', 'image_url_4',
+                  'video_url', 'is_in_stock', 'category_name']
 
     def get_category_name(self, obj):
         return obj.category.name if obj.category else None

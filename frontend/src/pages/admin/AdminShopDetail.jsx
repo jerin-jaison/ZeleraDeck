@@ -57,6 +57,7 @@ export default function AdminShopDetail() {
   const [editExpiry, setEditExpiry] = useState('')
   const [editClearExpiry, setEditClearExpiry] = useState(false)
   const [editNotes, setEditNotes] = useState('')
+  const [editIsPro, setEditIsPro] = useState(false)
   const [saving, setSaving] = useState(false)
   const [nameError, setNameError] = useState('')
   const [phoneError, setPhoneError] = useState('')
@@ -100,6 +101,7 @@ export default function AdminShopDetail() {
     setEditExpiry(toDateInput(shop.expires_at))
     setEditClearExpiry(false)
     setEditNotes(shop.admin_notes || '')
+    setEditIsPro(shop.is_pro || false)
     setNameError('')
     setPhoneError('')
     setEditing(true)
@@ -122,6 +124,7 @@ export default function AdminShopDetail() {
     formData.append('name', editName.trim())
     formData.append('phone', cleanPhone)
     formData.append('admin_notes', editNotes)
+    formData.append('is_pro', String(editIsPro))
 
     // Only send expires_at if the user changed it
     const originalExpiry = toDateInput(shop.expires_at)
@@ -141,8 +144,14 @@ export default function AdminShopDetail() {
     const phoneChanged = cleanPhone !== shop.phone
 
     try {
-      await adminApi.patch(`admin/shops/${id}/edit/`, formData, {
+      const { data: updatedShop } = await adminApi.patch(`admin/shops/${id}/edit/`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
+      })
+      // Write fresh server data directly into cache so re-opening Edit
+      // shows the correct is_pro (and all other fields) without a race condition
+      qc.setQueryData(['admin-shops-all'], (old) => {
+        if (!old?.shops) return old
+        return { ...old, shops: old.shops.map((s) => s.id === id ? { ...s, ...updatedShop } : s) }
       })
       refresh()
       setEditing(false)
@@ -184,6 +193,7 @@ export default function AdminShopDetail() {
     { l: 'Last Login', v: shop.last_login ? timeAgo(shop.last_login) : 'Never' },
     { l: 'Expires', v: shop.expires_at ? fmtDate(shop.expires_at) : 'No expiry' },
     { l: 'Products', v: shop.product_count },
+    { l: 'Pro Mode', v: shop.is_pro ? '⚡ Active' : 'Inactive' },
   ]
 
   // Expiry status for edit form
@@ -382,6 +392,28 @@ export default function AdminShopDetail() {
                     className="w-full border border-[#E5E5E5] rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#111111] resize-none"
                     placeholder="Internal notes (not visible to shop owner)"
                   />
+                </div>
+
+                {/* ⑤ Pro Mode toggle */}
+                <div className="p-4 bg-[#F8F8F8] rounded-xl border border-[#F0F0F0]">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-semibold text-[#0A0A0A] flex items-center gap-1.5">
+                        <span className="text-amber-500">⚡</span> Pro Mode
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setEditIsPro(!editIsPro)}
+                      className="relative w-12 h-6 rounded-full transition-colors flex-shrink-0 ml-3"
+                      style={{ backgroundColor: editIsPro ? '#C9A84C' : '#D4D4D4' }}
+                    >
+                      <div
+                        className="absolute top-0.5 w-5 h-5 bg-white rounded-full shadow-sm transition-transform"
+                        style={{ transform: editIsPro ? 'translateX(24px)' : 'translateX(2px)' }}
+                      />
+                    </button>
+                  </div>
                 </div>
 
                 {/* Save button */}

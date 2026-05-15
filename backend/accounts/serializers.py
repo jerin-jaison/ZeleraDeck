@@ -13,7 +13,7 @@ class ShopSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Shop
-        fields = ['id', 'name', 'slug', 'phone', 'whatsapp_number', 'is_active', 'logo_url', 'created_at']
+        fields = ['id', 'name', 'slug', 'phone', 'whatsapp_number', 'is_active', 'is_pro', 'logo_url', 'created_at']
 
     def get_whatsapp_number(self, obj):
         return obj.whatsapp_number
@@ -37,7 +37,7 @@ class ShopAdminListSerializer(serializers.ModelSerializer):
         model = Shop
         fields = [
             'id', 'name', 'slug', 'phone', 'whatsapp_number', 'logo_url',
-            'is_active', 'product_count', 'created_at',
+            'is_active', 'is_pro', 'product_count', 'created_at',
             'expires_at', 'admin_notes', 'last_login', 'is_expiring_soon',
         ]
 

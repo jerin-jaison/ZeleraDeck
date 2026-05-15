@@ -32,6 +32,11 @@ class Product(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2)
     description = models.TextField(blank=True, null=True)
     image_url = models.URLField(max_length=500)
+    # ── Pro media fields (optional, only populated for Pro users) ─────────────
+    image_url_2 = models.URLField(max_length=500, blank=True, null=True)
+    image_url_3 = models.URLField(max_length=500, blank=True, null=True)
+    image_url_4 = models.URLField(max_length=500, blank=True, null=True)
+    video_url = models.URLField(max_length=500, blank=True, null=True)
     is_in_stock = models.BooleanField(default=True)
     category = models.ForeignKey(
         Category,

@@ -11,10 +11,15 @@ const getStoredShop = () => {
     return name ? { name, slug } : null
   } catch { return null }
 }
+const getStoredIsPro = () => {
+  try { return localStorage.getItem('is_pro') === 'true' }
+  catch { return false }
+}
 
 export function AuthProvider({ children }) {
   const [token, setToken] = useState(() => getStoredToken())
   const [shop, setShop] = useState(() => getStoredShop())
+  const [isPro, setIsPro] = useState(() => getStoredIsPro())
   const [hydrated, setHydrated] = useState(false)
 
   useEffect(() => {
@@ -23,13 +28,15 @@ export function AuthProvider({ children }) {
 
   const isAuthenticated = Boolean(token && shop)
 
-  const login = useCallback((accessToken, refreshToken, shopName, slug) => {
+  const login = useCallback((accessToken, refreshToken, shopName, slug, isProValue = false) => {
     localStorage.setItem('access_token', accessToken)
     localStorage.setItem('refresh_token', refreshToken)
     localStorage.setItem('shop_name', shopName)
     localStorage.setItem('slug', slug)
+    localStorage.setItem('is_pro', String(isProValue))
     setToken(accessToken)
     setShop({ name: shopName, slug })
+    setIsPro(Boolean(isProValue))
   }, [])
 
   const logout = useCallback(() => {
@@ -37,8 +44,17 @@ export function AuthProvider({ children }) {
     localStorage.removeItem('refresh_token')
     localStorage.removeItem('shop_name')
     localStorage.removeItem('slug')
+    localStorage.removeItem('is_pro')
     setToken(null)
     setShop(null)
+    setIsPro(false)
+  }, [])
+
+  // Allow external updates to isPro (e.g. from shop/me refresh)
+  const updateIsPro = useCallback((value) => {
+    const bool = Boolean(value)
+    localStorage.setItem('is_pro', String(bool))
+    setIsPro(bool)
   }, [])
 
   // Sync token changes from axios interceptor (silent refresh)
@@ -46,13 +62,14 @@ export function AuthProvider({ children }) {
     const handleStorageSync = () => {
       const t = localStorage.getItem('access_token')
       if (t !== token) setToken(t)
+      setIsPro(getStoredIsPro())
     }
     window.addEventListener('storage', handleStorageSync)
     return () => window.removeEventListener('storage', handleStorageSync)
   }, [token])
 
   return (
-    <AuthContext.Provider value={{ token, shop, isAuthenticated, hydrated, login, logout }}>
+    <AuthContext.Provider value={{ token, shop, isPro, isAuthenticated, hydrated, login, logout, updateIsPro }}>
       {children}
     </AuthContext.Provider>
   )
