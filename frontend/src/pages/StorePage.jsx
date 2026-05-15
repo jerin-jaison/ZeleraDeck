@@ -44,6 +44,13 @@ function PublicProductCard({ product, shop }) {
         <span className="absolute top-2 left-2 bg-black/50 text-white text-[10px] px-1.5 py-0.5 rounded-md font-mono">
           {product.display_id}
         </span>
+        {/* Multi-image badge */}
+        {(product.image_url_2 || product.video_url) && (
+          <span className="absolute top-2 right-2 bg-black/50 text-white text-[10px] px-1.5 py-0.5 rounded-md">
+            📷 {[product.image_url, product.image_url_2, product.image_url_3, product.image_url_4].filter(Boolean).length}
+            {product.video_url ? ' +▶' : ''}
+          </span>
+        )}
         {!product.is_in_stock && (
           <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
             <span className="text-[10px] text-white font-medium px-2 py-1 bg-black/60 rounded-md">Out of Stock</span>

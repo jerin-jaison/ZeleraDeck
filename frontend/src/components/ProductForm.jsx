@@ -195,8 +195,8 @@ export default function ProductForm({ initialData, onSubmit, isLoading, isPro = 
       e.target.value = ''
       return
     }
-    if (file.size > 2 * 1024 * 1024) {
-      setVideoError('Video must be under 2MB.')
+    if (file.size > 5 * 1024 * 1024) {
+      setVideoError('Video must be under 5MB.')
       e.target.value = ''
       return
     }

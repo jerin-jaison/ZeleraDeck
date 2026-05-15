@@ -1,6 +1,7 @@
+import { useState, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { ChevronLeft } from 'lucide-react'
+import { ChevronLeft, PlayCircle } from 'lucide-react'
 import api from '../api/axios'
 import ImageWithFallback from '../components/ImageWithFallback'
 import SEOHead from '../components/SEOHead'
@@ -14,6 +15,108 @@ function cloudinaryOptimize(url) {
 const WA_SVG = (
   <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
 )
+
+// ── Swipeable media carousel ──────────────────────────────────────────────────
+function MediaCarousel({ slides }) {
+  const [current, setCurrent] = useState(0)
+  const touchStartX = useRef(null)
+  const touchStartY = useRef(null)
+
+  if (!slides || slides.length === 0) return null
+
+  const handleTouchStart = (e) => {
+    touchStartX.current = e.touches[0].clientX
+    touchStartY.current = e.touches[0].clientY
+  }
+
+  const handleTouchEnd = (e) => {
+    if (touchStartX.current === null) return
+    const dx = e.changedTouches[0].clientX - touchStartX.current
+    const dy = e.changedTouches[0].clientY - touchStartY.current
+    // Only swipe if horizontal movement is dominant
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 40) {
+      if (dx < 0 && current < slides.length - 1) setCurrent(current + 1)
+      if (dx > 0 && current > 0) setCurrent(current - 1)
+    }
+    touchStartX.current = null
+    touchStartY.current = null
+  }
+
+  const slide = slides[current]
+
+  return (
+    <div className="relative w-full aspect-square bg-[#F8F8F8] select-none overflow-hidden"
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+    >
+      {/* Slides */}
+      <div
+        className="flex h-full transition-transform duration-300 ease-out"
+        style={{ transform: `translateX(-${current * 100}%)`, width: `${slides.length * 100}%` }}
+      >
+        {slides.map((s, i) => (
+          <div key={i} className="h-full flex-shrink-0" style={{ width: `${100 / slides.length}%` }}>
+            {s.type === 'video' ? (
+              <video
+                src={s.url}
+                controls
+                playsInline
+                className="w-full h-full object-contain bg-black"
+              />
+            ) : (
+              <ImageWithFallback
+                src={s.url}
+                alt={`Photo ${i + 1}`}
+                className="w-full h-full object-cover"
+              />
+            )}
+          </div>
+        ))}
+      </div>
+
+      {/* Dot indicators — only show when multiple slides */}
+      {slides.length > 1 && (
+        <>
+          {/* Counter badge top-right */}
+          <div className="absolute top-3 right-3 bg-black/50 text-white text-xs px-2 py-0.5 rounded-full font-medium">
+            {current + 1} / {slides.length}
+          </div>
+
+          {/* Dot strip bottom-center */}
+          <div className="absolute bottom-3 left-0 right-0 flex justify-center gap-1.5">
+            {slides.map((s, i) => (
+              <button
+                key={i}
+                onClick={() => setCurrent(i)}
+                className={`rounded-full transition-all ${
+                  i === current
+                    ? 'w-5 h-1.5 bg-white'
+                    : 'w-1.5 h-1.5 bg-white/50'
+                } ${s.type === 'video' ? 'bg-amber-400' : ''}`}
+              />
+            ))}
+          </div>
+
+          {/* Swipe hint on first load */}
+          {current === 0 && (
+            <div className="absolute bottom-9 left-0 right-0 flex justify-center pointer-events-none">
+              <span className="text-[10px] text-white/70 bg-black/30 px-2 py-0.5 rounded-full">
+                Swipe to see more
+              </span>
+            </div>
+          )}
+        </>
+      )}
+
+      {/* Video slide indicator on thumbnail */}
+      {slide.type === 'video' && (
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <PlayCircle className="w-12 h-12 text-white/80 drop-shadow-lg" />
+        </div>
+      )}
+    </div>
+  )
+}
 
 export default function ProductPage() {
   const { slug, displayId } = useParams()
@@ -49,6 +152,16 @@ export default function ProductPage() {
   }
 
   const { product, shop } = data
+
+  // Build ordered slide list — only include non-null URLs
+  const imageKeys = ['image_url', 'image_url_2', 'image_url_3', 'image_url_4']
+  const slides = [
+    ...imageKeys
+      .map((k) => product[k])
+      .filter(Boolean)
+      .map((url) => ({ type: 'image', url: cloudinaryOptimize(url) })),
+    ...(product.video_url ? [{ type: 'video', url: product.video_url }] : []),
+  ]
 
   const orderOnWhatsApp = () => {
     const message =
@@ -104,8 +217,15 @@ export default function ProductPage() {
         <ChevronLeft className="w-4 h-4" /> Back to store
       </button>
 
-      {/* Image */}
-      <ImageWithFallback src={product.image_url} alt={product.name} className="w-full aspect-square" />
+      {/* Media carousel */}
+      <MediaCarousel slides={slides} />
+
+      {/* Out-of-stock overlay */}
+      {!product.is_in_stock && (
+        <div className="mx-4 mt-3 bg-[#FEF2F2] border border-[#FECACA] text-[#EF4444] text-xs font-medium px-3 py-2 rounded-xl text-center">
+          Currently Out of Stock
+        </div>
+      )}
 
       {/* Content */}
       <div className="px-4 mt-4">
