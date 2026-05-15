@@ -52,7 +52,7 @@ function MediaCarousel({ slides }) {
       {/* Slides */}
       <div
         className="flex h-full transition-transform duration-300 ease-out"
-        style={{ transform: `translateX(-${current * 100}%)`, width: `${slides.length * 100}%` }}
+        style={{ transform: `translateX(-${current * (100 / slides.length)}%)`, width: `${slides.length * 100}%` }}
       >
         {slides.map((s, i) => (
           <div key={i} className="h-full flex-shrink-0" style={{ width: `${100 / slides.length}%` }}>
