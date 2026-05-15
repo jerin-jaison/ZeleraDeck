@@ -1,9 +1,8 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { ChevronLeft, PlayCircle } from 'lucide-react'
+import { ChevronLeft } from 'lucide-react'
 import api from '../api/axios'
-import ImageWithFallback from '../components/ImageWithFallback'
 import SEOHead from '../components/SEOHead'
 
 /** Append Cloudinary auto-format + quality optimisation */
@@ -19,8 +18,27 @@ const WA_SVG = (
 // ── Swipeable media carousel ──────────────────────────────────────────────────
 function MediaCarousel({ slides }) {
   const [current, setCurrent] = useState(0)
+  const containerRef = useRef(null)
   const touchStartX = useRef(null)
   const touchStartY = useRef(null)
+
+  const goNext = () => setCurrent((i) => (i + 1) % slides.length)
+  const goPrev = () => setCurrent((i) => (i - 1 + slides.length) % slides.length)
+
+  // Non-passive touchmove so e.preventDefault() actually suppresses page scroll
+  // when the user is swiping horizontally
+  useEffect(() => {
+    const el = containerRef.current
+    if (!el) return
+    const onTouchMove = (e) => {
+      if (touchStartX.current === null) return
+      const dx = Math.abs(e.touches[0].clientX - touchStartX.current)
+      const dy = Math.abs(e.touches[0].clientY - touchStartY.current)
+      if (dx > dy) e.preventDefault() // block page scroll only for horizontal swipes
+    }
+    el.addEventListener('touchmove', onTouchMove, { passive: false })
+    return () => el.removeEventListener('touchmove', onTouchMove)
+  }, [])
 
   if (!slides || slides.length === 0) return null
 
@@ -33,29 +51,29 @@ function MediaCarousel({ slides }) {
     if (touchStartX.current === null) return
     const dx = e.changedTouches[0].clientX - touchStartX.current
     const dy = e.changedTouches[0].clientY - touchStartY.current
-    // Only swipe if horizontal movement is dominant
     if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 40) {
-      if (dx < 0 && current < slides.length - 1) setCurrent(current + 1)
-      if (dx > 0 && current > 0) setCurrent(current - 1)
+      if (dx < 0) goNext()
+      else goPrev()
     }
     touchStartX.current = null
     touchStartY.current = null
   }
 
-  const slide = slides[current]
-
   return (
-    <div className="relative w-full aspect-square bg-[#F8F8F8] select-none overflow-hidden"
+    <div
+      ref={containerRef}
+      className="relative w-full select-none bg-[#F8F8F8]"
+      style={{ aspectRatio: '1 / 1', overflow: 'hidden' }}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
-      {/* Slides */}
+      {/* Slide track — width stays 100%, each slide is min-w-full */}
       <div
-        className="flex h-full transition-transform duration-300 ease-out"
-        style={{ transform: `translateX(-${current * (100 / slides.length)}%)`, width: `${slides.length * 100}%` }}
+        className="flex h-full transition-transform duration-300 ease-in-out"
+        style={{ transform: `translateX(-${current * 100}%)` }}
       >
         {slides.map((s, i) => (
-          <div key={i} className="h-full flex-shrink-0" style={{ width: `${100 / slides.length}%` }}>
+          <div key={i} className="min-w-full h-full flex-shrink-0">
             {s.type === 'video' ? (
               <video
                 src={s.url}
@@ -64,40 +82,52 @@ function MediaCarousel({ slides }) {
                 className="w-full h-full object-contain bg-black"
               />
             ) : (
-              <ImageWithFallback
+              <img
                 src={s.url}
                 alt={`Photo ${i + 1}`}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-contain"
+                draggable={false}
               />
             )}
           </div>
         ))}
       </div>
 
-      {/* Dot indicators — only show when multiple slides */}
+      {/* Prev / Next arrows — show only when multiple slides */}
       {slides.length > 1 && (
         <>
-          {/* Counter badge top-right */}
+          <button
+            onClick={goPrev}
+            className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/30 text-white flex items-center justify-center text-lg leading-none"
+          >
+            ‹
+          </button>
+          <button
+            onClick={goNext}
+            className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/30 text-white flex items-center justify-center text-lg leading-none"
+          >
+            ›
+          </button>
+
+          {/* Counter badge */}
           <div className="absolute top-3 right-3 bg-black/50 text-white text-xs px-2 py-0.5 rounded-full font-medium">
             {current + 1} / {slides.length}
           </div>
 
-          {/* Dot strip bottom-center */}
+          {/* Dot strip */}
           <div className="absolute bottom-3 left-0 right-0 flex justify-center gap-1.5">
             {slides.map((s, i) => (
               <button
                 key={i}
                 onClick={() => setCurrent(i)}
                 className={`rounded-full transition-all ${
-                  i === current
-                    ? 'w-5 h-1.5 bg-white'
-                    : 'w-1.5 h-1.5 bg-white/50'
-                } ${s.type === 'video' ? 'bg-amber-400' : ''}`}
+                  i === current ? 'w-5 h-1.5 bg-white' : 'w-1.5 h-1.5 bg-white/50'
+                } ${s.type === 'video' ? (i === current ? 'bg-amber-400' : 'bg-amber-400/50') : ''}`}
               />
             ))}
           </div>
 
-          {/* Swipe hint on first load */}
+          {/* Swipe hint — only on first slide */}
           {current === 0 && (
             <div className="absolute bottom-9 left-0 right-0 flex justify-center pointer-events-none">
               <span className="text-[10px] text-white/70 bg-black/30 px-2 py-0.5 rounded-full">
@@ -106,13 +136,6 @@ function MediaCarousel({ slides }) {
             </div>
           )}
         </>
-      )}
-
-      {/* Video slide indicator on thumbnail */}
-      {slide.type === 'video' && (
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <PlayCircle className="w-12 h-12 text-white/80 drop-shadow-lg" />
-        </div>
       )}
     </div>
   )
