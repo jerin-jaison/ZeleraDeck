@@ -1,20 +1,22 @@
 import { useState, useEffect, useRef } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { Package, Search, X, SearchX, Tag, Filter } from 'lucide-react'
+import { Package, Search, X, SearchX, Tag, Filter, ArrowUpDown } from 'lucide-react'
 import api from '../api/axios'
+import { useAuth } from '../hooks/useAuth'
 import BottomNav from '../components/BottomNav'
 import DashboardProductListItem from '../components/DashboardProductListItem'
 import SkeletonListItem from '../components/SkeletonListItem'
 import Pagination from '../components/Pagination'
 import Logo from '../components/Logo'
 import CategoriesBottomSheet from '../components/CategoriesBottomSheet'
+import ProductReorderModal from '../components/ProductReorderModal'
 
 export default function Dashboard() {
   const qc = useQueryClient()
   const shopName = localStorage.getItem('shop_name') || 'My Shop'
+  const { isPro } = useAuth()
   const productListRef = useRef()
 
-  // Search + filter + pagination state
   const [searchInput, setSearchInput] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
   const [stockFilter, setStockFilter] = useState('all')
@@ -22,6 +24,7 @@ export default function Dashboard() {
   const [currentPage, setCurrentPage] = useState(1)
   const [showCategories, setShowCategories] = useState(false)
   const [showFilters, setShowFilters] = useState(false)
+  const [showReorder, setShowReorder] = useState(false)
 
   // Debounce search input
   useEffect(() => {
@@ -154,13 +157,25 @@ export default function Dashboard() {
               <p className="text-xs text-[#737373]">{greeting}</p>
             </div>
           </div>
-          <button
-            onClick={() => setShowCategories(true)}
-            className="flex items-center gap-1 bg-[#F8F8F8] border border-[#E5E5E5] rounded-xl px-3 py-1.5 text-xs font-medium text-[#0A0A0A]"
-          >
-            <Tag className="w-3.5 h-3.5" />
-            Categories
-          </button>
+          {/* Header right — Categories + Arrange (Pro) */}
+          <div className="flex items-center gap-2">
+            {isPro && (
+              <button
+                onClick={() => setShowReorder(true)}
+                className="flex items-center gap-1 bg-amber-50 border border-amber-200 rounded-xl px-3 py-1.5 text-xs font-medium text-amber-700"
+              >
+                <ArrowUpDown className="w-3.5 h-3.5" />
+                Arrange
+              </button>
+            )}
+            <button
+              onClick={() => setShowCategories(true)}
+              className="flex items-center gap-1 bg-[#F8F8F8] border border-[#E5E5E5] rounded-xl px-3 py-1.5 text-xs font-medium text-[#0A0A0A]"
+            >
+              <Tag className="w-3.5 h-3.5" />
+              Categories
+            </button>
+          </div>
         </div>
       </div>
 
@@ -331,6 +346,17 @@ export default function Dashboard() {
       <CategoriesBottomSheet
         isOpen={showCategories}
         onClose={handleCategoriesClose}
+      />
+
+      <ProductReorderModal
+        isOpen={showReorder}
+        onClose={() => setShowReorder(false)}
+        onSaved={() => {
+          qc.invalidateQueries({ queryKey: ['shop-products'] })
+          qc.invalidateQueries({ queryKey: ['shop-products-stats'] })
+          qc.invalidateQueries({ queryKey: ['shop-products-stats-in'] })
+          qc.invalidateQueries({ queryKey: ['shop-products-stats-out'] })
+        }}
       />
     </div>
   )

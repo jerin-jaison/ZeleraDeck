@@ -1,4 +1,5 @@
 from django.core.paginator import Paginator
+from django.db import transaction
 from django.db.models import Q
 from django.utils import timezone
 from django.conf import settings
@@ -132,7 +133,12 @@ class ShopProductListCreateView(APIView):
     authentication_classes = [ShopJWTAuthentication]
 
     def get(self, request):
-        products = Product.objects.filter(shop=request.user).select_related('category').order_by('-created_at')
+        shop = request.user
+        # Pro users see their custom display_order; free users get newest-first
+        if shop.is_pro:
+            products = Product.objects.filter(shop=shop).select_related('category').order_by('display_order', '-created_at')
+        else:
+            products = Product.objects.filter(shop=shop).select_related('category').order_by('-created_at')
 
         # Search filter
         search = request.query_params.get('search', '').strip()
@@ -410,15 +416,24 @@ class PublicStoreView(APIView):
                 'whatsapp_number': shop.whatsapp_number,
             })
 
-        # Base queryset: in-stock first, then out-of-stock, newest first
+        # Ordering: Pro shops use custom display_order; free shops use stock + newest-first
         from django.db.models import Case, When, BooleanField
-        products = Product.objects.filter(shop=shop).select_related('category').annotate(
-            stock_order=Case(
-                When(is_in_stock=True, then=0),
-                When(is_in_stock=False, then=1),
-                output_field=BooleanField(),
-            )
-        ).order_by('stock_order', '-created_at')
+        if shop.is_pro:
+            products = Product.objects.filter(shop=shop).select_related('category').annotate(
+                stock_order=Case(
+                    When(is_in_stock=True, then=0),
+                    When(is_in_stock=False, then=1),
+                    output_field=BooleanField(),
+                )
+            ).order_by('stock_order', 'display_order', '-created_at')
+        else:
+            products = Product.objects.filter(shop=shop).select_related('category').annotate(
+                stock_order=Case(
+                    When(is_in_stock=True, then=0),
+                    When(is_in_stock=False, then=1),
+                    output_field=BooleanField(),
+                )
+            ).order_by('stock_order', '-created_at')
 
         # Search filter
         search = request.query_params.get('search', '').strip()
@@ -576,3 +591,33 @@ def og_product_view(request, slug, display_id):
 </body>
 </html>"""
     return HttpResponse(html, content_type="text/html")
+
+
+# ─── Pro: Product Reorder ─────────────────────────────────────────────────────
+
+class ReorderProductsView(APIView):
+    """PATCH /api/shop/products/reorder/ — Pro only. Bulk-updates display_order."""
+    authentication_classes = [ShopJWTAuthentication]
+
+    def patch(self, request):
+        shop = request.user
+        if not shop.is_pro:
+            return Response({'error': 'Product reordering is a Pro feature.'}, status=status.HTTP_403_FORBIDDEN)
+
+        items = request.data.get('order', [])
+        if not isinstance(items, list) or not items:
+            return Response({'error': 'order must be a non-empty list.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        with transaction.atomic():
+            for item in items:
+                try:
+                    Product.objects.filter(
+                        id=item['id'], shop=shop
+                    ).update(display_order=int(item['display_order']))
+                except (KeyError, TypeError, ValueError):
+                    return Response(
+                        {'error': 'Each item must have id and display_order.'},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+
+        return Response({'success': True})

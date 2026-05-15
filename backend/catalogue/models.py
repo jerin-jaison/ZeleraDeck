@@ -37,6 +37,7 @@ class Product(models.Model):
     image_url_3 = models.URLField(max_length=500, blank=True, null=True)
     image_url_4 = models.URLField(max_length=500, blank=True, null=True)
     video_url = models.URLField(max_length=500, blank=True, null=True)
+    display_order = models.PositiveIntegerField(default=0)
     is_in_stock = models.BooleanField(default=True)
     category = models.ForeignKey(
         Category,
