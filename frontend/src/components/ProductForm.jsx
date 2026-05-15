@@ -264,7 +264,7 @@ export default function ProductForm({ initialData, onSubmit, isLoading, isPro = 
         {isPro && (
           <div className="px-4 mt-4">
             <label className="block text-xs font-medium text-[#737373] mb-1.5">
-              Product Video <span className="text-[#A3A3A3]">(optional, max 2MB)</span>
+              Product Video <span className="text-[#A3A3A3]">(optional, max 5MB)</span>
             </label>
             <input
               ref={videoRef}
@@ -292,7 +292,7 @@ export default function ProductForm({ initialData, onSubmit, isLoading, isPro = 
               >
                 <Video className="w-7 h-7 text-[#A3A3A3]" />
                 <p className="text-sm text-[#737373]">Tap to add video</p>
-                <p className="text-xs text-[#A3A3A3]">MP4, WebM or MOV · max 2MB</p>
+                <p className="text-xs text-[#A3A3A3]">MP4, WebM or MOV · max 5MB</p>
               </button>
             )}
             {videoError && (
