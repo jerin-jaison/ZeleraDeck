@@ -402,7 +402,7 @@ export default function AdminShopDetail() {
                         <span className="text-amber-500">⚡</span> Pro Mode
                       </p>
                       <p className="text-xs text-[#737373] mt-0.5">
-                        Allow this user to upload up to 4 photos and 1 video per product. Videos are automatically compressed before upload.
+                        Allow this user to upload up to 4 photos and 1 video per product. Videos are automatically optimised on upload.
                       </p>
                     </div>
                     <button

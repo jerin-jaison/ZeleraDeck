@@ -21,16 +21,41 @@ def upload_product_image(image_file, shop_slug):
 
 
 def upload_product_video(video_file, shop_slug):
-    """Upload a product video to Cloudinary (Pro users only). No transcoding."""
+    """Upload a product video to Cloudinary (Pro users only).
+    Applies server-side 720p / auto:low compression via eager transformation.
+    Raises CloudinaryUploadError if the compressed output exceeds 5 MB.
+    """
     try:
         result = cloudinary.uploader.upload(
             video_file,
             resource_type='video',
             folder=f"zeleradeck/{shop_slug}/videos",
+            eager=[{
+                'height': 720,
+                'crop': 'scale',
+                'quality': 'auto:low',
+                'format': 'mp4',
+            }],
+            eager_async=False,
         )
-        return result['secure_url']
     except Exception as e:
         raise CloudinaryUploadError(f"Video upload failed: {e}")
+
+    # Use the eager (compressed) version's URL and size
+    if result.get('eager'):
+        eager = result['eager'][0]
+        url = eager['secure_url']
+        compressed_bytes = eager.get('bytes', 0)
+    else:
+        url = result['secure_url']
+        compressed_bytes = result.get('bytes', 0)
+
+    if compressed_bytes > 5 * 1024 * 1024:
+        raise CloudinaryUploadError(
+            "Uploaded video exceeds 5MB after compression. Please use a shorter clip."
+        )
+
+    return url
 
 
 def upload_shop_logo(image_file, shop_slug):

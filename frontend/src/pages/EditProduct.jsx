@@ -12,15 +12,14 @@ export default function EditProduct() {
   const navigate = useNavigate()
   const showToast = useToast()
   const { isPro: isProCtx, updateIsPro } = useAuth()
-  const [isPro, setIsPro] = useState(null) // null = loading
+  const [isPro, setIsPro] = useState(null)
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
   const [slowWarning, setSlowWarning] = useState(false)
   const [showDeleteSheet, setShowDeleteSheet] = useState(false)
   const [deleting, setDeleting] = useState(false)
-  const [isCompressing, setIsCompressing] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState(null)
 
-  // Always confirm isPro from server on mount to handle existing sessions
   useEffect(() => {
     api.get('shop/me/')
       .then(r => {
@@ -33,8 +32,7 @@ export default function EditProduct() {
 
   const { data: product, isLoading: fetching } = useQuery({
     queryKey: ['product', id],
-    queryFn: () =>
-      api.get(`shop/products/${id}/`).then((r) => r.data),
+    queryFn: () => api.get(`shop/products/${id}/`).then((r) => r.data),
   })
 
   useEffect(() => {
@@ -44,28 +42,25 @@ export default function EditProduct() {
     return () => clearTimeout(timer)
   }, [loading])
 
-  // Poll the hidden flag ProductForm sets during video compression
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const flag = document.getElementById('video-compressing-flag')
-      setIsCompressing(flag?.value === '1')
-    }, 200)
-    return () => clearInterval(interval)
-  }, [])
-
   const handleSubmit = async (formData) => {
     setLoading(true)
+    setUploadProgress(0)
     try {
       await api.patch(`shop/products/${id}/`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
+        onUploadProgress: (e) => {
+          const pct = e.total ? Math.round((e.loaded * 100) / e.total) : 0
+          setUploadProgress(pct)
+        },
       })
       setSuccess(true)
       showToast('Product updated!')
       setTimeout(() => navigate('/dashboard', { replace: true }), 1500)
     } catch (err) {
-      showToast(err?.response?.data?.error || 'Failed to save', 'error')
+      showToast(err?.response?.data?.error || 'Video upload failed. Please try a shorter clip in mp4 or mov format.', 'error')
     } finally {
       setLoading(false)
+      setUploadProgress(null)
     }
   }
 
@@ -127,21 +122,35 @@ export default function EditProduct() {
         <button
           type="submit"
           form="product-form"
-          disabled={loading || success || isCompressing}
+          disabled={loading || success}
           className={`w-full rounded-xl py-4 font-semibold text-sm transition-all flex items-center justify-center gap-2 ${
             success
               ? 'bg-[#25D366] text-white'
               : 'bg-[#0A0A0A] text-white hover:bg-[#2A2A2A] active:scale-[0.98] disabled:opacity-70'
           }`}
         >
-          {success ? 'Saved! ✓' : isCompressing ? (
-            <><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> Compressing video…</>
-          ) : loading ? (
-            <><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> Uploading...</>
+          {success ? 'Saved! ✓' : loading ? (
+            <>
+              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              {uploadProgress !== null && uploadProgress < 100
+                ? `Uploading ${uploadProgress}%`
+                : 'Processing…'}
+            </>
           ) : 'Save Changes'}
         </button>
+
+        {/* Upload progress bar */}
+        {loading && uploadProgress !== null && (
+          <div className="mt-2 w-full bg-[#E5E5E5] rounded-full h-1 overflow-hidden">
+            <div
+              className="h-full bg-[#0A0A0A] rounded-full transition-all duration-300"
+              style={{ width: `${uploadProgress}%` }}
+            />
+          </div>
+        )}
+
         {slowWarning && loading && (
-          <p className="text-xs text-[#A3A3A3] text-center mt-2">This is taking a bit longer than usual, please wait...</p>
+          <p className="text-xs text-[#A3A3A3] text-center mt-2">This is taking a bit longer than usual, please wait…</p>
         )}
       </div>
 

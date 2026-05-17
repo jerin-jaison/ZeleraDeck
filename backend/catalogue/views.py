@@ -252,12 +252,6 @@ class ShopProductListCreateView(APIView):
                         {'error': f'Invalid video type. Allowed: mp4, webm, mov.'},
                         status=status.HTTP_400_BAD_REQUEST
                     )
-                if video_file.size > 20 * 1024 * 1024:  # 20MB hard cap (frontend compresses to ≤5MB)
-                    product.delete()
-                    return Response(
-                        {'error': 'Video must be under 20MB.'},
-                        status=status.HTTP_400_BAD_REQUEST
-                    )
                 try:
                     product.video_url = upload_product_video(video_file, shop.slug)
                 except CloudinaryUploadError as e:
@@ -359,11 +353,6 @@ class ShopProductDetailView(APIView):
                 if video_file.content_type not in allowed_mime:
                     return Response(
                         {'error': 'Invalid video type. Allowed: mp4, webm, mov.'},
-                        status=status.HTTP_400_BAD_REQUEST
-                    )
-                if video_file.size > 20 * 1024 * 1024:  # 20MB hard cap (frontend compresses to ≤5MB)
-                    return Response(
-                        {'error': 'Video must be under 20MB.'},
                         status=status.HTTP_400_BAD_REQUEST
                     )
                 try:

@@ -41,16 +41,14 @@ async function getCroppedImg(imageSrc, pixelCrop) {
 }
 
 // ── Single image slot component ───────────────────────────────────────────────
-function ImageSlot({ slotIndex, required, file, previewUrl, compressionInfo, onPick }) {
+function ImageSlot({ slotIndex, file, previewUrl, compressionInfo, onPick }) {
   const fileRef = useRef()
   const label = slotIndex === 1 ? 'Photo 1 (Required)' : `Photo ${slotIndex} (Optional)`
 
   return (
     <div>
       {slotIndex > 1 && (
-        <p className="text-xs font-medium text-[#737373] mb-1.5">
-          {label}
-        </p>
+        <p className="text-xs font-medium text-[#737373] mb-1.5">{label}</p>
       )}
       <input
         ref={fileRef}
@@ -94,89 +92,6 @@ function ImageSlot({ slotIndex, required, file, previewUrl, compressionInfo, onP
   )
 }
 
-// ── Video compression progress bar ────────────────────────────────────────────
-function VideoCompressionBar({ progress, label }) {
-  return (
-    <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-xl">
-      <p className="text-xs font-medium text-amber-800 mb-2">{label}</p>
-      <div className="flex items-center gap-2">
-        <div className="flex-1 bg-amber-200 rounded-full h-2 overflow-hidden">
-          <div
-            className="h-full bg-amber-500 rounded-full transition-all duration-300"
-            style={{ width: `${Math.min(progress, 100)}%` }}
-          />
-        </div>
-        <span className="text-xs font-semibold text-amber-700 w-10 text-right">
-          {Math.round(progress)}%
-        </span>
-      </div>
-    </div>
-  )
-}
-
-// ── ffmpeg singleton ──────────────────────────────────────────────────────────
-let ffmpegInstance = null
-let ffmpegLoaded = false
-
-async function loadFFmpeg(onProgress) {
-  if (ffmpegLoaded && ffmpegInstance) return ffmpegInstance
-
-  // Lazy import — avoids bloating the initial bundle
-  const { FFmpeg } = await import('@ffmpeg/ffmpeg')
-  const { fetchFile, toBlobURL } = await import('@ffmpeg/util')
-
-  const ffmpeg = new FFmpeg()
-
-  // Wire up progress callback before loading
-  ffmpeg.on('progress', ({ progress }) => {
-    onProgress(Math.round(progress * 100))
-  })
-
-  const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd'
-  await ffmpeg.load({
-    coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
-    wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
-  })
-
-  ffmpegInstance = { ffmpeg, fetchFile }
-  ffmpegLoaded = true
-  return ffmpegInstance
-}
-
-async function runCompression(ffmpeg, fetchFile, inputFile, outputName, videoBitrate, audioBitrate, onProgress) {
-  const inputName = 'input_' + Date.now() + '.mp4'
-
-  await ffmpeg.writeFile(inputName, await fetchFile(inputFile))
-
-  // Re-attach progress listener for this pass
-  ffmpeg.off('progress')
-  ffmpeg.on('progress', ({ progress }) => {
-    onProgress(Math.round(progress * 100))
-  })
-
-  await ffmpeg.exec([
-    '-i', inputName,
-    '-vf', 'scale=-2:720',        // max 720p height, preserve aspect
-    '-c:v', 'libx264',
-    '-b:v', videoBitrate,
-    '-c:a', 'aac',
-    '-b:a', audioBitrate,
-    '-movflags', '+faststart',     // strip/move moov atom for web
-    '-map_metadata', '-1',         // strip metadata
-    '-preset', 'fast',
-    outputName,
-  ])
-
-  const data = await ffmpeg.readFile(outputName)
-  const blob = new Blob([data.buffer], { type: 'video/mp4' })
-
-  // Cleanup
-  await ffmpeg.deleteFile(inputName)
-  await ffmpeg.deleteFile(outputName)
-
-  return blob
-}
-
 // ── Main form ─────────────────────────────────────────────────────────────────
 export default function ProductForm({ initialData, onSubmit, isLoading, isPro = false }) {
   const qc = useQueryClient()
@@ -187,7 +102,7 @@ export default function ProductForm({ initialData, onSubmit, isLoading, isPro = 
   const [categoryId, setCategoryId] = useState(initialData?.category?.id || null)
   const [showCategories, setShowCategories] = useState(false)
 
-  // Image slots: 1 required + 3 optional (pro only)
+  // Image slots
   const SLOT_COUNT = isPro ? 4 : 1
   const [imageFiles, setImageFiles] = useState(Array(4).fill(null))
   const [previewUrls, setPreviewUrls] = useState([
@@ -204,13 +119,6 @@ export default function ProductForm({ initialData, onSubmit, isLoading, isPro = 
   const [videoPreviewUrl, setVideoPreviewUrl] = useState(initialData?.video_url || '')
   const [videoError, setVideoError] = useState('')
 
-  // Video compression state
-  const [videoCompressing, setVideoCompressing] = useState(false)
-  const [videoCompressProgress, setVideoCompressProgress] = useState(0)
-  const [videoCompressLabel, setVideoCompressLabel] = useState('Compressing your video, please wait…')
-  const [videoCompressInfo, setVideoCompressInfo] = useState('')
-  const [ffmpegLoading, setFfmpegLoading] = useState(false)
-
   // Cropper state
   const [cropSlotIndex, setCropSlotIndex] = useState(null)
   const [cropImageSrc, setCropImageSrc] = useState(null)
@@ -225,7 +133,7 @@ export default function ProductForm({ initialData, onSubmit, isLoading, isPro = 
   })
   const categories = categoriesData || []
 
-  // ── Image pick handler (opens cropper) ─────────────────────────────────────
+  // ── Image pick handler (opens cropper) ────────────────────────────────────
   const handleImagePick = (e, slotIndex) => {
     const file = e.target.files?.[0]
     if (!file) return
@@ -235,7 +143,7 @@ export default function ProductForm({ initialData, onSubmit, isLoading, isPro = 
     setZoom(1)
   }
 
-  // ── Crop complete ────────────────────────────────────────────────────────────
+  // ── Crop complete ──────────────────────────────────────────────────────────
   const handleCropComplete = async () => {
     try {
       if (!cropImageSrc || !croppedAreaPixels || cropSlotIndex === null) return
@@ -273,15 +181,12 @@ export default function ProductForm({ initialData, onSubmit, isLoading, isPro = 
     }
   }
 
-  // ── Video pick + compress ─────────────────────────────────────────────────
-  const handleVideoPick = async (e) => {
+  // ── Video pick — validate type only, Cloudinary compresses on server ───────
+  const handleVideoPick = (e) => {
     const file = e.target.files?.[0]
     if (!file) return
-
     setVideoError('')
-    setVideoCompressInfo('')
 
-    // 1 — Validate type
     const allowedTypes = ['video/mp4', 'video/webm', 'video/quicktime']
     if (!allowedTypes.includes(file.type)) {
       setVideoError('Please select an mp4, mov, or webm video file.')
@@ -289,85 +194,12 @@ export default function ProductForm({ initialData, onSubmit, isLoading, isPro = 
       return
     }
 
+    setVideoFile(file)
+    setVideoPreviewUrl(URL.createObjectURL(file))
     e.target.value = ''
-
-    // 2 — Load ffmpeg
-    setFfmpegLoading(true)
-    setVideoCompressLabel('Preparing video tools…')
-
-    let ffmpegCtx
-    try {
-      ffmpegCtx = await loadFFmpeg((pct) => {
-        // progress during load — not meaningful, ignore
-      })
-    } catch (err) {
-      setFfmpegLoading(false)
-      setVideoError('Video compressor failed to load. Please check your connection and try again.')
-      return
-    }
-    setFfmpegLoading(false)
-
-    // 3 — Compress
-    setVideoCompressing(true)
-    setVideoCompressProgress(0)
-    setVideoCompressLabel('Compressing your video, please wait…')
-
-    const MB5 = 5 * 1024 * 1024
-
-    try {
-      const outputName = 'output_' + Date.now() + '.mp4'
-
-      // First pass: 800k video / 128k audio
-      let blob = await runCompression(
-        ffmpegCtx.ffmpeg,
-        ffmpegCtx.fetchFile,
-        file,
-        outputName,
-        '800k',
-        '128k',
-        (pct) => setVideoCompressProgress(pct),
-      )
-
-      // Second pass if still > 5MB
-      if (blob.size > MB5) {
-        setVideoCompressLabel('Optimising further…')
-        setVideoCompressProgress(0)
-        const outputName2 = 'output2_' + Date.now() + '.mp4'
-        blob = await runCompression(
-          ffmpegCtx.ffmpeg,
-          ffmpegCtx.fetchFile,
-          new File([blob], 'pass1.mp4', { type: 'video/mp4' }),
-          outputName2,
-          '500k',
-          '96k',
-          (pct) => setVideoCompressProgress(pct),
-        )
-      }
-
-      // Still too large after two passes
-      if (blob.size > MB5) {
-        setVideoCompressing(false)
-        setVideoError('Video is too long to compress under 5MB. Please use a clip under 60 seconds.')
-        return
-      }
-
-      const sizeMB = (blob.size / (1024 * 1024)).toFixed(2)
-      const compressedFile = new File([blob], 'compressed_video.mp4', { type: 'video/mp4' })
-
-      setVideoFile(compressedFile)
-      setVideoPreviewUrl(URL.createObjectURL(compressedFile))
-      setVideoCompressInfo(`Compression complete — ready to upload · ${sizeMB} MB`)
-      setVideoCompressing(false)
-      setVideoCompressProgress(100)
-
-    } catch (err) {
-      console.error('Video compression failed', err)
-      setVideoCompressing(false)
-      setVideoError('Video compression failed. Try a shorter clip or different file.')
-    }
   }
 
-  // ── Submit ───────────────────────────────────────────────────────────────────
+  // ── Submit ─────────────────────────────────────────────────────────────────
   const handleSubmit = (e) => {
     e.preventDefault()
     const formData = new FormData()
@@ -393,14 +225,11 @@ export default function ProductForm({ initialData, onSubmit, isLoading, isPro = 
     qc.invalidateQueries({ queryKey: ['shop-categories'] })
   }
 
-  // Disable submit while compressing
-  const isCompressing = videoCompressing || ffmpegLoading
-
   return (
     <>
       <form id="product-form" onSubmit={handleSubmit}>
 
-        {/* ── Pro badge ──────────────────────────────────────────────────────── */}
+        {/* ── Pro badge ──────────────────────────────────────────────────── */}
         {isPro && (
           <div className="px-4 mt-4">
             <div className="inline-flex items-center gap-1.5 bg-amber-50 border border-amber-200 text-amber-700 rounded-full px-3 py-1">
@@ -410,7 +239,7 @@ export default function ProductForm({ initialData, onSubmit, isLoading, isPro = 
           </div>
         )}
 
-        {/* ── Image upload zone(s) ───────────────────────────────────────────── */}
+        {/* ── Image upload zones ─────────────────────────────────────────── */}
         <div className={`px-4 mt-4 ${isPro ? 'grid grid-cols-2 gap-3' : ''}`}>
           {Array.from({ length: SLOT_COUNT }).map((_, i) => (
             <ImageSlot
@@ -425,11 +254,11 @@ export default function ProductForm({ initialData, onSubmit, isLoading, isPro = 
           ))}
         </div>
 
-        {/* ── Video upload (Pro only) ────────────────────────────────────────── */}
+        {/* ── Video upload (Pro only) ────────────────────────────────────── */}
         {isPro && (
           <div className="px-4 mt-4">
             <label className="block text-xs font-medium text-[#737373] mb-1.5">
-              Product Video <span className="text-[#A3A3A3]">(optional, auto-compressed to under 5MB)</span>
+              Product Video <span className="text-[#A3A3A3]">(optional · auto-optimised on upload)</span>
             </label>
             <input
               ref={videoRef}
@@ -437,20 +266,19 @@ export default function ProductForm({ initialData, onSubmit, isLoading, isPro = 
               accept="video/mp4,video/webm,.mov,video/quicktime"
               onChange={handleVideoPick}
               className="hidden"
-              disabled={isCompressing}
             />
-            {videoPreviewUrl && !videoCompressing ? (
+            {videoPreviewUrl ? (
               <div className="relative rounded-xl overflow-hidden bg-black aspect-video">
                 <video src={videoPreviewUrl} controls className="w-full h-full object-contain" />
                 <button
                   type="button"
-                  onClick={() => { setVideoFile(null); setVideoPreviewUrl(''); setVideoError(''); setVideoCompressInfo('') }}
+                  onClick={() => { setVideoFile(null); setVideoPreviewUrl(''); setVideoError('') }}
                   className="absolute top-2 right-2 w-7 h-7 bg-black/60 rounded-full flex items-center justify-center"
                 >
                   <X className="w-4 h-4 text-white" />
                 </button>
               </div>
-            ) : !videoCompressing && !ffmpegLoading ? (
+            ) : (
               <button
                 type="button"
                 onClick={() => videoRef.current?.click()}
@@ -458,39 +286,16 @@ export default function ProductForm({ initialData, onSubmit, isLoading, isPro = 
               >
                 <Video className="w-7 h-7 text-[#A3A3A3]" />
                 <p className="text-sm text-[#737373]">Tap to add video</p>
-                <p className="text-xs text-[#A3A3A3]">MP4, WebM or MOV · auto-compressed</p>
+                <p className="text-xs text-[#A3A3A3]">MP4, WebM or MOV</p>
               </button>
-            ) : null}
-
-            {/* ffmpeg loading state */}
-            {ffmpegLoading && !videoCompressing && (
-              <div className="mt-3 p-3 bg-[#F8F8F8] border border-[#E5E5E5] rounded-xl flex items-center gap-2">
-                <div className="w-4 h-4 border-2 border-amber-500 border-t-transparent rounded-full animate-spin flex-shrink-0" />
-                <p className="text-xs text-[#737373]">Preparing video tools…</p>
-              </div>
             )}
-
-            {/* Compression progress bar */}
-            {videoCompressing && (
-              <VideoCompressionBar
-                progress={videoCompressProgress}
-                label={videoCompressLabel}
-              />
-            )}
-
-            {/* Success info */}
-            {videoCompressInfo && !videoCompressing && (
-              <p className="text-xs text-green-600 mt-1.5 font-medium">✓ {videoCompressInfo}</p>
-            )}
-
-            {/* Error */}
             {videoError && (
               <p className="text-xs text-red-500 mt-1.5 font-medium">{videoError}</p>
             )}
           </div>
         )}
 
-        {/* ── Fields ────────────────────────────────────────────────────────── */}
+        {/* ── Fields ────────────────────────────────────────────────────── */}
         <div className="px-4 mt-6 space-y-4 pb-32">
           <div>
             <label className="block text-xs font-medium text-[#737373] mb-1.5">Product Name *</label>
@@ -602,15 +407,12 @@ export default function ProductForm({ initialData, onSubmit, isLoading, isPro = 
         </div>
       </form>
 
-      {/* Expose compression state so parent pages can disable submit */}
-      <input type="hidden" id="video-compressing-flag" value={isCompressing ? '1' : '0'} />
-
       <CategoriesBottomSheet
         isOpen={showCategories}
         onClose={handleCategoriesClose}
       />
 
-      {/* ── Crop modal ─────────────────────────────────────────────────────── */}
+      {/* ── Crop modal ─────────────────────────────────────────────────── */}
       {cropImageSrc && (
         <div className="fixed inset-0 z-[100] bg-black flex flex-col">
           <div className="relative flex-1">
