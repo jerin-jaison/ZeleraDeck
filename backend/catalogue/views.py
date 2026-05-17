@@ -252,10 +252,10 @@ class ShopProductListCreateView(APIView):
                         {'error': f'Invalid video type. Allowed: mp4, webm, mov.'},
                         status=status.HTTP_400_BAD_REQUEST
                     )
-                if video_file.size > 5 * 1024 * 1024:  # 5MB
+                if video_file.size > 20 * 1024 * 1024:  # 20MB hard cap (frontend compresses to ≤5MB)
                     product.delete()
                     return Response(
-                        {'error': 'Video must be under 5MB.'},
+                        {'error': 'Video must be under 20MB.'},
                         status=status.HTTP_400_BAD_REQUEST
                     )
                 try:
@@ -361,9 +361,9 @@ class ShopProductDetailView(APIView):
                         {'error': 'Invalid video type. Allowed: mp4, webm, mov.'},
                         status=status.HTTP_400_BAD_REQUEST
                     )
-                if video_file.size > 5 * 1024 * 1024:  # 5MB
+                if video_file.size > 20 * 1024 * 1024:  # 20MB hard cap (frontend compresses to ≤5MB)
                     return Response(
-                        {'error': 'Video must be under 5MB.'},
+                        {'error': 'Video must be under 20MB.'},
                         status=status.HTTP_400_BAD_REQUEST
                     )
                 try:
