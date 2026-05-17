@@ -14,6 +14,7 @@ export default function AddProduct() {
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
   const [slowWarning, setSlowWarning] = useState(false)
+  const [isCompressing, setIsCompressing] = useState(false)
 
   // Always confirm isPro from server on mount to handle existing sessions
   useEffect(() => {
@@ -35,6 +36,15 @@ export default function AddProduct() {
     }
     return () => clearTimeout(timer)
   }, [loading])
+
+  // Poll the hidden flag ProductForm sets during video compression
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const flag = document.getElementById('video-compressing-flag')
+      setIsCompressing(flag?.value === '1')
+    }, 200)
+    return () => clearInterval(interval)
+  }, [])
 
   const handleSubmit = async (formData) => {
     setLoading(true)
@@ -81,7 +91,7 @@ export default function AddProduct() {
         <button
           type="submit"
           form="product-form"
-          disabled={loading || success}
+          disabled={loading || success || isCompressing}
           className={`w-full rounded-xl py-4 font-semibold text-sm transition-all flex items-center justify-center gap-2 ${
             success
               ? 'bg-[#25D366] text-white'
@@ -90,6 +100,11 @@ export default function AddProduct() {
         >
           {success ? (
             'Added! ✓'
+          ) : isCompressing ? (
+            <>
+              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              Compressing video…
+            </>
           ) : loading ? (
             <>
               <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />

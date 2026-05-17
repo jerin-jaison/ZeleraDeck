@@ -401,6 +401,9 @@ export default function AdminShopDetail() {
                       <p className="text-sm font-semibold text-[#0A0A0A] flex items-center gap-1.5">
                         <span className="text-amber-500">⚡</span> Pro Mode
                       </p>
+                      <p className="text-xs text-[#737373] mt-0.5">
+                        Allow this user to upload up to 4 photos and 1 video per product. Videos are automatically compressed before upload.
+                      </p>
                     </div>
                     <button
                       type="button"

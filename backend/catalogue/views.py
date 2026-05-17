@@ -361,9 +361,9 @@ class ShopProductDetailView(APIView):
                         {'error': 'Invalid video type. Allowed: mp4, webm, mov.'},
                         status=status.HTTP_400_BAD_REQUEST
                     )
-                if video_file.size > 2 * 1024 * 1024:  # 2MB
+                if video_file.size > 5 * 1024 * 1024:  # 5MB
                     return Response(
-                        {'error': 'Video must be under 2MB.'},
+                        {'error': 'Video must be under 5MB.'},
                         status=status.HTTP_400_BAD_REQUEST
                     )
                 try:
