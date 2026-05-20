@@ -19,6 +19,7 @@ export default function EditProduct() {
   const [showDeleteSheet, setShowDeleteSheet] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(null)
+  const [videoUploading, setVideoUploading] = useState(false)
 
   useEffect(() => {
     api.get('shop/me/')
@@ -41,6 +42,15 @@ export default function EditProduct() {
     else setSlowWarning(false)
     return () => clearTimeout(timer)
   }, [loading])
+
+  // Disable submit while video is uploading directly to Cloudinary
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const flag = document.getElementById('video-uploading-flag')
+      setVideoUploading(flag?.value === '1')
+    }, 200)
+    return () => clearInterval(interval)
+  }, [])
 
   const handleSubmit = async (formData) => {
     setLoading(true)
@@ -122,14 +132,16 @@ export default function EditProduct() {
         <button
           type="submit"
           form="product-form"
-          disabled={loading || success}
+          disabled={loading || success || videoUploading}
           className={`w-full rounded-xl py-4 font-semibold text-sm transition-all flex items-center justify-center gap-2 ${
             success
               ? 'bg-[#25D366] text-white'
               : 'bg-[#0A0A0A] text-white hover:bg-[#2A2A2A] active:scale-[0.98] disabled:opacity-70'
           }`}
         >
-          {success ? 'Saved! ✓' : loading ? (
+          {success ? 'Saved! ✓' : videoUploading ? (
+            <><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> Uploading video…</>
+          ) : loading ? (
             <>
               <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
               {uploadProgress !== null && uploadProgress < 100

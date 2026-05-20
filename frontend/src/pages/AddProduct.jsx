@@ -15,6 +15,7 @@ export default function AddProduct() {
   const [success, setSuccess] = useState(false)
   const [slowWarning, setSlowWarning] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(null)
+  const [videoUploading, setVideoUploading] = useState(false)
 
   useEffect(() => {
     api.get('shop/me/')
@@ -35,6 +36,15 @@ export default function AddProduct() {
     }
     return () => clearTimeout(timer)
   }, [loading])
+
+  // Disable submit while video is uploading directly to Cloudinary
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const flag = document.getElementById('video-uploading-flag')
+      setVideoUploading(flag?.value === '1')
+    }, 200)
+    return () => clearInterval(interval)
+  }, [])
 
   const handleSubmit = async (formData) => {
     setLoading(true)
@@ -86,7 +96,7 @@ export default function AddProduct() {
         <button
           type="submit"
           form="product-form"
-          disabled={loading || success}
+          disabled={loading || success || videoUploading}
           className={`w-full rounded-xl py-4 font-semibold text-sm transition-all flex items-center justify-center gap-2 ${
             success
               ? 'bg-[#25D366] text-white'
@@ -95,6 +105,8 @@ export default function AddProduct() {
         >
           {success ? (
             'Added! ✓'
+          ) : videoUploading ? (
+            <><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> Uploading video…</>
           ) : loading ? (
             <>
               <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />

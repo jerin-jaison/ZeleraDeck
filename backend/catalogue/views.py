@@ -243,13 +243,19 @@ class ShopProductListCreateView(APIView):
                         product.delete()
                         return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-            # ── Pro: upload video ─────────────────────────────────────────
-            if video_file:
+            # ── Pro: video — accept pre-uploaded Cloudinary URL or file ────
+            video_url_field = request.data.get('video_url', '').strip()
+            video_file = request.FILES.get('video')
+
+            if video_url_field:
+                # Browser already uploaded directly to Cloudinary — just save the URL
+                product.video_url = video_url_field
+            elif video_file:
                 allowed_mime = {'video/mp4', 'video/webm', 'video/quicktime'}
                 if video_file.content_type not in allowed_mime:
                     product.delete()
                     return Response(
-                        {'error': f'Invalid video type. Allowed: mp4, webm, mov.'},
+                        {'error': 'Invalid video type. Allowed: mp4, webm, mov.'},
                         status=status.HTTP_400_BAD_REQUEST
                     )
                 try:
@@ -347,8 +353,14 @@ class ShopProductDetailView(APIView):
                     except CloudinaryUploadError as e:
                         return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-            # ── Pro: upload video ─────────────────────────────────────────
-            if video_file:
+            # ── Pro: video — accept pre-uploaded Cloudinary URL or file ────
+            video_url_field = request.data.get('video_url', '').strip()
+            video_file = request.FILES.get('video')
+
+            if video_url_field:
+                # Browser already uploaded directly to Cloudinary — just save the URL
+                product.video_url = video_url_field
+            elif video_file:
                 allowed_mime = {'video/mp4', 'video/webm', 'video/quicktime'}
                 if video_file.content_type not in allowed_mime:
                     return Response(
