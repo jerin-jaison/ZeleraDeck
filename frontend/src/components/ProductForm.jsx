@@ -284,7 +284,7 @@ export default function ProductForm({ initialData, onSubmit, isLoading, isPro = 
         {isPro && (
           <div className="px-4 mt-4">
             <label className="block text-xs font-medium text-[#737373] mb-1.5">
-              Product Video <span className="text-[#A3A3A3]">(optional · optimised by Cloudinary on upload)</span>
+              Product Video <span className="text-[#A3A3A3]">(optional · automatically optimized)</span>
             </label>
             <input ref={videoRef} type="file" accept="video/mp4,video/webm,.mov,video/quicktime"
               onChange={handleVideoPick} className="hidden" disabled={videoUploading} />
@@ -305,7 +305,7 @@ export default function ProductForm({ initialData, onSubmit, isLoading, isPro = 
               <div className="border-2 border-dashed border-amber-300 bg-amber-50 rounded-xl p-4">
                 <div className="flex items-center justify-between mb-2">
                   <p className="text-xs font-medium text-amber-800">
-                    Uploading to Cloudinary… {videoUploadProgress}%
+                    Uploading video… {videoUploadProgress}%
                   </p>
                   <button type="button" onClick={handleRemoveVideo}
                     className="text-xs text-amber-600 underline">Cancel</button>
@@ -315,7 +315,7 @@ export default function ProductForm({ initialData, onSubmit, isLoading, isPro = 
                     style={{ width: `${videoUploadProgress}%` }} />
                 </div>
                 <p className="text-[11px] text-amber-600 mt-1.5">
-                  {formatBytes(videoOriginalSize)} raw · Cloudinary will compress this on their servers
+                  Original: {formatBytes(videoOriginalSize)} · Reducing video size for faster loading...
                 </p>
               </div>
             )}
@@ -326,7 +326,7 @@ export default function ProductForm({ initialData, onSubmit, isLoading, isPro = 
                 className="w-full border-2 border-dashed border-[#D4D4D4] rounded-xl py-5 flex flex-col items-center gap-1 hover:border-[#A3A3A3] transition-colors">
                 <Video className="w-7 h-7 text-[#A3A3A3]" />
                 <p className="text-sm text-[#737373]">Tap to add video</p>
-                <p className="text-xs text-[#A3A3A3]">MP4, WebM or MOV · any size · auto-compressed</p>
+                <p className="text-xs text-[#A3A3A3]">MP4, WebM or MOV · automatically optimized</p>
               </button>
             )}
 
@@ -336,11 +336,11 @@ export default function ProductForm({ initialData, onSubmit, isLoading, isPro = 
                 <CheckCircle2 className="w-4 h-4 text-green-600 flex-shrink-0" />
                 <div className="flex-1">
                   <p className="text-xs font-semibold text-green-800">
-                    {formatBytes(videoOriginalSize)} → {formatBytes(videoCompressedSize)}
+                    Size reduced: {formatBytes(videoOriginalSize)} → {formatBytes(videoCompressedSize)}
                     <span className="ml-1 font-normal text-green-700">({reductionPct}% smaller)</span>
                   </p>
                   <p className="text-[11px] text-green-600 mt-0.5">
-                    Ready to save · Cloudinary optimised to 720p
+                    Ready to save · Optimized for fast mobile loading
                   </p>
                 </div>
               </div>
@@ -349,16 +349,16 @@ export default function ProductForm({ initialData, onSubmit, isLoading, isPro = 
             {/* Error for over-limit after compression */}
             {videoError && !videoUploading && videoCompressedSize > 5 * 1024 * 1024 && (
               <div className="mt-2 bg-red-50 border border-red-200 rounded-xl px-3 py-2.5">
-                <p className="text-xs font-semibold text-red-700">Too long after compression</p>
+                <p className="text-xs font-semibold text-red-700">Video is too long</p>
                 <p className="text-[11px] text-red-600 mt-0.5">
-                  {formatBytes(videoOriginalSize)} → {formatBytes(videoCompressedSize)} · Limit is 5 MB. Use a clip under ~60 seconds.
+                  Reduced from {formatBytes(videoOriginalSize)} to {formatBytes(videoCompressedSize)} · Limit is 5 MB. Please use a shorter video (under 60 seconds).
                 </p>
               </div>
             )}
 
             {/* Generic error */}
             {videoError && videoCompressedSize === 0 && (
-              <p className="text-xs text-red-500 mt-1.5 font-medium">{videoError}</p>
+              <p className="text-xs text-[#EF4444] mt-1.5 font-medium">{videoError}</p>
             )}
           </div>
         )}
