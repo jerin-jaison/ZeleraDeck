@@ -1,3 +1,6 @@
+# POLICY: Existing user videos are never deleted or modified regardless of size.
+import logging
+
 from django.core.paginator import Paginator
 from django.db import transaction
 from django.db.models import Q
@@ -17,6 +20,9 @@ from catalogue.serializers import (
     CategorySerializer, CategoryCreateSerializer
 )
 from catalogue.cloudinary_utils import upload_product_image, upload_product_video, CloudinaryUploadError
+
+logger = logging.getLogger(__name__)
+
 
 
 # ─── Shop Owner Views ─────────────────────────────────────────────────────────
@@ -248,6 +254,25 @@ class ShopProductListCreateView(APIView):
             video_file = request.FILES.get('video')
 
             if video_url_field:
+                # Layer 3 safety net: validate compressed byte count sent by frontend.
+                # Frontend sends video_compressed_bytes alongside video_url so we can
+                # enforce the size limit without a slow network HEAD request.
+                try:
+                    compressed_bytes = int(request.data.get('video_compressed_bytes', 0))
+                except (ValueError, TypeError):
+                    compressed_bytes = 0
+
+                if compressed_bytes > 5 * 1024 * 1024:
+                    product.delete()
+                    logger.warning(
+                        f"Oversized video blocked from DB: url={video_url_field}, "
+                        f"size={compressed_bytes / (1024*1024):.2f}MB. Not deleted per policy."
+                    )
+                    return Response(
+                        {'error': 'Video exceeds size limit. Use a shorter clip.'},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+
                 # Browser already uploaded directly to Cloudinary — just save the URL
                 product.video_url = video_url_field
             elif video_file:
@@ -358,6 +383,24 @@ class ShopProductDetailView(APIView):
             video_file = request.FILES.get('video')
 
             if video_url_field:
+                # Layer 3 safety net: validate compressed byte count sent by frontend.
+                # Frontend sends video_compressed_bytes alongside video_url so we can
+                # enforce the size limit without a slow network HEAD request.
+                try:
+                    compressed_bytes = int(request.data.get('video_compressed_bytes', 0))
+                except (ValueError, TypeError):
+                    compressed_bytes = 0
+
+                if compressed_bytes > 5 * 1024 * 1024:
+                    logger.warning(
+                        f"Oversized video blocked from DB: url={video_url_field}, "
+                        f"size={compressed_bytes / (1024*1024):.2f}MB. Not deleted per policy."
+                    )
+                    return Response(
+                        {'error': 'Video exceeds size limit. Use a shorter clip.'},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+
                 # Browser already uploaded directly to Cloudinary — just save the URL
                 product.video_url = video_url_field
             elif video_file:
@@ -371,6 +414,7 @@ class ShopProductDetailView(APIView):
                     product.video_url = upload_product_video(video_file, shop.slug)
                 except CloudinaryUploadError as e:
                     return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
 
         product.save()
 

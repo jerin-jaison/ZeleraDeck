@@ -1,3 +1,4 @@
+// POLICY: Existing user videos are never deleted or modified regardless of size.
 import { useState, useRef } from 'react'
 import { Camera, Video, X, Zap, CheckCircle2 } from 'lucide-react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
@@ -157,6 +158,13 @@ export default function ProductForm({ initialData, onSubmit, isLoading, isPro = 
       return
     }
 
+    // Layer 1 — Raw file size gate. Block before any upload attempt.
+    // 100MB limit catches absurdly large files without wasting Cloudinary bandwidth.
+    if (file.size > 100 * 1024 * 1024) {
+      setVideoError('Video file is too large to upload. Please use a clip under 2 minutes.')
+      return
+    }
+
     // Record original file size for the before/after comparison
     setVideoOriginalSize(file.size)
     setVideoCompressedSize(0)
@@ -184,14 +192,16 @@ export default function ProductForm({ initialData, onSubmit, isLoading, isPro = 
       setVideoUploading(false)
       if (xhr.status >= 200 && xhr.status < 300) {
         const result = JSON.parse(xhr.responseText)
-        // Use the eager (compressed) version
+        // Layer 2 — Post-upload compressed size check.
+        // eager[0].bytes is the actual stored size after Cloudinary's 720p/auto:low transform.
+        // This value is accurate — no re-encoding inflation mismatch.
         const eager = result.eager?.[0]
         const compressedUrl = eager?.secure_url || result.secure_url
         const compressedBytes = eager?.bytes || result.bytes || 0
 
         if (compressedBytes > 5 * 1024 * 1024) {
           setVideoError(
-            `Video is too long — compressed to ${formatBytes(compressedBytes)} but limit is 5 MB. Please use a clip under 60 seconds.`
+            `Video too large after compression (${formatBytes(compressedBytes)}). Please use a shorter clip.`
           )
           setVideoCompressedSize(compressedBytes)
           return
@@ -246,7 +256,11 @@ export default function ProductForm({ initialData, onSubmit, isLoading, isPro = 
       if (imageFiles[2]) formData.append('image_3', imageFiles[2])
       if (imageFiles[3]) formData.append('image_4', imageFiles[3])
       // Send the pre-uploaded Cloudinary URL, not a file
-      if (videoCloudinaryUrl) formData.append('video_url', videoCloudinaryUrl)
+      if (videoCloudinaryUrl) {
+        formData.append('video_url', videoCloudinaryUrl)
+        // Also send the compressed byte count so Django can validate without a network HEAD call
+        if (videoCompressedSize > 0) formData.append('video_compressed_bytes', videoCompressedSize)
+      }
     }
 
     onSubmit(formData)
@@ -349,9 +363,9 @@ export default function ProductForm({ initialData, onSubmit, isLoading, isPro = 
             {/* Error for over-limit after compression */}
             {videoError && !videoUploading && videoCompressedSize > 5 * 1024 * 1024 && (
               <div className="mt-2 bg-red-50 border border-red-200 rounded-xl px-3 py-2.5">
-                <p className="text-xs font-semibold text-red-700">Video is too long</p>
+                <p className="text-xs font-semibold text-red-700">Video too large after compression</p>
                 <p className="text-[11px] text-red-600 mt-0.5">
-                  Reduced from {formatBytes(videoOriginalSize)} to {formatBytes(videoCompressedSize)} · Limit is 5 MB. Please use a shorter video (under 60 seconds).
+                  Compressed to {formatBytes(videoCompressedSize)} but limit is 5 MB. Please use a shorter clip.
                 </p>
               </div>
             )}

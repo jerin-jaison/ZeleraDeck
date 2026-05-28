@@ -1,3 +1,4 @@
+# POLICY: Existing user videos are never deleted or modified regardless of size.
 import cloudinary.uploader
 
 
@@ -24,6 +25,11 @@ def upload_product_video(video_file, shop_slug):
     """Upload a product video to Cloudinary (Pro users only).
     Applies server-side 720p / auto:low compression via eager transformation.
     Raises CloudinaryUploadError if the compressed output exceeds 5 MB.
+
+    NOTE: This is a legacy fallback path only. In the current browser-direct
+    upload flow, the frontend uploads directly to Cloudinary using the
+    'zeleradeck_video' unsigned preset and sends back the resulting URL.
+    This function is only called if a raw video file is sent to Django instead.
     """
     try:
         result = cloudinary.uploader.upload(
