@@ -1,9 +1,49 @@
 # POLICY: Existing user videos are never deleted or modified regardless of size.
+# POLICY: Cloudinary asset deletion only fires for new uploads that are explicitly replaced
+#          or rejected — existing product media in the database is NEVER touched proactively.
 import cloudinary.uploader
 
 
 class CloudinaryUploadError(Exception):
     pass
+
+
+def delete_cloudinary_asset_by_url(url, resource_type='image'):
+    """Delete a single Cloudinary asset by its secure_url.
+
+    Silently no-ops if:
+    - url is empty / None
+    - url is not a valid Cloudinary URL
+    - the Cloudinary API call fails (network or auth error)
+
+    SAFETY GUARANTEE: This function is ONLY called for assets that were
+    just uploaded as part of the current request and are being replaced,
+    OR for assets belonging to a product row that is being permanently
+    deleted from the database right now. It is NEVER called on arbitrary
+    URLs from historical records without an explicit delete/replace trigger.
+    """
+    if not url:
+        return
+
+    import re
+
+    # Cloudinary URLs look like:
+    # https://res.cloudinary.com/<cloud>/image/upload/v1234567890/zeleradeck/slug/filename.jpg
+    # https://res.cloudinary.com/<cloud>/video/upload/v1234567890/zeleradeck/slug/videos/filename.mp4
+    match = re.search(
+        r'cloudinary\.com/[^/]+/(image|video|raw)/upload/(?:v\d+/)?(.+?)(?:\.[a-zA-Z0-9]+)?$',
+        url,
+    )
+    if not match:
+        return  # not a Cloudinary URL — skip silently
+
+    detected_type = match.group(1)   # 'image' or 'video'
+    public_id = match.group(2)        # e.g. 'zeleradeck/slug/videos/filename'
+
+    try:
+        cloudinary.uploader.destroy(public_id, resource_type=detected_type)
+    except Exception:
+        pass  # Best-effort — never let a cleanup failure break a user action
 
 
 def upload_product_image(image_file, shop_slug):

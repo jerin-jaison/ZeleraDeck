@@ -1,4 +1,5 @@
 // POLICY: Existing user videos are never deleted or modified regardless of size.
+// POLICY: Cloudinary cleanup only fires for NEW rejected uploads — never for any existing product media.
 import { useState, useRef } from 'react'
 import { Camera, Video, X, Zap, CheckCircle2 } from 'lucide-react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
@@ -11,6 +12,22 @@ import CategoriesBottomSheet from './CategoriesBottomSheet'
 const CLOUDINARY_CLOUD_NAME = 'de7f6rnco'
 const CLOUDINARY_UPLOAD_PRESET = 'zeleradeck_video'
 const CLOUDINARY_UPLOAD_URL = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/video/upload`
+const CLOUDINARY_DELETE_URL = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/delete_by_token`
+
+// Silently delete a just-rejected upload from Cloudinary using its delete_token.
+// This ONLY fires for brand-new rejected uploads — never for existing product media.
+async function deleteRejectedUpload(deleteToken) {
+  if (!deleteToken) return
+  try {
+    await fetch(CLOUDINARY_DELETE_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: deleteToken }),
+    })
+  } catch {
+    // Best-effort — if it fails, Cloudinary auto-expires unsigned delete tokens after 10 min
+  }
+}
 
 function formatBytes(bytes) {
   if (bytes === 0) return '0 B'
@@ -200,6 +217,10 @@ export default function ProductForm({ initialData, onSubmit, isLoading, isPro = 
         const compressedBytes = eager?.bytes || result.bytes || 0
 
         if (compressedBytes > 5 * 1024 * 1024) {
+          // Immediately delete the rejected upload from Cloudinary storage to prevent
+          // orphaned files accumulating. delete_token is safe — only valid for 10 min.
+          // This NEVER touches any existing product media — only this brand-new rejected upload.
+          deleteRejectedUpload(result.delete_token)
           setVideoError(
             `Video too large after compression (${formatBytes(compressedBytes)}). Please use a shorter clip.`
           )

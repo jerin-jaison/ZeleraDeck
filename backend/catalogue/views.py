@@ -19,7 +19,7 @@ from catalogue.serializers import (
     ProductUpdateSerializer, ProductPublicSerializer,
     CategorySerializer, CategoryCreateSerializer
 )
-from catalogue.cloudinary_utils import upload_product_image, upload_product_video, CloudinaryUploadError
+from catalogue.cloudinary_utils import upload_product_image, upload_product_video, CloudinaryUploadError, delete_cloudinary_asset_by_url
 
 logger = logging.getLogger(__name__)
 
@@ -361,7 +361,12 @@ class ShopProductDetailView(APIView):
         image_file = request.FILES.get('image')
         if image_file:
             try:
-                data['image_url'] = upload_product_image(image_file, shop.slug)
+                old_image_url = product.image_url  # snapshot before overwrite
+                new_image_url = upload_product_image(image_file, shop.slug)
+                # Delete old image from Cloudinary after successful new upload
+                if old_image_url and old_image_url != new_image_url:
+                    delete_cloudinary_asset_by_url(old_image_url)
+                data['image_url'] = new_image_url
             except CloudinaryUploadError as e:
                 return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -374,7 +379,12 @@ class ShopProductDetailView(APIView):
             for img_file, url_field in zip(extra_images, url_fields):
                 if img_file:
                     try:
-                        setattr(product, url_field, upload_product_image(img_file, shop.slug))
+                        old_extra_url = getattr(product, url_field)  # snapshot before overwrite
+                        new_extra_url = upload_product_image(img_file, shop.slug)
+                        # Delete old extra image from Cloudinary after successful new upload
+                        if old_extra_url and old_extra_url != new_extra_url:
+                            delete_cloudinary_asset_by_url(old_extra_url)
+                        setattr(product, url_field, new_extra_url)
                     except CloudinaryUploadError as e:
                         return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -401,6 +411,12 @@ class ShopProductDetailView(APIView):
                         status=status.HTTP_400_BAD_REQUEST
                     )
 
+                # If a different video URL is being set, remove the old one from Cloudinary.
+                # POLICY: only fires when THIS product's video is explicitly replaced right now.
+                old_video_url = product.video_url
+                if old_video_url and old_video_url != video_url_field:
+                    delete_cloudinary_asset_by_url(old_video_url)
+
                 # Browser already uploaded directly to Cloudinary — just save the URL
                 product.video_url = video_url_field
             elif video_file:
@@ -411,7 +427,12 @@ class ShopProductDetailView(APIView):
                         status=status.HTTP_400_BAD_REQUEST
                     )
                 try:
-                    product.video_url = upload_product_video(video_file, shop.slug)
+                    old_video_url = product.video_url
+                    new_video_url = upload_product_video(video_file, shop.slug)
+                    # Delete old video from Cloudinary only after successful new upload
+                    if old_video_url and old_video_url != new_video_url:
+                        delete_cloudinary_asset_by_url(old_video_url)
+                    product.video_url = new_video_url
                 except CloudinaryUploadError as e:
                     return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -425,7 +446,26 @@ class ShopProductDetailView(APIView):
         if err:
             return err
 
+        # Collect all Cloudinary asset URLs before deleting the DB row.
+        # We delete from Cloudinary AFTER the DB delete so if Cloudinary
+        # fails the product is still gone from the user's catalogue.
+        # POLICY: only assets owned by THIS product row are cleaned up.
+        media_to_delete = [
+            url for url in [
+                product.image_url,
+                product.image_url_2,
+                product.image_url_3,
+                product.image_url_4,
+                product.video_url,
+            ] if url
+        ]
+
         product.delete()
+
+        # Best-effort cleanup — silently skips any URL that fails or isn't Cloudinary
+        for url in media_to_delete:
+            delete_cloudinary_asset_by_url(url)
+
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
