@@ -25,14 +25,14 @@ export default function ProProductPage() {
   const availableSizes =
     Array.isArray(product?.available_sizes) && product.available_sizes.length > 0
       ? product.available_sizes
-      : ['S', 'M', 'L', 'XL'];
+      : [];
 
   const availableColors = (product?.available_colors ?? []).filter(
     (c) => c && c !== 'None'
   );
 
   // Hooks always called, no conditional placement
-  const [activeSize, setActiveSize] = useState(availableSizes[0] || 'M');
+  const [activeSize, setActiveSize] = useState(availableSizes[0] || '');
   const [activeColor, setActiveColor] = useState(availableColors[0] || '');
 
   // ── Early returns AFTER all hooks ──────────────────────────────────────────
