@@ -40,11 +40,13 @@ class Product(models.Model):
     video_url = models.URLField(max_length=500, blank=True, null=True)
     display_order = models.PositiveIntegerField(default=0)
     is_in_stock = models.BooleanField(default=True)
-    # ── Legacy boolean flags — exist in Render DB, must always be supplied ────
+    # ── Legacy boolean flags — exist in production DB, must always be supplied ─
     is_best_product = models.BooleanField(default=False)
     is_offer_product = models.BooleanField(default=False)
     is_trending = models.BooleanField(default=False)
     is_new_product = models.BooleanField(default=False)
+    # ── Legacy varchar — zombie column in production DB (NOT NULL, no default) ─
+    offer_label = models.CharField(max_length=100, default='', blank=True)
     # ─────────────────────────────────────────────────────────────────────────
     discount_percent = models.PositiveIntegerField(default=0, blank=True)
     size_scheme = models.CharField(max_length=20, default='numeric', blank=True)
