@@ -271,8 +271,6 @@ class ShopProductListCreateView(APIView):
                 is_in_stock=data.get('is_in_stock', True),
                 is_best_product=False,
                 is_offer_product=False,
-                is_new_product=False,
-                is_featured=False,
                 category=category,
                 discount_percent=discount_val,
                 size_scheme=size_scheme_val,
