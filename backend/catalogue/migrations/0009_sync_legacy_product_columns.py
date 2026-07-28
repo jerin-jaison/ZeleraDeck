@@ -25,6 +25,48 @@ This makes the migration fully idempotent on any environment.
 from django.db import migrations, models
 
 
+def sync_legacy_columns(apps, schema_editor):
+    connection = schema_editor.connection
+    vendor = connection.vendor
+    with connection.cursor() as cursor:
+        if vendor == 'postgresql':
+            cursor.execute("""
+                DO $$
+                BEGIN
+                    IF NOT EXISTS (
+                        SELECT 1 FROM information_schema.columns
+                        WHERE table_name = 'catalogue_product' AND column_name = 'is_trending'
+                    ) THEN
+                        ALTER TABLE catalogue_product ADD COLUMN is_trending boolean NOT NULL DEFAULT false;
+                    END IF;
+                    IF NOT EXISTS (
+                        SELECT 1 FROM information_schema.columns
+                        WHERE table_name = 'catalogue_product' AND column_name = 'is_new_product'
+                    ) THEN
+                        ALTER TABLE catalogue_product ADD COLUMN is_new_product boolean NOT NULL DEFAULT false;
+                    END IF;
+                    IF NOT EXISTS (
+                        SELECT 1 FROM information_schema.columns
+                        WHERE table_name = 'catalogue_product' AND column_name = 'is_best_product'
+                    ) THEN
+                        ALTER TABLE catalogue_product ADD COLUMN is_best_product boolean NOT NULL DEFAULT false;
+                    END IF;
+                    IF NOT EXISTS (
+                        SELECT 1 FROM information_schema.columns
+                        WHERE table_name = 'catalogue_product' AND column_name = 'is_offer_product'
+                    ) THEN
+                        ALTER TABLE catalogue_product ADD COLUMN is_offer_product boolean NOT NULL DEFAULT false;
+                    END IF;
+                END $$;
+            """)
+        elif vendor == 'sqlite':
+            cursor.execute("PRAGMA table_info(catalogue_product);")
+            cols = [row[1] for row in cursor.fetchall()]
+            for col in ['is_trending', 'is_new_product', 'is_best_product', 'is_offer_product']:
+                if col not in cols:
+                    cursor.execute(f"ALTER TABLE catalogue_product ADD COLUMN {col} bool NOT NULL DEFAULT 0;")
+
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -32,25 +74,9 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        # ── is_trending ────────────────────────────────────────────────────────
         migrations.SeparateDatabaseAndState(
             database_operations=[
-                migrations.RunSQL(
-                    sql="""
-                        DO $$
-                        BEGIN
-                            IF NOT EXISTS (
-                                SELECT 1 FROM information_schema.columns
-                                WHERE table_name = 'catalogue_product'
-                                  AND column_name = 'is_trending'
-                            ) THEN
-                                ALTER TABLE catalogue_product
-                                ADD COLUMN is_trending boolean NOT NULL DEFAULT false;
-                            END IF;
-                        END $$;
-                    """,
-                    reverse_sql=migrations.RunSQL.noop,
-                ),
+                migrations.RunPython(sync_legacy_columns, reverse_code=migrations.RunPython.noop),
             ],
             state_operations=[
                 migrations.AddField(
@@ -58,81 +84,11 @@ class Migration(migrations.Migration):
                     name='is_trending',
                     field=models.BooleanField(default=False),
                 ),
-            ],
-        ),
-
-        # ── is_new_product ─────────────────────────────────────────────────────
-        migrations.SeparateDatabaseAndState(
-            database_operations=[
-                migrations.RunSQL(
-                    sql="""
-                        DO $$
-                        BEGIN
-                            IF NOT EXISTS (
-                                SELECT 1 FROM information_schema.columns
-                                WHERE table_name = 'catalogue_product'
-                                  AND column_name = 'is_new_product'
-                            ) THEN
-                                ALTER TABLE catalogue_product
-                                ADD COLUMN is_new_product boolean NOT NULL DEFAULT false;
-                            END IF;
-                        END $$;
-                    """,
-                    reverse_sql=migrations.RunSQL.noop,
-                ),
-            ],
-            state_operations=[
                 migrations.AddField(
                     model_name='product',
                     name='is_new_product',
                     field=models.BooleanField(default=False),
                 ),
             ],
-        ),
-
-        # ── is_best_product — guard in case not yet in DB ─────────────────────
-        migrations.SeparateDatabaseAndState(
-            database_operations=[
-                migrations.RunSQL(
-                    sql="""
-                        DO $$
-                        BEGIN
-                            IF NOT EXISTS (
-                                SELECT 1 FROM information_schema.columns
-                                WHERE table_name = 'catalogue_product'
-                                  AND column_name = 'is_best_product'
-                            ) THEN
-                                ALTER TABLE catalogue_product
-                                ADD COLUMN is_best_product boolean NOT NULL DEFAULT false;
-                            END IF;
-                        END $$;
-                    """,
-                    reverse_sql=migrations.RunSQL.noop,
-                ),
-            ],
-            state_operations=[],   # already in model from earlier migration
-        ),
-
-        # ── is_offer_product — guard in case not yet in DB ────────────────────
-        migrations.SeparateDatabaseAndState(
-            database_operations=[
-                migrations.RunSQL(
-                    sql="""
-                        DO $$
-                        BEGIN
-                            IF NOT EXISTS (
-                                SELECT 1 FROM information_schema.columns
-                                WHERE table_name = 'catalogue_product'
-                                  AND column_name = 'is_offer_product'
-                            ) THEN
-                                ALTER TABLE catalogue_product
-                                ADD COLUMN is_offer_product boolean NOT NULL DEFAULT false;
-                            END IF;
-                        END $$;
-                    """,
-                    reverse_sql=migrations.RunSQL.noop,
-                ),
-            ],
-            state_operations=[],   # already in model from earlier migration
         ),
     ]

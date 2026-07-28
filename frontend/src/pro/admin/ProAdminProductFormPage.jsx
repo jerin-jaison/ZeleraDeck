@@ -178,6 +178,14 @@ export default function ProAdminProductFormPage({ mode = 'add' }) {
     enabled: mode === 'edit' && !!displayId,
   })
 
+  const parseList = (val) => {
+    if (Array.isArray(val)) return val
+    if (typeof val === 'string' && val.trim()) {
+      try { return JSON.parse(val) } catch { return val.split(',').map(s => s.trim()).filter(Boolean) }
+    }
+    return []
+  }
+
   useEffect(() => {
     if (productData) {
       setName(productData.name || '')
@@ -187,12 +195,17 @@ export default function ProAdminProductFormPage({ mode = 'add' }) {
       setCategoryId(productData.category?.id || null)
       setInStock(productData.is_in_stock ?? true)
       setSizeScheme(productData.size_scheme || 'numeric')
-      if (Array.isArray(productData.available_sizes) && productData.available_sizes.length > 0) {
-        setSelectedSizes(productData.available_sizes)
+
+      const sizes = parseList(productData.available_sizes)
+      const colors = parseList(productData.available_colors)
+
+      if (productData.available_sizes !== undefined && productData.available_sizes !== null) {
+        setSelectedSizes(sizes)
       }
-      if (Array.isArray(productData.available_colors) && productData.available_colors.length > 0) {
-        setSelectedColors(productData.available_colors)
+      if (productData.available_colors !== undefined && productData.available_colors !== null) {
+        setSelectedColors(colors.length > 0 ? colors : ['None'])
       }
+
       setPreviewUrls([
         productData.image_url || '',
         productData.image_url_2 || '',
@@ -468,6 +481,246 @@ export default function ProAdminProductFormPage({ mode = 'add' }) {
                   style={{ transform: inStock ? 'translateX(24px)' : 'translateX(2px)' }}
                 />
               </button>
+            </div>
+          </FormSection>
+
+          {/* ── Curation (Sizes & Colors) ───────────────────────────── */}
+          <FormSection
+            title="Curation"
+            description="Select the available variations. Each choice reflects the editorial breadth of your collection."
+          >
+            {/* Sizes */}
+            <div className="space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <label className="block text-[12px] uppercase tracking-[0.1em] text-[#4c4546] font-semibold">
+                  Available Sizes
+                </label>
+                {/* Segmented Control Toggle */}
+                <div className="flex items-center bg-[#f3f3f3] p-1 border border-[#e2e2e2] self-start sm:self-auto">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSizeScheme('numeric')
+                      setSelectedSizes(['36', '38', '40', '42', '44', '46'])
+                    }}
+                    className={`px-3 py-1 text-[10px] sm:text-[11px] uppercase tracking-wider font-semibold transition-all ${
+                      sizeScheme === 'numeric'
+                        ? 'bg-black text-white shadow-sm'
+                        : 'text-[#4c4546] hover:text-black'
+                    }`}
+                  >
+                    Numeric (36–46)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSizeScheme('alpha')
+                      setSelectedSizes(['XS', 'S', 'M', 'L', 'XL', 'XXL'])
+                    }}
+                    className={`px-3 py-1 text-[10px] sm:text-[11px] uppercase tracking-wider font-semibold transition-all ${
+                      sizeScheme === 'alpha'
+                        ? 'bg-black text-white shadow-sm'
+                        : 'text-[#4c4546] hover:text-black'
+                    }`}
+                  >
+                    Alpha (XS–XXL)
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                {(sizeScheme === 'numeric' ? NUMERIC_SIZES : ALPHA_SIZES).map(size => {
+                  const isSelected = selectedSizes.includes(size)
+                  return (
+                    <button
+                      key={size}
+                      type="button"
+                      onClick={() =>
+                        setSelectedSizes(prev =>
+                          prev.includes(size) ? prev.filter(s => s !== size) : [...prev, size]
+                        )
+                      }
+                      className={`px-5 sm:px-6 py-2 border text-[12px] uppercase tracking-[0.1em] font-semibold transition-all ${
+                        isSelected
+                          ? 'border-black bg-black text-white'
+                          : 'border-[#cfc4c5] hover:border-black text-[#4c4546] bg-transparent'
+                      }`}
+                    >
+                      {size}
+                    </button>
+                  )
+                })}
+              </div>
+              <div className="flex items-center justify-between pt-1">
+                <p className="text-[11px] text-[#7e7576]">
+                  {selectedSizes.length === 0 ? 'No sizes selected (Item will show as Free Size)' : `${selectedSizes.length} size(s) selected`}
+                </p>
+                {selectedSizes.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setSelectedSizes([])}
+                    className="text-[11px] text-[#ba1a1a] underline hover:text-black transition-colors"
+                  >
+                    Clear all sizes
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Colors */}
+            <div className="space-y-4">
+              <label className="block text-[12px] uppercase tracking-[0.1em] text-[#4c4546] font-semibold">
+                Color Palette
+              </label>
+              <div className="flex flex-wrap gap-x-6 gap-y-4">
+                {(() => {
+                  const VISIBLE_COUNT = 4
+                  const hiddenPresets = PRESET_COLORS.slice(VISIBLE_COUNT)
+                  const hasHiddenSelected = hiddenPresets.some(c => selectedColors.includes(c.name))
+                  const showAll = colorsExpanded || hasHiddenSelected
+                  const visiblePresets = showAll ? PRESET_COLORS : PRESET_COLORS.slice(0, VISIBLE_COUNT)
+
+                  return (
+                    <>
+                      {visiblePresets.map(color => {
+                        const isSelected =
+                          selectedColors.includes(color.name) ||
+                          (color.name === 'None' && (selectedColors.length === 0 || selectedColors.includes('None')))
+                        return (
+                          <button
+                            key={color.name}
+                            type="button"
+                            onClick={() => {
+                              if (color.name === 'None') {
+                                setSelectedColors(['None'])
+                              } else {
+                                setSelectedColors(prev => {
+                                  const withoutNone = prev.filter(c => c !== 'None')
+                                  if (withoutNone.includes(color.name)) {
+                                    const res = withoutNone.filter(c => c !== color.name)
+                                    return res.length === 0 ? ['None'] : res
+                                  } else {
+                                    return [...withoutNone, color.name]
+                                  }
+                                })
+                              }
+                            }}
+                            className="flex items-center space-x-2.5 cursor-pointer group"
+                          >
+                            {color.name === 'None' ? (
+                              <div
+                                className={`w-7 h-7 rounded-full border border-[#cfc4c5] flex items-center justify-center bg-[#f9f9f9] transition-all relative overflow-hidden ${
+                                  isSelected
+                                    ? 'ring-2 ring-black ring-offset-2'
+                                    : 'group-hover:ring-1 group-hover:ring-black'
+                                }`}
+                              >
+                                <div className="w-full h-0.5 bg-[#ba1a1a] -rotate-45 absolute" />
+                              </div>
+                            ) : (
+                              <div
+                                className={`w-7 h-7 rounded-full border transition-all ${
+                                  isSelected
+                                    ? 'ring-2 ring-black ring-offset-2'
+                                    : 'border-[#cfc4c5] group-hover:ring-1 group-hover:ring-black'
+                                }`}
+                                style={{ backgroundColor: color.hex }}
+                              />
+                            )}
+                            <span className="text-[12px] uppercase tracking-[0.1em] font-semibold text-[#1a1c1c]">
+                              {color.name}
+                            </span>
+                          </button>
+                        )
+                      })}
+
+                      {!showAll && (
+                        <button
+                          type="button"
+                          onClick={() => setColorsExpanded(true)}
+                          className="flex items-center space-x-1.5 text-[11px] uppercase tracking-[0.1em] text-[#7e7576] hover:text-black transition-colors font-semibold"
+                        >
+                          <span className="material-symbols-outlined text-[16px]">expand_more</span>
+                          <span>Show more ({PRESET_COLORS.length - VISIBLE_COUNT} more)</span>
+                        </button>
+                      )}
+
+                      {showAll && !hasHiddenSelected && (
+                        <button
+                          type="button"
+                          onClick={() => setColorsExpanded(false)}
+                          className="flex items-center space-x-1.5 text-[11px] uppercase tracking-[0.1em] text-[#7e7576] hover:text-black transition-colors font-semibold"
+                        >
+                          <span className="material-symbols-outlined text-[16px]">expand_less</span>
+                          <span>Show less</span>
+                        </button>
+                      )}
+                    </>
+                  )
+                })()}
+
+                {/* Render any custom colors user added */}
+                {selectedColors
+                  .filter(c => c !== 'None' && !PRESET_COLORS.some(p => p.name === c))
+                  .map(customName => (
+                    <button
+                      key={customName}
+                      type="button"
+                      onClick={() => {
+                        setSelectedColors(prev => {
+                          const res = prev.filter(c => c !== customName)
+                          return res.length === 0 ? ['None'] : res
+                        })
+                      }}
+                      className="flex items-center space-x-2.5 cursor-pointer group"
+                    >
+                      <div className="w-7 h-7 rounded-full border border-black bg-neutral-100 flex items-center justify-center text-[10px] font-bold ring-2 ring-black ring-offset-2">
+                        ★
+                      </div>
+                      <span className="text-[12px] uppercase tracking-[0.1em] font-semibold text-[#1a1c1c]">
+                        {customName} ×
+                      </span>
+                    </button>
+                  ))}
+              </div>
+
+              {/* Custom Color Input */}
+              <div className="pt-3 flex flex-wrap items-center gap-3 border-t border-[#e2e2e2] mt-4">
+                <input
+                  type="text"
+                  value={customColorInput}
+                  onChange={e => setCustomColorInput(e.target.value)}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault()
+                      const val = customColorInput.trim()
+                      if (!val) return
+                      setSelectedColors(prev => {
+                        const withoutNone = prev.filter(c => c !== 'None')
+                        return withoutNone.includes(val) ? withoutNone : [...withoutNone, val]
+                      })
+                      setCustomColorInput('')
+                    }
+                  }}
+                  placeholder="Custom color name (e.g. Emerald)..."
+                  className="bg-[#f9f9f9] border border-[#cfc4c5] px-3 py-1.5 text-xs text-[#1a1c1c] focus:outline-none focus:border-black min-w-[220px]"
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    const val = customColorInput.trim()
+                    if (!val) return
+                    setSelectedColors(prev => {
+                      const withoutNone = prev.filter(c => c !== 'None')
+                      return withoutNone.includes(val) ? withoutNone : [...withoutNone, val]
+                    })
+                    setCustomColorInput('')
+                  }}
+                  className="px-3 py-1.5 bg-black text-white text-[11px] uppercase tracking-wider font-semibold hover:bg-[#333] transition-colors"
+                >
+                  + Add Custom Color
+                </button>
+              </div>
             </div>
           </FormSection>
 

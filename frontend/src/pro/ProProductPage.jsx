@@ -32,8 +32,17 @@ export default function ProProductPage() {
   );
 
   // Hooks always called, no conditional placement
-  const [activeSize, setActiveSize] = useState(availableSizes[0] || '');
-  const [activeColor, setActiveColor] = useState(availableColors[0] || '');
+  const [activeSize, setActiveSize] = useState('');
+  const [activeColor, setActiveColor] = useState('');
+
+  React.useEffect(() => {
+    if (availableSizes.length > 0 && (!activeSize || !availableSizes.includes(activeSize))) {
+      setActiveSize(availableSizes[0]);
+    }
+    if (availableColors.length > 0 && (!activeColor || !availableColors.includes(activeColor))) {
+      setActiveColor(availableColors[0]);
+    }
+  }, [availableSizes, availableColors]);
 
   // ── Early returns AFTER all hooks ──────────────────────────────────────────
   if (isLoading) {

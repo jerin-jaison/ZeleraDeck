@@ -9,9 +9,14 @@ from pro.models import ProAboutBlock, ProContactInfo, ProHeroSettings
 
 
 class ProAdminCategorySerializer(serializers.ModelSerializer):
+    product_count = serializers.SerializerMethodField()
+
     class Meta:
         model = Category
-        fields = ["id", "name", "image_url"]
+        fields = ["id", "name", "image_url", "product_count"]
+
+    def get_product_count(self, obj):
+        return obj.products.count()
 
 
 class ProAdminProductSerializer(serializers.ModelSerializer):

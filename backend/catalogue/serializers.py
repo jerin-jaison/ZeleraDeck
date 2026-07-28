@@ -7,16 +7,18 @@ class CategorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Category
-        fields = ['id', 'name', 'product_count', 'created_at']
+        fields = ['id', 'name', 'image_url', 'product_count', 'created_at']
 
     def get_product_count(self, obj):
         return obj.products.count()
 
 
 class CategoryCreateSerializer(serializers.ModelSerializer):
+    image_url = serializers.URLField(required=False, allow_null=True, allow_blank=True)
+
     class Meta:
         model = Category
-        fields = ['name']
+        fields = ['name', 'image_url']
 
     def validate_name(self, value):
         value = value.strip()

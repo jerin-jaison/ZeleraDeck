@@ -74,7 +74,15 @@ class ShopCategoryListCreateView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        category = Category.objects.create(shop=request.user, name=name)
+        image_url = serializer.validated_data.get('image_url', None)
+        image_file = request.FILES.get('image')
+        if image_file:
+            try:
+                image_url = upload_product_image(image_file, request.user.slug)
+            except CloudinaryUploadError as e:
+                return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+        category = Category.objects.create(shop=request.user, name=name, image_url=image_url)
         return Response(
             CategorySerializer(category).data,
             status=status.HTTP_201_CREATED
@@ -109,11 +117,9 @@ class ShopCategoryDetailView(APIView):
         if err:
             return err
 
-        serializer = CategoryCreateSerializer(data=request.data)
-        if not serializer.is_valid():
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-        name = serializer.validated_data['name']
+        name = request.data.get('name', category.name).strip() if 'name' in request.data else category.name
+        if not name:
+            return Response({'error': 'Category name cannot be empty.'}, status=status.HTTP_400_BAD_REQUEST)
 
         # Check for duplicate (case-insensitive, excluding self)
         if Category.objects.filter(
@@ -125,6 +131,25 @@ class ShopCategoryDetailView(APIView):
             )
 
         category.name = name
+
+        image_file = request.FILES.get('image')
+        if image_file:
+            try:
+                old_url = category.image_url
+                new_url = upload_product_image(image_file, request.user.slug)
+                if old_url and old_url != new_url:
+                    delete_cloudinary_asset_by_url(old_url)
+                category.image_url = new_url
+            except CloudinaryUploadError as e:
+                return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        elif 'image_url' in request.data:
+            category.image_url = request.data.get('image_url')
+
+        if request.data.get('clear_image') == 'true' and not image_file:
+            if category.image_url:
+                delete_cloudinary_asset_by_url(category.image_url)
+            category.image_url = None
+
         category.save()
         return Response(CategorySerializer(category).data)
 
