@@ -64,7 +64,9 @@ class Product(models.Model):
         # display_id is generated on first save only.
         # NOTE: Cannot use 'if not self.pk' — UUID is assigned at instantiation.
         if not self.display_id:
-            self.shop.product_counter += 1
+            current_counter = self.shop.product_counter or 0
+            current_counter += 1
+            self.shop.product_counter = current_counter
             self.shop.save(update_fields=['product_counter'])
-            self.display_id = f"PRD{self.shop.product_counter:04d}"
+            self.display_id = f"PRD{current_counter:04d}"
         super().save(*args, **kwargs)

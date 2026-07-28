@@ -202,134 +202,138 @@ class ShopProductListCreateView(APIView):
         if guard:
             return guard
 
-        # Pre-process category_id (multipart/form-data sends strings)
-        raw_category_id = request.data.get('category_id', None)
-        mutable_data = request.data.copy()
-        mutable_data.pop('category_id', None)
-
-        serializer = ProductCreateSerializer(data=mutable_data)
-        if not serializer.is_valid():
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-        data = serializer.validated_data
-        shop = request.user
-
-        # ── Pro media enforcement ──────────────────────────────────────────
-        extra_images = [request.FILES.get(f'image_{i}') for i in range(2, 5)]
-        video_file = request.FILES.get('video')
-
-        if not shop.is_pro:
-            if any(extra_images) or video_file:
-                return Response(
-                    {'error': 'Extra photos and video upload require Pro Mode. Contact admin to upgrade.'},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-
-        # Read primary image directly from FILES to bypass ImageField extension validation
-        # (browser-image-compression produces blobs with no file extension)
-        image_file = request.FILES.get('image')
-        if not image_file:
-            return Response({'error': 'image is required'}, status=status.HTTP_400_BAD_REQUEST)
-
         try:
-            image_url = upload_product_image(image_file, shop.slug)
-        except CloudinaryUploadError as e:
-            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            # Pre-process category_id (multipart/form-data sends strings)
+            raw_category_id = request.data.get('category_id', None)
+            mutable_data = request.data.copy()
+            mutable_data.pop('category_id', None)
 
-        # Handle optional category
-        category = None
-        if raw_category_id and raw_category_id != 'null':
+            serializer = ProductCreateSerializer(data=mutable_data)
+            if not serializer.is_valid():
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+            data = serializer.validated_data
+            shop = request.user
+
+            # ── Pro media enforcement ──────────────────────────────────────────
+            extra_images = [request.FILES.get(f'image_{i}') for i in range(2, 5)]
+            video_file = request.FILES.get('video')
+
+            if not shop.is_pro:
+                if any(extra_images) or video_file:
+                    return Response(
+                        {'error': 'Extra photos and video upload require Pro Mode. Contact admin to upgrade.'},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+
+            # Read primary image directly from FILES to bypass ImageField extension validation
+            # (browser-image-compression produces blobs with no file extension)
+            image_file = request.FILES.get('image')
+            if not image_file:
+                return Response({'error': 'image is required'}, status=status.HTTP_400_BAD_REQUEST)
+
             try:
-                category = Category.objects.get(id=raw_category_id, shop=shop)
-            except (Category.DoesNotExist, ValueError):
-                pass  # silently ignore invalid category
+                image_url = upload_product_image(image_file, shop.slug)
+            except CloudinaryUploadError as e:
+                return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Parse sizes and colors JSON if sent via multipart/form-data
-        def _parse_json(val):
-            if isinstance(val, list):
-                return val
-            if isinstance(val, str) and val.strip():
+            # Handle optional category
+            category = None
+            if raw_category_id and str(raw_category_id).strip() not in ('null', 'None', '', 'undefined'):
                 try:
-                    import json
-                    return json.loads(val)
+                    category = Category.objects.get(id=raw_category_id, shop=shop)
                 except Exception:
-                    return [x.strip() for x in val.split(',') if x.strip()]
-            return []
+                    pass  # silently ignore invalid category ID format or missing category
 
-        sizes_val = _parse_json(request.data.get('available_sizes', '[]'))
-        colors_val = _parse_json(request.data.get('available_colors', '[]'))
-        size_scheme_val = request.data.get('size_scheme', 'numeric').strip()
-        discount_val = data.get('discount_percent', 0)
-
-        product = Product.objects.create(
-            shop=shop,
-            name=data['name'],
-            price=data['price'],
-            description=data.get('description', ''),
-            image_url=image_url,
-            is_in_stock=data.get('is_in_stock', True),
-            category=category,
-            discount_percent=discount_val,
-            size_scheme=size_scheme_val,
-            available_sizes=sizes_val,
-            available_colors=colors_val,
-        )
-
-        # ── Pro: upload extra images 2–4 ────────────────────────────────────
-        if shop.is_pro:
-            url_fields = ['image_url_2', 'image_url_3', 'image_url_4']
-            for img_file, url_field in zip(extra_images, url_fields):
-                if img_file:
+            # Parse sizes and colors JSON if sent via multipart/form-data
+            def _parse_json(val):
+                if isinstance(val, list):
+                    return val
+                if isinstance(val, str) and val.strip():
                     try:
-                        url = upload_product_image(img_file, shop.slug)
-                        setattr(product, url_field, url)
+                        import json
+                        return json.loads(val)
+                    except Exception:
+                        return [x.strip() for x in val.split(',') if x.strip()]
+                return []
+
+            sizes_val = _parse_json(request.data.get('available_sizes', '[]'))
+            colors_val = _parse_json(request.data.get('available_colors', '[]'))
+            size_scheme_val = str(request.data.get('size_scheme', 'numeric')).strip()
+            discount_val = data.get('discount_percent', 0)
+
+            product = Product.objects.create(
+                shop=shop,
+                name=data['name'],
+                price=data['price'],
+                description=data.get('description', ''),
+                image_url=image_url,
+                is_in_stock=data.get('is_in_stock', True),
+                category=category,
+                discount_percent=discount_val,
+                size_scheme=size_scheme_val,
+                available_sizes=sizes_val,
+                available_colors=colors_val,
+            )
+
+            # ── Pro: upload extra images 2–4 ────────────────────────────────────
+            if shop.is_pro:
+                url_fields = ['image_url_2', 'image_url_3', 'image_url_4']
+                for img_file, url_field in zip(extra_images, url_fields):
+                    if img_file:
+                        try:
+                            url = upload_product_image(img_file, shop.slug)
+                            setattr(product, url_field, url)
+                        except CloudinaryUploadError as e:
+                            product.delete()
+                            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+                # ── Pro: video — accept pre-uploaded Cloudinary URL or file ────
+                video_url_field = request.data.get('video_url', '').strip()
+                video_file = request.FILES.get('video')
+
+                if video_url_field:
+                    try:
+                        compressed_bytes = int(request.data.get('video_compressed_bytes', 0))
+                    except (ValueError, TypeError):
+                        compressed_bytes = 0
+
+                    if compressed_bytes > 5 * 1024 * 1024:
+                        product.delete()
+                        logger.warning(
+                            f"Oversized video blocked from DB: url={video_url_field}, "
+                            f"size={compressed_bytes / (1024*1024):.2f}MB. Not deleted per policy."
+                        )
+                        return Response(
+                            {'error': 'Video exceeds size limit. Use a shorter clip.'},
+                            status=status.HTTP_400_BAD_REQUEST
+                        )
+
+                    # Browser already uploaded directly to Cloudinary — just save the URL
+                    product.video_url = video_url_field
+                elif video_file:
+                    allowed_mime = {'video/mp4', 'video/webm', 'video/quicktime'}
+                    if video_file.content_type not in allowed_mime:
+                        product.delete()
+                        return Response(
+                            {'error': 'Invalid video type. Allowed: mp4, webm, mov.'},
+                            status=status.HTTP_400_BAD_REQUEST
+                        )
+                    try:
+                        product.video_url = upload_product_video(video_file, shop.slug)
                     except CloudinaryUploadError as e:
                         product.delete()
                         return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-            # ── Pro: video — accept pre-uploaded Cloudinary URL or file ────
-            video_url_field = request.data.get('video_url', '').strip()
-            video_file = request.FILES.get('video')
+                product.save()
 
-            if video_url_field:
-                # Layer 3 safety net: validate compressed byte count sent by frontend.
-                # Frontend sends video_compressed_bytes alongside video_url so we can
-                # enforce the size limit without a slow network HEAD request.
-                try:
-                    compressed_bytes = int(request.data.get('video_compressed_bytes', 0))
-                except (ValueError, TypeError):
-                    compressed_bytes = 0
-
-                if compressed_bytes > 5 * 1024 * 1024:
-                    product.delete()
-                    logger.warning(
-                        f"Oversized video blocked from DB: url={video_url_field}, "
-                        f"size={compressed_bytes / (1024*1024):.2f}MB. Not deleted per policy."
-                    )
-                    return Response(
-                        {'error': 'Video exceeds size limit. Use a shorter clip.'},
-                        status=status.HTTP_400_BAD_REQUEST
-                    )
-
-                # Browser already uploaded directly to Cloudinary — just save the URL
-                product.video_url = video_url_field
-            elif video_file:
-                allowed_mime = {'video/mp4', 'video/webm', 'video/quicktime'}
-                if video_file.content_type not in allowed_mime:
-                    product.delete()
-                    return Response(
-                        {'error': 'Invalid video type. Allowed: mp4, webm, mov.'},
-                        status=status.HTTP_400_BAD_REQUEST
-                    )
-                try:
-                    product.video_url = upload_product_video(video_file, shop.slug)
-                except CloudinaryUploadError as e:
-                    product.delete()
-                    return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
-
-            product.save()
-
-        return Response(ProductSerializer(product).data, status=status.HTTP_201_CREATED)
+            return Response(ProductSerializer(product).data, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            logger.exception("Error creating product for shop %s: %s", request.user.slug if hasattr(request.user, 'slug') else 'unknown', e)
+            return Response(
+                {'error': f'Failed to create product: {str(e)}'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 
 class ShopProductDetailView(APIView):
