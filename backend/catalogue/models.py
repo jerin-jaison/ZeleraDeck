@@ -40,6 +40,7 @@ class Product(models.Model):
     video_url = models.URLField(max_length=500, blank=True, null=True)
     display_order = models.PositiveIntegerField(default=0)
     is_in_stock = models.BooleanField(default=True)
+    is_best_product = models.BooleanField(default=False)
     discount_percent = models.PositiveIntegerField(default=0, blank=True)
     size_scheme = models.CharField(max_length=20, default='numeric', blank=True)
     available_sizes = models.JSONField(default=list, blank=True)
