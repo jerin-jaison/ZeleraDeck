@@ -13,6 +13,15 @@ from urllib.parse import urlparse, unquote
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / ".env")
 
+# ── Local testing override ────────────────────────────────────────────────────
+# If backend/.env.local exists, its values override .env — used for local
+# Docker Postgres testing. This file is in .gitignore and never committed.
+# On Render (production), .env.local does not exist → zero effect on production.
+_local_env_path = BASE_DIR / ".env.local"
+if _local_env_path.exists():
+    load_dotenv(_local_env_path, override=True)
+# ─────────────────────────────────────────────────────────────────────────────
+
 # ─── Core ─────────────────────────────────────────────────────────────────────
 
 SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-change-me-in-dot-env")
@@ -50,6 +59,7 @@ INSTALLED_APPS = [
     # Local apps
     "accounts",
     "catalogue",
+    "pro",
 ]
 
 # ─── Middleware ────────────────────────────────────────────────────────────────
@@ -90,16 +100,24 @@ WSGI_APPLICATION = "config.wsgi.application"
 _db_url = os.getenv("DATABASE_URL", "")
 _parsed = urlparse(_db_url) if _db_url else None
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": _parsed.path.lstrip("/") if _parsed else "zeleradeck_db",
-        "USER": _parsed.username if _parsed else "postgres",
-        "PASSWORD": unquote(_parsed.password) if _parsed and _parsed.password else "",
-        "HOST": _parsed.hostname if _parsed else "localhost",
-        "PORT": str(_parsed.port or 5432) if _parsed else "5432",
+if _db_url.startswith("sqlite"):
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
     }
-}
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": _parsed.path.lstrip("/") if _parsed else "zeleradeck_db",
+            "USER": _parsed.username if _parsed else "postgres",
+            "PASSWORD": unquote(_parsed.password) if _parsed and _parsed.password else "",
+            "HOST": _parsed.hostname if _parsed else "localhost",
+            "PORT": str(_parsed.port or 5432) if _parsed else "5432",
+        }
+    }
 
 # ─── Auth ─────────────────────────────────────────────────────────────────────
 
@@ -212,3 +230,46 @@ MEDIA_URL = "/media/"
 # ─── Default PK ───────────────────────────────────────────────────────────────
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# ─── Logging ──────────────────────────────────────────────────────────────────
+# pro.safety is always logged at ERROR level regardless of DEBUG setting.
+# This ensures La Bella write-block attempts are always surfaced in logs
+# (console, Render log drain, or any log aggregation tool).
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "[{asctime}] [{levelname}] {name}: {message}",
+            "style": "{",
+        },
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "verbose",
+        },
+    },
+    "loggers": {
+        # La Bella write-protection guard — always surfaces at ERROR level.
+        # DO NOT raise this level above ERROR or disable it.
+        "pro.safety": {
+            "handlers": ["console"],
+            "level": "ERROR",
+            "propagate": False,
+        },
+        # General pro app logging
+        "pro": {
+            "handlers": ["console"],
+            "level": "WARNING",
+            "propagate": False,
+        },
+        # Django itself — INFO in debug, WARNING in production
+        "django": {
+            "handlers": ["console"],
+            "level": "INFO" if DEBUG else "WARNING",
+            "propagate": False,
+        },
+    },
+}

@@ -177,7 +177,7 @@ export default function ProductPage() {
       <div className="bg-white min-h-screen flex flex-col items-center justify-center px-6 text-center">
         <p className="text-[96px] font-black text-[#F0F0F0] leading-none">404</p>
         <p className="text-xl font-bold mt-2">Product not found</p>
-        <button onClick={() => navigate(`/store/${slug}`)} className="text-sm text-[#737373] underline mt-4">Back to store</button>
+        <button onClick={() => navigate(`/${slug}`)} className="text-sm text-[#737373] underline mt-4">Back to store</button>
       </div>
     )
   }
@@ -210,7 +210,7 @@ export default function ProductPage() {
   const productDesc = product.description
     ? `${product.description.slice(0, 140)}…`
     : `${product.name} available at ${shop.name}. Price: ₹${Number(product.price).toLocaleString('en-IN')}. Order on WhatsApp.`
-  const productUrl = `https://zeleradeck.com/store/${slug}/product/${product.display_id}`
+  const productUrl = `https://zeleradeck.com/${slug}/product/${product.display_id}`
   const productImage = product.image_url ? cloudinaryOptimize(product.image_url) : 'https://zeleradeck.com/logo2.png'
 
   const productSchema = {
@@ -243,7 +243,7 @@ export default function ProductPage() {
       />
     <div className="bg-white min-h-screen max-w-md mx-auto pb-24" style={{ animation: 'fadeIn 0.15s ease-out' }}>
       {/* Back */}
-      <button onClick={() => navigate(`/store/${slug}`)}
+      <button onClick={() => navigate(`/${slug}`)}
         className="px-4 py-3 flex items-center gap-1 text-sm text-[#737373]">
         <ChevronLeft className="w-4 h-4" /> Back to store
       </button>

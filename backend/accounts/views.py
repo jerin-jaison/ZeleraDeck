@@ -235,7 +235,7 @@ class AdminShopListCreateView(APIView):
             'slug': shop.slug,
             'phone': shop.phone,
             'logo_url': shop.logo_url,
-            'public_url': f'/store/{shop.slug}',
+            'public_url': f'/{shop.slug}',
         }, status=status.HTTP_201_CREATED)
 
 

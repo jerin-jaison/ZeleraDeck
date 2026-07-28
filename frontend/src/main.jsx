@@ -1,6 +1,6 @@
 import { StrictMode, useEffect } from 'react'
 import { createRoot } from 'react-dom/client'
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useLocation, useParams } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { HelmetProvider } from 'react-helmet-async'
 import { ToastProvider } from './context/ToastContext'
@@ -24,6 +24,26 @@ import WhyUsPage from './pages/WhyUsPage'
 import SignupPage from './pages/SignupPage'
 import SocialProofToast from './components/SocialProofToast'
 import SplashScreen from './components/SplashScreen'
+import UnifiedStorefront from './pages/UnifiedStorefront'
+
+// Pro storefront pages
+import ProLayout from './pro/ProLayout'
+import ProHomePage from './pro/ProHomePage'
+import ProShopPage from './pro/ProShopPage'
+import ProProductPage from './pro/ProProductPage'
+import ProWishlistPage from './pro/ProWishlistPage'
+import ProAboutPage from './pro/ProAboutPage'
+import ProContactPage from './pro/ProContactPage'
+
+// Pro admin pages
+import ProAdminGuard from './pro/admin/ProAdminGuard'
+import ProAdminLayout from './pro/admin/ProAdminLayout'
+import ProAdminDashboardPage from './pro/admin/ProAdminDashboardPage'
+import ProAdminProductsPage from './pro/admin/ProAdminProductsPage'
+import ProAdminProductFormPage from './pro/admin/ProAdminProductFormPage'
+import ProAdminAboutPage from './pro/admin/ProAdminAboutPage'
+import ProAdminContactPage from './pro/admin/ProAdminContactPage'
+import ProAdminHomepagePage from './pro/admin/ProAdminHomepagePage'
 
 // Admin pages
 import AdminLayout from './pages/admin/AdminLayout'
@@ -56,7 +76,7 @@ function GA4PageTracker() {
 // ─────────────────────────────────────────────────────────────────────────────
 
 function Protected({ children }) {
-  const { isAuthenticated, hydrated } = useAuth()
+  const { isAuthenticated, isPro, shop, hydrated } = useAuth()
 
   if (!hydrated) {
     return (
@@ -67,6 +87,12 @@ function Protected({ children }) {
   }
 
   if (!isAuthenticated) return <Navigate to="/login" replace />
+
+  // If shop owner is Pro, route to Pro Admin panel instead of normal user dashboard
+  if (isPro && shop?.slug) {
+    return <Navigate to={`/pro-admin/${shop.slug}/dashboard`} replace />
+  }
+
   return children
 }
 
@@ -79,6 +105,27 @@ function NotFoundPage() {
     </div>
   )
 }
+
+// ── Legacy redirect helpers — keep old /store/ and /pro/ URLs alive indefinitely
+function LegacyStoreRedirect() {
+  const { slug } = useParams()
+  return <Navigate to={`/${slug}`} replace />
+}
+function LegacyStoreProductRedirect() {
+  const { slug, displayId } = useParams()
+  return <Navigate to={`/${slug}/product/${displayId}`} replace />
+}
+function LegacyProRedirect() {
+  const { slug } = useParams()
+  return <Navigate to={`/${slug}`} replace />
+}
+function LegacyProSubpathRedirect() {
+  // Matches /pro/:slug/* — e.g. /pro/labella/shop → /labella/shop
+  const { slug, '*': rest } = useParams()
+  const subPath = rest ? `/${rest}` : ''
+  return <Navigate to={`/${slug}${subPath}`} replace />
+}
+// ───────────────────────────────────────────────────────────────────────────
 
 const PUBLIC_TOAST_PATHS = ['/', '/why-us', '/contact']
 
@@ -108,8 +155,14 @@ function AppRoutes() {
                 <Route path="/login" element={<Login />} />
                 <Route path="/about" element={<AboutPage />} />
                 <Route path="/contact" element={<ContactPage />} />
-                <Route path="/store/:slug" element={<StorePage />} />
-                <Route path="/store/:slug/product/:displayId" element={<ProductPage />} />
+
+                {/* Legacy redirects — keep old /store/<slug> and /pro/<slug> URLs alive */}
+                <Route path="/store/:slug" element={<LegacyStoreRedirect />} />
+                <Route path="/store/:slug/product/:displayId" element={<LegacyStoreProductRedirect />} />
+                <Route path="/pro/:slug" element={<LegacyProRedirect />} />
+                <Route path="/pro/:slug/*" element={<LegacyProSubpathRedirect />} />
+
+                {/* /:slug/product/:displayId — shared by both Pro and Normal shops */}
                 <Route path="/:slug/product/:displayId" element={<ProductPage />} />
 
                 {/* Protected — Shop Owner */}
@@ -129,8 +182,35 @@ function AppRoutes() {
                   <Route path="maintenance" element={<AdminMaintenance />} />
                 </Route>
 
-                {/* Store public route — must come last before 404 */}
-                <Route path="/:slug" element={<StorePage />} />
+                {/* Pro Admin — shop owner management panel (UNCHANGED) */}
+                <Route path="/pro-admin/:slug" element={
+                  <ProAdminGuard>
+                    <ProAdminLayout />
+                  </ProAdminGuard>
+                }>
+                  <Route index element={<Navigate to="dashboard" replace />} />
+                  <Route path="dashboard" element={<ProAdminDashboardPage />} />
+                  <Route path="homepage" element={<ProAdminHomepagePage />} />
+                  <Route path="products" element={<ProAdminProductsPage />} />
+                  <Route path="products/add" element={<ProAdminProductFormPage mode="add" />} />
+                  <Route path="products/edit/:displayId" element={<ProAdminProductFormPage mode="edit" />} />
+                  <Route path="about" element={<ProAdminAboutPage />} />
+                  <Route path="contact" element={<ProAdminContactPage />} />
+                </Route>
+
+                {/*
+                  Unified public storefront — must come last before 404.
+                  /:slug → UnifiedStorefront determines tier (Pro vs Normal).
+                  Pro sub-routes are children; ProLayout's <Outlet /> renders them.
+                  Normal shops ignore children and render StorePage directly.
+                */}
+                <Route path="/:slug" element={<UnifiedStorefront />}>
+                  <Route index element={<ProHomePage />} />
+                  <Route path="shop" element={<ProShopPage />} />
+                  <Route path="wishlist" element={<ProWishlistPage />} />
+                  <Route path="about" element={<ProAboutPage />} />
+                  <Route path="contact" element={<ProContactPage />} />
+                </Route>
                 <Route path="*" element={<NotFoundPage />} />
               </Routes>
             </AuthProvider>

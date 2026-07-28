@@ -43,8 +43,9 @@ class ProductSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'display_id', 'name', 'price', 'description',
             'image_url', 'image_url_2', 'image_url_3', 'image_url_4',
-            'video_url', 'display_order', 'is_in_stock', 'category', 'category_id',
-            'created_at', 'updated_at'
+            'video_url', 'display_order', 'is_in_stock',
+            'discount_percent', 'size_scheme', 'available_sizes', 'available_colors',
+            'category', 'category_id', 'created_at', 'updated_at'
         ]
         read_only_fields = ['id', 'display_id', 'created_at', 'updated_at']
 
@@ -57,6 +58,7 @@ class ProductCreateSerializer(serializers.Serializer):
     # image omitted — read directly from request.FILES in the view to avoid
     # ImageField extension validation rejecting browser-compressed blobs
     is_in_stock = serializers.BooleanField(required=False, default=True)
+    discount_percent = serializers.IntegerField(required=False, min_value=0, max_value=100, default=0)
 
 
 class ProductUpdateSerializer(serializers.Serializer):
@@ -66,6 +68,7 @@ class ProductUpdateSerializer(serializers.Serializer):
     description = serializers.CharField(required=False, allow_blank=True, allow_null=True)
     # image omitted — read directly from request.FILES in the view
     is_in_stock = serializers.BooleanField(required=False)
+    discount_percent = serializers.IntegerField(required=False, min_value=0, max_value=100)
 
 
 class ProductPublicSerializer(serializers.ModelSerializer):
@@ -76,7 +79,9 @@ class ProductPublicSerializer(serializers.ModelSerializer):
         model = Product
         fields = ['display_id', 'name', 'price', 'description',
                   'image_url', 'image_url_2', 'image_url_3', 'image_url_4',
-                  'video_url', 'display_order', 'is_in_stock', 'category_name']
+                  'video_url', 'display_order', 'is_in_stock',
+                  'discount_percent', 'size_scheme', 'available_sizes', 'available_colors',
+                  'category_name']
 
     def get_category_name(self, obj):
         return obj.category.name if obj.category else None

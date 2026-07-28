@@ -37,7 +37,7 @@ function PublicProductCard({ product, shop }) {
   return (
     <div
       className="bg-white rounded-2xl border border-[#F0F0F0] overflow-hidden shadow-sm cursor-pointer"
-      onClick={() => navigate(`/store/${slug}/product/${product.display_id}`)}
+      onClick={() => navigate(`/${slug}/product/${product.display_id}`)}
     >
       <div className="relative aspect-square bg-[#F8F8F8]">
         <ImageWithFallback src={product.image_url} alt={product.name} className="w-full h-full" />
@@ -175,7 +175,7 @@ export default function StorePage() {
   // ── Per-shop SEO metadata ──
   const shopTitle = `${shop.name} — Shop Catalogue`
   const shopDesc = `Browse products from ${shop.name} on ZeleraDeck. Order easily on WhatsApp.`
-  const shopUrl = `https://zeleradeck.com/store/${slug}`
+  const shopUrl = `https://zeleradeck.com/${slug}`
   const shopImage = shop.logo_url ? cloudinaryOptimize(shop.logo_url) : 'https://zeleradeck.com/logo2.png'
 
   const localBusinessSchema = {

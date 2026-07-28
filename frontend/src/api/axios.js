@@ -103,3 +103,13 @@ api.interceptors.response.use(
 )
 
 export default api
+
+/**
+ * Public (unauthenticated) axios instance.
+ * Use this for public storefront API calls that should never send
+ * the logged-in shop owner's JWT token (which causes 401 on public endpoints).
+ */
+export const publicApi = axios.create({
+  baseURL: BASE,
+  timeout: 15000,
+})

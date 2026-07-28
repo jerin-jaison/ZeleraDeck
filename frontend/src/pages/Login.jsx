@@ -113,9 +113,13 @@ export default function Login() {
   // Redirect if already logged in
   useEffect(() => {
     if (auth.hydrated && auth.isAuthenticated) {
-      navigate('/dashboard', { replace: true })
+      if (auth.isPro && auth.shop?.slug) {
+        navigate(`/pro-admin/${auth.shop.slug}/dashboard`, { replace: true })
+      } else {
+        navigate('/dashboard', { replace: true })
+      }
     }
-  }, [auth.hydrated, auth.isAuthenticated])
+  }, [auth.hydrated, auth.isAuthenticated, auth.isPro, auth.shop, navigate])
 
   // Process reason parameters via Toast instead of inline banners where required
   useEffect(() => {
@@ -143,8 +147,14 @@ export default function Login() {
     setLoading(true)
     try {
       const { data } = await api.post('auth/login/', { phone, password })
-      auth.login(data.access, data.refresh, data.shop_name, data.slug, data.is_pro ?? false)
-      navigate('/dashboard', { replace: true })
+      const isProUser = Boolean(data.is_pro)
+      auth.login(data.access, data.refresh, data.shop_name, data.slug, isProUser)
+
+      if (isProUser && data.slug) {
+        navigate(`/pro-admin/${data.slug}/dashboard`, { replace: true })
+      } else {
+        navigate('/dashboard', { replace: true })
+      }
     } catch (err) {
       showToast(err?.response?.data?.error || 'Login failed. Please try again.', 'error')
     } finally {

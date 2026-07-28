@@ -2,6 +2,13 @@
 @import "./gold-rebrand.css";
 
 @theme {
+  /* ── Typography ──────────────────────────────────────────────────── */
+  /* Cinzel = editorial serif for admin headings (font-serif) */
+  --font-serif: 'Cinzel', Georgia, 'Times New Roman', serif;
+  /* Inter = clean body text for admin UI (font-sans) */
+  --font-sans: 'Inter', 'Jost', system-ui, -apple-system, sans-serif;
+
+  /* ── Brand Colors ────────────────────────────────────────────────── */
   --color-zd-black: #0A0A0A;
   --color-zd-white: #FFFFFF;
   --color-zd-gray-50: #F8F8F8;
@@ -32,6 +39,23 @@
 @keyframes slideUp {
   from { opacity: 0; transform: translateY(20px); }
   to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Material Symbols Outlined Icon Font Enforcer ─────────────────── */
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined' !important;
+  font-weight: normal;
+  font-style: normal;
+  font-size: 20px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none !important;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
 }
 
 * {

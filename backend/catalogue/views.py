@@ -20,6 +20,7 @@ from catalogue.serializers import (
     CategorySerializer, CategoryCreateSerializer
 )
 from catalogue.cloudinary_utils import upload_product_image, upload_product_video, CloudinaryUploadError, delete_cloudinary_asset_by_url
+from pro.safety import check_labella_write_guard
 
 logger = logging.getLogger(__name__)
 
@@ -56,6 +57,10 @@ class ShopCategoryListCreateView(APIView):
         return Response(serializer.data)
 
     def post(self, request):
+        guard = check_labella_write_guard(request.user, "ShopCategoryListCreateView.post")
+        if guard:
+            return guard
+
         serializer = CategoryCreateSerializer(data=request.data)
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -96,6 +101,10 @@ class ShopCategoryDetailView(APIView):
         return category, None
 
     def patch(self, request, pk):
+        guard = check_labella_write_guard(request.user, "ShopCategoryDetailView.patch")
+        if guard:
+            return guard
+
         category, err = self._get_category(pk, request.user)
         if err:
             return err
@@ -120,6 +129,10 @@ class ShopCategoryDetailView(APIView):
         return Response(CategorySerializer(category).data)
 
     def delete(self, request, pk):
+        guard = check_labella_write_guard(request.user, "ShopCategoryDetailView.delete")
+        if guard:
+            return guard
+
         category, err = self._get_category(pk, request.user)
         if err:
             return err
@@ -185,6 +198,10 @@ class ShopProductListCreateView(APIView):
         })
 
     def post(self, request):
+        guard = check_labella_write_guard(request.user, "ShopProductListCreateView.post")
+        if guard:
+            return guard
+
         # Pre-process category_id (multipart/form-data sends strings)
         raw_category_id = request.data.get('category_id', None)
         mutable_data = request.data.copy()
@@ -227,6 +244,23 @@ class ShopProductListCreateView(APIView):
             except (Category.DoesNotExist, ValueError):
                 pass  # silently ignore invalid category
 
+        # Parse sizes and colors JSON if sent via multipart/form-data
+        def _parse_json(val):
+            if isinstance(val, list):
+                return val
+            if isinstance(val, str) and val.strip():
+                try:
+                    import json
+                    return json.loads(val)
+                except Exception:
+                    return [x.strip() for x in val.split(',') if x.strip()]
+            return []
+
+        sizes_val = _parse_json(request.data.get('available_sizes', '[]'))
+        colors_val = _parse_json(request.data.get('available_colors', '[]'))
+        size_scheme_val = request.data.get('size_scheme', 'numeric').strip()
+        discount_val = data.get('discount_percent', 0)
+
         product = Product.objects.create(
             shop=shop,
             name=data['name'],
@@ -235,6 +269,10 @@ class ShopProductListCreateView(APIView):
             image_url=image_url,
             is_in_stock=data.get('is_in_stock', True),
             category=category,
+            discount_percent=discount_val,
+            size_scheme=size_scheme_val,
+            available_sizes=sizes_val,
+            available_colors=colors_val,
         )
 
         # ── Pro: upload extra images 2–4 ────────────────────────────────────
@@ -316,6 +354,10 @@ class ShopProductDetailView(APIView):
         return Response(ProductSerializer(product).data)
 
     def patch(self, request, pk):
+        guard = check_labella_write_guard(request.user, "ShopProductDetailView.patch")
+        if guard:
+            return guard
+
         product, err = self._get_product(pk, request.user)
         if err:
             return err
@@ -356,6 +398,30 @@ class ShopProductDetailView(APIView):
                     product.category = Category.objects.get(id=raw_category_id, shop=request.user)
                 except (Category.DoesNotExist, ValueError):
                     pass  # silently ignore invalid category
+
+        def _parse_json(val):
+            if isinstance(val, list):
+                return val
+            if isinstance(val, str) and val.strip():
+                try:
+                    import json
+                    return json.loads(val)
+                except Exception:
+                    return [x.strip() for x in val.split(',') if x.strip()]
+            return []
+
+        if 'available_sizes' in request.data:
+            product.available_sizes = _parse_json(request.data.get('available_sizes'))
+        if 'available_colors' in request.data:
+            product.available_colors = _parse_json(request.data.get('available_colors'))
+        if 'size_scheme' in request.data:
+            product.size_scheme = str(request.data.get('size_scheme', 'numeric')).strip()
+        if 'discount_percent' in request.data or 'discount' in request.data:
+            disc = request.data.get('discount_percent', request.data.get('discount', 0))
+            try:
+                product.discount_percent = max(0, min(100, int(disc)))
+            except (ValueError, TypeError):
+                product.discount_percent = 0
 
         # Read primary image directly from FILES to bypass ImageField extension validation
         image_file = request.FILES.get('image')
@@ -442,6 +508,10 @@ class ShopProductDetailView(APIView):
         return Response(ProductSerializer(product).data)
 
     def delete(self, request, pk):
+        guard = check_labella_write_guard(request.user, "ShopProductDeleteView.delete")
+        if guard:
+            return guard
+
         product, err = self._get_product(pk, request.user)
         if err:
             return err
@@ -547,6 +617,7 @@ class PublicStoreView(APIView):
             'is_active': True,
             'name': shop.name,
             'slug': shop.slug,
+            'is_pro': shop.is_pro,
             'phone': shop.phone,
             'whatsapp_number': shop.whatsapp_number,
             'logo_url': shop.logo_url,
@@ -686,6 +757,10 @@ class ReorderProductsView(APIView):
 
     def patch(self, request):
         shop = request.user
+        guard = check_labella_write_guard(shop, "ReorderProductsView.patch")
+        if guard:
+            return guard
+
         if not shop.is_pro:
             return Response({'error': 'Product reordering is a Pro feature.'}, status=status.HTTP_403_FORBIDDEN)
 

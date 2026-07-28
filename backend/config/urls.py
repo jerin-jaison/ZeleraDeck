@@ -18,12 +18,15 @@ def health_check(request):
 
 def site_status(request):
     """GET /api/status/ — public maintenance status check."""
-    from accounts.site_settings import SiteSettings
-    settings = SiteSettings.get()
-    return JsonResponse({
-        "maintenance": settings.maintenance_mode,
-        "message": settings.maintenance_message,
-    })
+    try:
+        from accounts.site_settings import SiteSettings
+        settings = SiteSettings.get()
+        return JsonResponse({
+            "maintenance": settings.maintenance_mode,
+            "message": settings.maintenance_message,
+        })
+    except Exception:
+        return JsonResponse({"maintenance": False, "message": ""})
 
 
 urlpatterns = [
@@ -39,4 +42,6 @@ urlpatterns = [
     path("og/store/<slug:slug>/product/<str:display_id>/", og_product_view, name="og-product"),
     # SEO — dynamic sitemap with all active store slugs
     path("sitemap-stores.xml", sitemap_stores_view, name="sitemap-stores"),
+    # Pro storefront API — read-only, AllowAny, internal preview only
+    path("api/pro/", include("pro.urls")),
 ]

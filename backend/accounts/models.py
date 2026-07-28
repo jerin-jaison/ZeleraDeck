@@ -3,6 +3,16 @@ from django.db import models
 from django.utils.text import slugify
 from django.contrib.auth.hashers import make_password, check_password
 
+# ── Reserved slugs — top-level frontend routes that shops must never collide with.
+# Covers every <Route path="..."> in main.jsx that is NOT a /:slug catch-all.
+# Also blocks 'store' and 'pro' (the old prefixed paths being retired).
+RESERVED_SLUGS = frozenset({
+    'login', 'signup', 'about', 'contact', 'why-us',
+    'dashboard', 'admin-panel', 'pro-admin',
+    'store', 'pro',
+    'maintenance-preview', 'api',
+})
+
 
 class Shop(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -54,20 +64,26 @@ class Shop(models.Model):
     def save(self, *args, **kwargs):
         if not self.slug:
             base = slugify(self.name)
+            # If the base slug is reserved, suffix it to avoid shadowing a real route.
+            if base in RESERVED_SLUGS:
+                base = f"{base}-shop"
             slug = base
             n = 1
-            while Shop.objects.filter(slug=slug).exists():
+            while Shop.objects.filter(slug=slug).exists() or slug in RESERVED_SLUGS:
                 slug = f"{base}-{n}"
                 n += 1
             self.slug = slug
         super().save(*args, **kwargs)
 
     def regenerate_slug(self):
-        """Regenerate slug from current name, ensuring uniqueness."""
+        """Regenerate slug from current name, ensuring uniqueness and no reserved-slug collision."""
         base = slugify(self.name)
+        # If the base slug is reserved, suffix it to avoid shadowing a real route.
+        if base in RESERVED_SLUGS:
+            base = f"{base}-shop"
         slug = base
         n = 1
-        while Shop.objects.filter(slug=slug).exclude(pk=self.pk).exists():
+        while Shop.objects.filter(slug=slug).exclude(pk=self.pk).exists() or slug in RESERVED_SLUGS:
             slug = f"{base}-{n}"
             n += 1
         self.slug = slug

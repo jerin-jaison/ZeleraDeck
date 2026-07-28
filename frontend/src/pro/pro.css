@@ -1,0 +1,285 @@
+/*
+  ZeleraDeck Pro Storefront — Design Tokens
+  Source: Stitch "Aesthete Editorial Minimalist E-Commerce" export
+  Fonts: Bodoni Moda (headings) + Inter (body/labels)
+  All colors, spacing, and typography match the Stitch design exactly.
+*/
+
+@import url('https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&family=Inter:wght@300;400;600&display=swap');
+
+/* ─── CSS Custom Properties ─────────────────────────────────────────────────── */
+:root {
+  /* Colors */
+  --pro-surface: #f9f9f9;
+  --pro-background: #f9f9f9;
+  --pro-primary: #000000;
+  --pro-on-primary: #ffffff;
+  --pro-primary-container: #1b1b1b;
+  --pro-on-surface: #1a1c1c;
+  --pro-on-surface-variant: #4c4546;
+  --pro-outline: #7e7576;
+  --pro-outline-variant: #cfc4c5;
+  --pro-surface-container-lowest: #ffffff;
+  --pro-surface-container-low: #f3f3f3;
+  --pro-surface-container: #eeeeee;
+  --pro-surface-container-high: #e8e8e8;
+  --pro-surface-container-highest: #e2e2e2;
+  --pro-surface-dim: #dadada;
+  --pro-inverse-surface: #2f3131;
+  --pro-inverse-on-surface: #f1f1f1;
+
+  /* Spacing */
+  --pro-margin-mobile: 20px;
+  --pro-margin-desktop: 64px;
+  --pro-section-gap: 120px;
+  --pro-gutter: 16px;
+}
+
+/* ─── Base reset for Pro pages ───────────────────────────────────────────────── */
+.pro-root {
+  font-family: 'Inter', sans-serif;
+  background-color: var(--pro-background);
+  color: var(--pro-on-surface);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+.pro-root *,
+.pro-root *::before,
+.pro-root *::after {
+  box-sizing: border-box;
+}
+
+/* ─── Typography Helpers ─────────────────────────────────────────────────────── */
+.pro-display-lg {
+  font-family: 'Bodoni Moda', serif;
+  font-size: clamp(48px, 8vw, 80px);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  font-weight: 400;
+}
+
+.pro-headline-xl {
+  font-family: 'Bodoni Moda', serif;
+  font-size: 48px;
+  line-height: 56px;
+  font-weight: 400;
+}
+
+.pro-headline-lg {
+  font-family: 'Bodoni Moda', serif;
+  font-size: 32px;
+  line-height: 40px;
+  font-weight: 400;
+}
+
+.pro-headline-sm {
+  font-family: 'Bodoni Moda', serif;
+  font-size: 24px;
+  line-height: 32px;
+  font-weight: 400;
+}
+
+.pro-body-lg {
+  font-family: 'Inter', sans-serif;
+  font-size: 18px;
+  line-height: 28px;
+  font-weight: 400;
+}
+
+.pro-body-md {
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 400;
+}
+
+.pro-label-caps {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.1em;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.pro-label-sm {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  line-height: 14px;
+  font-weight: 400;
+}
+
+/* ─── Layout ─────────────────────────────────────────────────────────────────── */
+.pro-container {
+  width: 100%;
+  padding-left: var(--pro-margin-mobile);
+  padding-right: var(--pro-margin-mobile);
+}
+
+@media (min-width: 768px) {
+  .pro-container {
+    padding-left: var(--pro-margin-desktop);
+    padding-right: var(--pro-margin-desktop);
+  }
+}
+
+.pro-section {
+  padding-top: var(--pro-section-gap);
+  padding-bottom: var(--pro-section-gap);
+}
+
+/* ─── Buttons ────────────────────────────────────────────────────────────────── */
+.pro-btn-primary {
+  display: inline-block;
+  background-color: var(--pro-primary);
+  color: var(--pro-on-primary);
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.1em;
+  font-weight: 600;
+  text-transform: uppercase;
+  padding: 16px 32px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  border-radius: 0;
+  text-decoration: none;
+}
+
+.pro-btn-primary:hover {
+  background-color: #333333;
+}
+
+.pro-btn-outline {
+  display: inline-block;
+  background-color: transparent;
+  color: var(--pro-primary);
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.1em;
+  font-weight: 600;
+  text-transform: uppercase;
+  padding: 15px 31px;
+  border: 1px solid var(--pro-primary);
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  border-radius: 0;
+  text-decoration: none;
+}
+
+.pro-btn-outline:hover {
+  background-color: var(--pro-primary);
+  color: var(--pro-on-primary);
+}
+
+/* ─── Divider ─────────────────────────────────────────────────────────────────── */
+.pro-divider {
+  border: none;
+  border-bottom: 1px solid #f2f2f2;
+}
+
+/* ─── Fade-in animation ──────────────────────────────────────────────────────── */
+.pro-fade-in {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+
+.pro-fade-in.pro-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* ─── Product card ───────────────────────────────────────────────────────────── */
+.pro-card-img {
+  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.pro-card:hover .pro-card-img {
+  transform: scale(1.04);
+}
+
+.pro-card-quick-view {
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.pro-card:hover .pro-card-quick-view {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ─── Custom scrollbar ───────────────────────────────────────────────────────── */
+.pro-root ::-webkit-scrollbar {
+  width: 4px;
+}
+
+.pro-root ::-webkit-scrollbar-track {
+  background: var(--pro-surface);
+}
+
+.pro-root ::-webkit-scrollbar-thumb {
+  background: var(--pro-surface-container-high);
+}
+
+/* ─── Gallery ────────────────────────────────────────────────────────────────── */
+.pro-gallery-thumb {
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: border-color 0.2s;
+}
+
+.pro-gallery-thumb.active {
+  border-color: var(--pro-primary);
+}
+
+/* ─── Accordion ──────────────────────────────────────────────────────────────── */
+.pro-accordion-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease-out;
+}
+
+.pro-accordion-body.open {
+  max-height: 400px;
+}
+
+/* ─── WhatsApp button ─────────────────────────────────────────────────────────── */
+.pro-btn-whatsapp {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background-color: #25D366;
+  color: #ffffff;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.1em;
+  font-weight: 600;
+  text-transform: uppercase;
+  padding: 16px 32px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  border-radius: 0;
+  width: 100%;
+  justify-content: center;
+}
+
+.pro-btn-whatsapp:hover {
+  background-color: #1DA851;
+}
+
+/* ─── Wishlist heart ─────────────────────────────────────────────────────────── */
+.pro-heart {
+  transition: color 0.2s, transform 0.2s;
+}
+
+.pro-heart:hover {
+  transform: scale(1.15);
+}

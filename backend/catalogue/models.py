@@ -12,6 +12,7 @@ class Category(models.Model):
         related_name='categories'
     )
     name = models.CharField(max_length=80)
+    image_url = models.URLField(max_length=500, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -39,6 +40,10 @@ class Product(models.Model):
     video_url = models.URLField(max_length=500, blank=True, null=True)
     display_order = models.PositiveIntegerField(default=0)
     is_in_stock = models.BooleanField(default=True)
+    discount_percent = models.PositiveIntegerField(default=0, blank=True)
+    size_scheme = models.CharField(max_length=20, default='numeric', blank=True)
+    available_sizes = models.JSONField(default=list, blank=True)
+    available_colors = models.JSONField(default=list, blank=True)
     category = models.ForeignKey(
         Category,
         on_delete=models.SET_NULL,

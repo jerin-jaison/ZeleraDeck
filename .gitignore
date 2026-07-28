@@ -33,11 +33,18 @@ db.sqlite3-journal
 media/
 staticfiles/
 
+# Local testing scripts (not for repo)
+backend/manage_local.py
+backend/seed_local.py
+
 # Environment files — NEVER commit secrets
 backend/.env
+backend/.env.local
+backend/.env.local*
 frontend/.env
 frontend/.env.local
 frontend/.env.production
+*.bak
 
 # ─── Node / React ────────────────────────────────────────────────
 node_modules/
