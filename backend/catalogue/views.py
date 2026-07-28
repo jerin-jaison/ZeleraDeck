@@ -269,8 +269,12 @@ class ShopProductListCreateView(APIView):
                 description=data.get('description', ''),
                 image_url=image_url,
                 is_in_stock=data.get('is_in_stock', True),
+                # Legacy boolean flags — must always be explicitly supplied to
+                # avoid NOT NULL violations on the Render PostgreSQL database.
                 is_best_product=False,
                 is_offer_product=False,
+                is_trending=False,
+                is_new_product=False,
                 category=category,
                 discount_percent=discount_val,
                 size_scheme=size_scheme_val,
