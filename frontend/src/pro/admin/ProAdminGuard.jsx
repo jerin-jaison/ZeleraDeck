@@ -18,8 +18,12 @@ export default function ProAdminGuard({ children }) {
 
   useEffect(() => {
     if (!hydrated) return
-    if (!isAuthenticated || !isPro) {
+    if (!isAuthenticated) {
       navigate('/login', { replace: true })
+      return
+    }
+    if (!isPro) {
+      navigate('/dashboard', { replace: true })
       return
     }
     // Prevent one shop owner from accessing another's admin panel — redirect to own Pro Admin panel

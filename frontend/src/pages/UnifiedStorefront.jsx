@@ -24,7 +24,7 @@ export default function UnifiedStorefront() {
     queryKey: ['shop-tier', slug],
     queryFn: () => publicApi.get(`store/${slug}/?page=1&page_size=1`).then(r => r.data),
     enabled: !!slug,
-    staleTime: 5 * 60 * 1000,
+    staleTime: 10_000,
     retry: 1,
   })
 

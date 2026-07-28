@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Package, Search, X, SearchX, Tag, Filter, ArrowUpDown } from 'lucide-react'
 import api from '../api/axios'
@@ -12,10 +13,18 @@ import CategoriesBottomSheet from '../components/CategoriesBottomSheet'
 import ProductReorderModal from '../components/ProductReorderModal'
 
 export default function Dashboard() {
+  const navigate = useNavigate()
   const qc = useQueryClient()
   const shopName = localStorage.getItem('shop_name') || 'My Shop'
-  const { isPro } = useAuth()
+  const { isPro, shop } = useAuth()
   const productListRef = useRef()
+
+  // Auto-redirect Pro shop owners to their Pro Admin Dashboard
+  useEffect(() => {
+    if (isPro && shop?.slug) {
+      navigate(`/pro-admin/${shop.slug}/dashboard`, { replace: true })
+    }
+  }, [isPro, shop, navigate])
 
   const [searchInput, setSearchInput] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
