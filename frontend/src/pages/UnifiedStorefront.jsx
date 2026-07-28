@@ -15,10 +15,11 @@ import { useParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { publicApi } from '../api/axios'
 import StorePage from './StorePage'
+import ProductPage from './ProductPage'
 import ProLayout from '../pro/ProLayout'
 
 export default function UnifiedStorefront() {
-  const { slug } = useParams()
+  const { slug, displayId } = useParams()
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['shop-tier', slug],
@@ -56,14 +57,15 @@ export default function UnifiedStorefront() {
     )
   }
 
-  // Pro shops
+  // Pro shops: renders ProLayout which uses <Outlet /> to render sub-routes
+  // (/shop, /product/:displayId -> ProProductPage, /wishlist, /about, /contact)
   if (data.is_pro === true) {
     return <ProLayout />
   }
 
-  // Normal shops
+  // Normal shops: render ProductPage if displayId is in URL, otherwise StorePage
   if (data.is_pro === false) {
-    return <StorePage />
+    return displayId ? <ProductPage /> : <StorePage />
   }
 
   return (

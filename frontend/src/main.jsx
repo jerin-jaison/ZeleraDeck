@@ -162,9 +162,6 @@ function AppRoutes() {
                 <Route path="/pro/:slug" element={<LegacyProRedirect />} />
                 <Route path="/pro/:slug/*" element={<LegacyProSubpathRedirect />} />
 
-                {/* /:slug/product/:displayId — shared by both Pro and Normal shops */}
-                <Route path="/:slug/product/:displayId" element={<ProductPage />} />
-
                 {/* Protected — Shop Owner */}
                 <Route path="/dashboard" element={<Protected><Dashboard /></Protected>} />
                 <Route path="/dashboard/add-product" element={<Protected><AddProduct /></Protected>} />
@@ -202,11 +199,12 @@ function AppRoutes() {
                   Unified public storefront — must come last before 404.
                   /:slug → UnifiedStorefront determines tier (Pro vs Normal).
                   Pro sub-routes are children; ProLayout's <Outlet /> renders them.
-                  Normal shops ignore children and render StorePage directly.
+                  Normal shops render StorePage or ProductPage based on route parameters.
                 */}
                 <Route path="/:slug" element={<UnifiedStorefront />}>
                   <Route index element={<ProHomePage />} />
                   <Route path="shop" element={<ProShopPage />} />
+                  <Route path="product/:displayId" element={<ProProductPage />} />
                   <Route path="wishlist" element={<ProWishlistPage />} />
                   <Route path="about" element={<ProAboutPage />} />
                   <Route path="contact" element={<ProContactPage />} />
