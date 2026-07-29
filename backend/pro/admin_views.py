@@ -96,7 +96,7 @@ class ProAdminProductListView(APIView):
         paginator = Paginator(qs, PAGE_SIZE)
         page = paginator.get_page(page_num)
 
-        categories = Category.objects.filter(shop=shop).order_by("name")
+        categories = Category.objects.filter(shop=shop).order_by("display_order", "name")
 
         return Response({
             "count": paginator.count,
@@ -162,7 +162,7 @@ class ProAdminCategoryListView(APIView):
         if err:
             return err
 
-        categories = Category.objects.filter(shop=shop).order_by("name")
+        categories = Category.objects.filter(shop=shop).order_by("display_order", "name")
         return Response(ProAdminCategorySerializer(categories, many=True).data)
 
     def post(self, request):
@@ -589,3 +589,38 @@ class ProAdminHeroSettingsView(APIView):
 
         hero.save()
         return Response(ProAdminHeroSettingsSerializer(hero).data)
+
+
+# ─── POST /api/pro/admin/categories/reorder/ ─────────────────────────
+
+class ProAdminCategoryReorderView(APIView):
+    """
+    POST /api/pro/admin/categories/reorder/
+    Body: { "order": [{"id": "...", "display_order": 0}, ...] }
+    """
+
+    authentication_classes = [ShopJWTAuthentication]
+
+    def post(self, request):
+        shop, err = _require_pro(request)
+        if err:
+            return err
+
+        guard = check_labella_write_guard(shop, "ProAdminCategoryReorderView.post")
+        if guard:
+            return guard
+
+        items = request.data.get("order", [])
+        if not isinstance(items, list):
+            return Response({"error": "order must be a list."}, status=status.HTTP_400_BAD_REQUEST)
+
+        with transaction.atomic():
+            for idx, item in enumerate(items):
+                try:
+                    cat_id = item.get("id") if isinstance(item, dict) else str(item)
+                    order_val = item.get("display_order", item.get("order", idx)) if isinstance(item, dict) else idx
+                    Category.objects.filter(id=cat_id, shop=shop).update(display_order=int(order_val))
+                except (KeyError, TypeError, ValueError):
+                    pass
+
+        return Response({"success": True})

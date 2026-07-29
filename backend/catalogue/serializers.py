@@ -7,7 +7,7 @@ class CategorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Category
-        fields = ['id', 'name', 'image_url', 'product_count', 'created_at']
+        fields = ['id', 'name', 'image_url', 'display_order', 'product_count', 'created_at']
 
     def get_product_count(self, obj):
         return obj.products.count()

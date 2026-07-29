@@ -13,10 +13,11 @@ class Category(models.Model):
     )
     name = models.CharField(max_length=80)
     image_url = models.URLField(max_length=500, blank=True, null=True)
+    display_order = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ['name']
+        ordering = ['display_order', 'name']
         unique_together = [['shop', 'name']]
 
     def __str__(self):

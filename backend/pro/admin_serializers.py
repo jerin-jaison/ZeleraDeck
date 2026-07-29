@@ -13,7 +13,7 @@ class ProAdminCategorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Category
-        fields = ["id", "name", "image_url", "product_count"]
+        fields = ["id", "name", "image_url", "display_order", "product_count"]
 
     def get_product_count(self, obj):
         return obj.products.count()

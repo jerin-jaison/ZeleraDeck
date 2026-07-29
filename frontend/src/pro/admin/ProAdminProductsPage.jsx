@@ -194,12 +194,37 @@ function AddCategoryModal({ onSave, onCancel, isSaving }) {
   )
 }
 
-function ManageCategoriesModal({ categories, onUpdate, onDelete, onClose, updatingId, deletingId }) {
+function ManageCategoriesModal({ categories, onUpdate, onDelete, onReorder, onClose, updatingId, deletingId, isReordering }) {
+  const [items, setItems] = useState(categories)
   const [editingId, setEditingId] = useState(null)
   const [editName, setEditName] = useState('')
   const [editImageFile, setEditImageFile] = useState(null)
   const [editImagePreview, setEditImagePreview] = useState('')
   const [cropSrc, setCropSrc] = useState(null)
+
+  useEffect(() => {
+    setItems(categories)
+  }, [categories])
+
+  const moveUp = (idx) => {
+    if (idx === 0) return
+    const newItems = [...items]
+    const temp = newItems[idx - 1]
+    newItems[idx - 1] = newItems[idx]
+    newItems[idx] = temp
+    setItems(newItems)
+    onReorder(newItems)
+  }
+
+  const moveDown = (idx) => {
+    if (idx === items.length - 1) return
+    const newItems = [...items]
+    const temp = newItems[idx + 1]
+    newItems[idx + 1] = newItems[idx]
+    newItems[idx] = temp
+    setItems(newItems)
+    onReorder(newItems)
+  }
 
   const startEdit = (cat) => {
     setEditingId(cat.id)
@@ -236,7 +261,7 @@ function ManageCategoriesModal({ categories, onUpdate, onDelete, onClose, updati
     fd.append('name', editName.trim())
     if (editImageFile) {
       fd.append('image', editImageFile)
-    } else if (!editImagePreview && categories.find(c => c.id === editingId)?.image_url) {
+    } else if (!editImagePreview && items.find(c => c.id === editingId)?.image_url) {
       fd.append('clear_image', 'true')
     }
     onUpdate(editingId, fd)
@@ -247,17 +272,20 @@ function ManageCategoriesModal({ categories, onUpdate, onDelete, onClose, updati
     <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/20 backdrop-blur-sm">
       <div className="bg-white border border-[#e2e2e2] shadow-2xl p-8 max-w-lg w-full mx-4 max-h-[85vh] flex flex-col">
         <div className="flex items-center justify-between mb-6">
-          <h3 className="font-serif text-xl text-black">Manage Categories</h3>
+          <div>
+            <h3 className="font-serif text-xl text-black">Manage Categories</h3>
+            <p className="text-[12px] text-[#7e7576] mt-0.5">Use arrow buttons to change display order</p>
+          </div>
           <button onClick={onClose} className="text-[#7e7576] hover:text-black transition-colors">
             <span className="material-symbols-outlined text-[20px]">close</span>
           </button>
         </div>
 
-        {categories.length === 0 ? (
+        {items.length === 0 ? (
           <p className="text-sm text-[#7e7576] text-center py-8">No categories yet.</p>
         ) : (
           <ul className="overflow-y-auto flex-1 divide-y divide-[#f3f3f3]">
-            {categories.map(cat => (
+            {items.map((cat, idx) => (
               <li key={cat.id} className="py-4">
                 {editingId === cat.id ? (
                   <form onSubmit={submitEdit} className="space-y-3">
@@ -313,6 +341,28 @@ function ManageCategoriesModal({ categories, onUpdate, onDelete, onClose, updati
                 ) : (
                   <div className="flex items-center justify-between gap-3">
                     <div className="flex items-center gap-3">
+                      {/* Reorder Arrows */}
+                      <div className="flex flex-col gap-0.5">
+                        <button
+                          type="button"
+                          disabled={idx === 0 || isReordering}
+                          onClick={() => moveUp(idx)}
+                          className="material-symbols-outlined text-[16px] text-[#7e7576] hover:text-black disabled:opacity-25 disabled:hover:text-[#7e7576] transition-colors leading-none"
+                          title="Move Up"
+                        >
+                          keyboard_arrow_up
+                        </button>
+                        <button
+                          type="button"
+                          disabled={idx === items.length - 1 || isReordering}
+                          onClick={() => moveDown(idx)}
+                          className="material-symbols-outlined text-[16px] text-[#7e7576] hover:text-black disabled:opacity-25 disabled:hover:text-[#7e7576] transition-colors leading-none"
+                          title="Move Down"
+                        >
+                          keyboard_arrow_down
+                        </button>
+                      </div>
+
                       <div className="w-10 h-10 bg-[#f3f3f3] border border-[#e2e2e2] flex-shrink-0 overflow-hidden flex items-center justify-center">
                         {cat.image_url ? (
                           <img src={cat.image_url} alt={cat.name} className="w-full h-full object-cover" />
@@ -459,6 +509,23 @@ export default function ProAdminProductsPage() {
     },
   })
 
+  const reorderCategoryMutation = useMutation({
+    mutationFn: (orderedItems) =>
+      api.post('pro/admin/categories/reorder/', {
+        order: orderedItems.map((item, index) => ({ id: item.id, display_order: index })),
+      }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['pro-admin-products'] })
+      qc.invalidateQueries({ queryKey: ['pro-admin-categories'] })
+      qc.invalidateQueries({ queryKey: ['pro-categories'] })
+      qc.invalidateQueries({ queryKey: ['pro-store-home'] })
+      showToast('Category order saved.')
+    },
+    onError: () => {
+      showToast('Failed to save category order.', 'error')
+    },
+  })
+
   const products = data?.results || []
   const categories = data?.categories || []
   const numPages = data?.num_pages || 1
@@ -500,9 +567,11 @@ export default function ProAdminProductsPage() {
           categories={categories}
           onUpdate={(id, fd) => updateCategoryMutation.mutate({ id, fd })}
           onDelete={(id) => deleteCategoryMutation.mutate(id)}
+          onReorder={(ordered) => reorderCategoryMutation.mutate(ordered)}
           onClose={() => setIsCategoryManageOpen(false)}
           updatingId={renamingCategoryId}
           deletingId={deletingCategoryId}
+          isReordering={reorderCategoryMutation.isPending}
         />
       )}
 

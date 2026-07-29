@@ -10,6 +10,7 @@ from pro.admin_views import (
     ProAdminProductDeleteView,
     ProAdminCategoryListView,
     ProAdminCategoryDetailView,
+    ProAdminCategoryReorderView,
     ProAdminAboutBlockListCreateView,
     ProAdminAboutBlockDetailView,
     ProAdminAboutBlockReorderView,
@@ -27,6 +28,7 @@ urlpatterns = [
 
     # Categories
     path("categories/", ProAdminCategoryListView.as_view(), name="pro-admin-categories"),
+    path("categories/reorder/", ProAdminCategoryReorderView.as_view(), name="pro-admin-categories-reorder"),
     path("categories/<str:pk>/", ProAdminCategoryDetailView.as_view(), name="pro-admin-category-detail"),
 
     # About blocks

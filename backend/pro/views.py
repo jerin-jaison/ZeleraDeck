@@ -64,7 +64,7 @@ class ProStoreHomeView(APIView):
         if err:
             return err
 
-        categories = Category.objects.filter(shop=shop).order_by("name")
+        categories = Category.objects.filter(shop=shop).order_by("display_order", "name")
         all_products = Product.objects.filter(shop=shop, is_in_stock=True)
 
         # Featured = lowest display_order first (admins set this), then newest
@@ -97,7 +97,7 @@ class ProCategoryListView(APIView):
         if err:
             return err
 
-        categories = Category.objects.filter(shop=shop).order_by("name")
+        categories = Category.objects.filter(shop=shop).order_by("display_order", "name")
         return Response(ProCategorySerializer(categories, many=True).data)
 
 

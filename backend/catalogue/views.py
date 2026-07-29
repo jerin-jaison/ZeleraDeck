@@ -52,7 +52,7 @@ class ShopCategoryListCreateView(APIView):
     authentication_classes = [ShopJWTAuthentication]
 
     def get(self, request):
-        categories = Category.objects.filter(shop=request.user).order_by('name')
+        categories = Category.objects.filter(shop=request.user).order_by('display_order', 'name')
         serializer = CategorySerializer(categories, many=True)
         return Response(serializer.data)
 
@@ -814,5 +814,31 @@ class ReorderProductsView(APIView):
                         {'error': 'Each item must have id and display_order.'},
                         status=status.HTTP_400_BAD_REQUEST
                     )
+
+        return Response({'success': True})
+
+
+class ReorderCategoriesView(APIView):
+    """PATCH /api/shop/categories/reorder/ — Bulk-updates display_order for categories."""
+    authentication_classes = [ShopJWTAuthentication]
+
+    def patch(self, request):
+        shop = request.user
+        guard = check_labella_write_guard(shop, "ReorderCategoriesView.patch")
+        if guard:
+            return guard
+
+        items = request.data.get('order', [])
+        if not isinstance(items, list) or not items:
+            return Response({'error': 'order must be a non-empty list.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        with transaction.atomic():
+            for idx, item in enumerate(items):
+                try:
+                    cat_id = item.get('id') if isinstance(item, dict) else str(item)
+                    order_val = item.get('display_order', item.get('order', idx)) if isinstance(item, dict) else idx
+                    Category.objects.filter(id=cat_id, shop=shop).update(display_order=int(order_val))
+                except (KeyError, TypeError, ValueError):
+                    pass
 
         return Response({'success': True})
