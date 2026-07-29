@@ -143,7 +143,7 @@ export default function ProAdminLayout() {
       </aside>
 
       {/* ── Main Content ─────────────────────────────────────────────── */}
-      <div className="lg:ml-64 flex-1 flex flex-col min-h-screen">
+      <div className="lg:ml-64 flex-1 flex flex-col min-h-screen min-w-0 max-w-full overflow-x-hidden">
         {/* Top bar */}
         <header className="sticky top-0 z-40 flex items-center justify-between px-4 lg:px-16 h-14 lg:h-16 bg-[#0f0f0f] border-b border-white/10 text-white">
           <div className="flex items-center gap-3">
