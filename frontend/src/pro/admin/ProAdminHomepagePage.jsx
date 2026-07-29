@@ -61,6 +61,7 @@ export default function ProAdminHomepagePage() {
     mutationFn: (fd) => api.patch('pro/admin/hero/', fd, { headers: { 'Content-Type': 'multipart/form-data' } }),
     onSuccess: (res) => {
       qc.invalidateQueries({ queryKey: ['pro-admin-hero'] })
+      qc.invalidateQueries({ queryKey: ['pro-store'] })
       setDirty(false)
       setImageFile(null)
       setMobileImageFile(null)

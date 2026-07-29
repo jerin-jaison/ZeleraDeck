@@ -10,6 +10,6 @@ export function useProStore(slug) {
       return response.data;
     },
     enabled: !!slug,
-    staleTime: 60 * 1000,
+    staleTime: 5 * 1000,
   });
 }

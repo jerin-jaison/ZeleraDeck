@@ -49,8 +49,8 @@ export default function ProHomePage() {
   // Hero settings from storeData (included in ProStoreHomeView response)
   const hero = storeData?.hero || {};
   const heroBg = "https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=1920&auto=format&fit=crop";
-  const heroDesktopImage = hero.hero_image_url || heroBg;
-  const heroMobileImage = hero.hero_mobile_image_url || null;
+  const heroDesktopImage = hero.hero_image_url || hero.hero_mobile_image_url || heroBg;
+  const heroMobileImage = hero.hero_mobile_image_url || hero.hero_image_url || heroBg;
   const heroHeadline = hero.hero_headline || '';
   const heroSubheading = hero.hero_subheading || '';
 
@@ -74,9 +74,8 @@ export default function ProHomePage() {
       <section className="relative z-0 w-full min-h-[80vh] md:min-h-0 md:h-[85vh] flex flex-col justify-end pb-16 md:pb-24 px-5 md:px-16 overflow-hidden">
         {/* Background Image Container with responsive HTML picture tag */}
         <picture className="absolute inset-0 w-full h-full z-0">
-          {heroMobileImage && (
-            <source media="(max-width: 767px)" srcSet={heroMobileImage} />
-          )}
+          <source media="(max-width: 767px)" srcSet={heroMobileImage} />
+          <source media="(min-width: 768px)" srcSet={heroDesktopImage} />
           <img
             src={heroDesktopImage}
             alt={heroHeadline || shopName}
