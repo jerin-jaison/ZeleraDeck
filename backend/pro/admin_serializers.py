@@ -90,5 +90,5 @@ class ProAdminContactInfoSerializer(serializers.ModelSerializer):
 class ProAdminHeroSettingsSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProHeroSettings
-        fields = ["id", "hero_image_url", "hero_headline", "hero_subheading", "updated_at"]
+        fields = ["id", "hero_image_url", "hero_mobile_image_url", "hero_headline", "hero_subheading", "updated_at"]
         read_only_fields = ["id", "updated_at"]

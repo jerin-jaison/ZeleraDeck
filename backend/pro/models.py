@@ -93,8 +93,11 @@ class ProHeroSettings(models.Model):
         related_name="pro_hero_settings",
     )
 
-    # The background image for the hero section
+    # The background image for the hero section (landscape/desktop)
     hero_image_url = models.URLField(max_length=500, blank=True, default="")
+
+    # The background image for mobile screen size (portrait/mobile preferred)
+    hero_mobile_image_url = models.URLField(max_length=500, blank=True, default="")
 
     # The large headline text (e.g. "The New Monochrome")
     hero_headline = models.CharField(max_length=200, blank=True, default="")

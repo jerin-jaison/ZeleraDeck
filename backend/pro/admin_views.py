@@ -563,7 +563,7 @@ class ProAdminHeroSettingsView(APIView):
 
         hero = self._get_or_create(shop)
 
-        # Handle image upload
+        # Handle desktop image upload
         image_file = request.FILES.get("image")
         if image_file:
             try:
@@ -575,17 +575,35 @@ class ProAdminHeroSettingsView(APIView):
             except CloudinaryUploadError as e:
                 return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
+        # Handle mobile image upload
+        mobile_image_file = request.FILES.get("mobile_image")
+        if mobile_image_file:
+            try:
+                old_mobile_url = hero.hero_mobile_image_url
+                new_mobile_url = upload_product_image(mobile_image_file, shop.slug)
+                if old_mobile_url and old_mobile_url != new_mobile_url:
+                    delete_cloudinary_asset_by_url(old_mobile_url)
+                hero.hero_mobile_image_url = new_mobile_url
+            except CloudinaryUploadError as e:
+                return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
         # Update text fields from request data
         if "hero_headline" in request.data:
             hero.hero_headline = request.data["hero_headline"]
         if "hero_subheading" in request.data:
             hero.hero_subheading = request.data["hero_subheading"]
 
-        # Allow clearing the image
+        # Allow clearing the desktop image
         if request.data.get("clear_image") == "true" and not image_file:
             if hero.hero_image_url:
                 delete_cloudinary_asset_by_url(hero.hero_image_url)
             hero.hero_image_url = ""
+
+        # Allow clearing the mobile image
+        if request.data.get("clear_mobile_image") == "true" and not mobile_image_file:
+            if hero.hero_mobile_image_url:
+                delete_cloudinary_asset_by_url(hero.hero_mobile_image_url)
+            hero.hero_mobile_image_url = ""
 
         hero.save()
         return Response(ProAdminHeroSettingsSerializer(hero).data)

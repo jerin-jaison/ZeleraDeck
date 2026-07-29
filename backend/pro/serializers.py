@@ -143,4 +143,4 @@ class ProPublicHeroSettingsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ProHeroSettings
-        fields = ["hero_image_url", "hero_headline", "hero_subheading"]
+        fields = ["hero_image_url", "hero_mobile_image_url", "hero_headline", "hero_subheading"]
