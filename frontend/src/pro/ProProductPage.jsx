@@ -78,7 +78,6 @@ export default function ProProductPage() {
       `🛍️ Product: ${product.name}\n` +
       `🆔 ID: ${product.display_id}\n` +
       `💰 Price: ₹${discountedPrice.toLocaleString('en-IN')}${hasDiscount ? ` (Original: ₹${Number(product.price).toLocaleString('en-IN')})` : ''}\n` +
-      (colors.length > 0 ? `🎨 Color: ${activeColor || colors[0]}\n` : '') +
       `📏 Size: ${activeSize || sizes[0]}\n` +
       `🔗 Link: https://zeleradeck.onrender.com/og/store/${slug}/product/${product.display_id}\n\n` +
       `Please confirm availability. Thank you!`;
@@ -169,28 +168,6 @@ export default function ProProductPage() {
                 </div>
               )}
 
-              {/* Colors Selection — rendered ONLY if product has real colors selected */}
-              {product.is_in_stock && colors.length > 0 && (
-                <div className="mb-8">
-                  <h3 className="pro-label-caps text-xs text-neutral-400 mb-3">Select Color</h3>
-                  <div className="flex flex-wrap gap-3">
-                    {colors.map(color => (
-                      <button
-                        key={color}
-                        onClick={() => setActiveColor(color)}
-                        className={`px-4 py-2.5 text-xs font-sans border transition-all duration-200 flex items-center gap-1.5 ${
-                          activeColor === color
-                            ? 'border-black bg-black text-white'
-                            : 'border-neutral-200 hover:border-black text-neutral-700 bg-transparent'
-                        }`}
-                      >
-                        {activeColor === color && <Check className="w-3.5 h-3.5" />}
-                        {color}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
 
               {/* Description Details */}
               <div className="border-t border-b border-neutral-200 my-8 py-6">
