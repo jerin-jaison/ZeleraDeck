@@ -59,7 +59,7 @@ function groupHours(contact) {
   return groups;
 }
 
-export function formatGoogleMapsEmbedUrl(input) {
+export function formatGoogleMapsEmbedUrl(input, fallbackContext = {}) {
   if (!input) return '';
   const trimmed = input.trim();
 
@@ -67,9 +67,30 @@ export function formatGoogleMapsEmbedUrl(input) {
   const iframeMatch = trimmed.match(/src=["']([^"']+)["']/i);
   if (iframeMatch) return iframeMatch[1];
 
-  // If already a proper embed URL
-  if (trimmed.includes('google.com/maps/embed') || (trimmed.includes('maps.google.com/maps') && trimmed.includes('output=embed'))) {
+  const isUrl = (str) => /^https?:\/\//i.test(str.trim());
+
+  // Extract query if wrapped in maps?q= or query=
+  let extractedQuery = null;
+  if (trimmed.includes('q=') || trimmed.includes('query=')) {
+    try {
+      const urlObj = new URL(trimmed.startsWith('http') ? trimmed : `https://${trimmed}`);
+      extractedQuery = urlObj.searchParams.get('q') || urlObj.searchParams.get('query');
+    } catch {
+      // Ignore
+    }
+  }
+
+  const queryToUse = (extractedQuery || trimmed).trim();
+
+  // If already a proper embed URL without a raw HTTP URL in q=
+  if ((trimmed.includes('google.com/maps/embed') || (trimmed.includes('maps.google.com/maps') && trimmed.includes('output=embed'))) && !isUrl(queryToUse)) {
     return trimmed;
+  }
+
+  // Check if query or URL contains coordinates (e.g. @12.9716,77.5946 or ll=12.9716,77.5946)
+  const coordMatch = trimmed.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/) || trimmed.match(/ll=(-?\d+\.\d+),(-?\d+\.\d+)/) || queryToUse.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
+  if (coordMatch) {
+    return `https://maps.google.com/maps?q=${coordMatch[1]},${coordMatch[2]}&output=embed`;
   }
 
   // Extract place name if standard google.com/maps/place/
@@ -77,23 +98,35 @@ export function formatGoogleMapsEmbedUrl(input) {
     const place = trimmed.split('google.com/maps/place/')[1]?.split('/')[0];
     if (place) {
       const decoded = decodeURIComponent(place.replace(/\+/g, ' '));
-      return `https://maps.google.com/maps?q=${encodeURIComponent(decoded)}&output=embed`;
+      if (!isUrl(decoded)) {
+        return `https://maps.google.com/maps?q=${encodeURIComponent(decoded)}&output=embed`;
+      }
     }
   }
 
-  // Extract query parameter if maps?q=
-  if (trimmed.includes('google.com/maps') && trimmed.includes('q=')) {
-    try {
-      const urlObj = new URL(trimmed);
-      const q = urlObj.searchParams.get('q');
-      if (q) return `https://maps.google.com/maps?q=${encodeURIComponent(q)}&output=embed`;
-    } catch {
-      // Ignore URL parse error
-    }
+  // If queryToUse is a plain text query / address (NOT an HTTP URL or shortlink)
+  if (queryToUse && !isUrl(queryToUse) && !queryToUse.includes('maps.app.goo.gl') && !queryToUse.includes('goo.gl/maps')) {
+    return `https://maps.google.com/maps?q=${encodeURIComponent(queryToUse)}&output=embed`;
   }
 
-  // Fallback: format input query into working embed URL
-  return `https://maps.google.com/maps?q=${encodeURIComponent(trimmed)}&output=embed`;
+  // If queryToUse is a shortlink or HTTP URL (like maps.app.goo.gl):
+  // Google Maps iframe cannot resolve shortlink URLs passed in q=.
+  // Build address / location query from fallbackContext.
+  const { shopName, city, addressLines } = fallbackContext;
+  let fallbackQuery = '';
+  if (addressLines && addressLines.length > 0) {
+    fallbackQuery = addressLines.join(', ');
+  } else if (shopName && city) {
+    fallbackQuery = `${shopName}, ${city}`;
+  } else if (shopName) {
+    fallbackQuery = shopName;
+  }
+
+  if (fallbackQuery) {
+    return `https://maps.google.com/maps?q=${encodeURIComponent(fallbackQuery)}&output=embed`;
+  }
+
+  return `https://maps.google.com/maps?q=${encodeURIComponent(queryToUse)}&output=embed`;
 }
 
 export default function ProContactPage() {
@@ -129,13 +162,27 @@ export default function ProContactPage() {
   const hasHours = contact && DAY_KEYS.some(k => contact[`hours_${k}`]);
 
   // Google Maps embed URL — sanitized & formatted for valid iframe rendering
-  const mapsEmbedUrl = formatGoogleMapsEmbedUrl(contact?.google_maps_embed_url || '');
+  const mapsEmbedUrl = formatGoogleMapsEmbedUrl(
+    contact?.google_maps_embed_url || '',
+    { shopName, city: contact?.city, addressLines }
+  );
 
-  // Directions fallback: if they've entered a city use that, else shop name
+  // Directions URL: if a direct maps URL is saved (like maps.app.goo.gl or goo.gl/maps), use that link!
+  const savedMapUrl = (contact?.google_maps_embed_url || '').trim();
+  let directLink = '';
+  if (savedMapUrl.includes('q=http')) {
+    try {
+      const u = new URL(savedMapUrl.startsWith('http') ? savedMapUrl : `https://${savedMapUrl}`);
+      directLink = u.searchParams.get('q') || '';
+    } catch { /* ignore */ }
+  } else if (/^https?:\/\//i.test(savedMapUrl) && !savedMapUrl.includes('output=embed')) {
+    directLink = savedMapUrl;
+  }
+
   const directionsQuery = contact?.city
     ? encodeURIComponent(`${shopName} ${contact.city}`)
     : encodeURIComponent(`${shopName}`);
-  const directionsUrl = `https://www.google.com/maps/search/?api=1&query=${directionsQuery}`;
+  const directionsUrl = directLink || `https://www.google.com/maps/search/?api=1&query=${directionsQuery}`;
 
   // Social
   const instagram = contact?.instagram_url || '';
@@ -182,7 +229,7 @@ export default function ProContactPage() {
                   <h3 className="pro-label-caps text-xs text-neutral-400 mb-3 flex items-center gap-1.5">
                     <MapPin className="w-3.5 h-3.5" /> Store Location
                   </h3>
-                  <h4 className="pro-headline-sm text-lg mb-2">{shopName} Flagship</h4>
+                  <h4 className="pro-headline-sm text-lg mb-2">{shopName}</h4>
                   {hasAddress ? (
                     <address className="not-italic text-sm text-neutral-600 font-sans leading-relaxed">
                       {addressLines.map((line, i) => (

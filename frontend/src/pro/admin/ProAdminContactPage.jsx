@@ -61,7 +61,10 @@ export default function ProAdminContactPage() {
     if (!form) return
     const payload = {
       ...form,
-      google_maps_embed_url: formatGoogleMapsEmbedUrl(form.google_maps_embed_url || ''),
+      google_maps_embed_url: formatGoogleMapsEmbedUrl(form.google_maps_embed_url || '', {
+        city: form.city,
+        addressLines: [form.address_line1, form.city, form.state].filter(Boolean)
+      }),
     }
     saveMutation.mutate(payload)
   }
