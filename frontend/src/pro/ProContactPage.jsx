@@ -141,6 +141,25 @@ export default function ProContactPage() {
   const handleSubmit = (e) => {
     e.preventDefault();
     setFormSubmitted(true);
+
+    const targetWhatsapp = contact?.whatsapp_override || storeData?.shop?.whatsapp_number || contact?.phone || '';
+    const cleanWaNumber = targetWhatsapp.replace(/[^0-9]/g, '');
+
+    const lines = [
+      `Hello ${shopName},`,
+      `I would like to submit an enquiry:`,
+      formData.name ? `Name: ${formData.name}` : null,
+      formData.email ? `Email: ${formData.email}` : null,
+      formData.message ? `Message: ${formData.message}` : null,
+    ].filter(Boolean);
+
+    const messageText = lines.join('\n');
+
+    if (cleanWaNumber) {
+      const waUrl = `https://wa.me/${cleanWaNumber}?text=${encodeURIComponent(messageText)}`;
+      window.open(waUrl, '_blank', 'noopener,noreferrer');
+    }
+
     setFormData({ name: '', email: '', message: '' });
   };
 
@@ -424,7 +443,7 @@ export default function ProContactPage() {
                   </div>
 
                   <button type="submit" className="w-full pro-btn-primary">
-                    Send Inquiry
+                    Send Enquiry
                   </button>
                 </form>
               )}
