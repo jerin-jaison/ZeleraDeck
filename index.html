@@ -15,8 +15,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/SplitText.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollSmoother.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollToPlugin.min.js"></script>
 
   <style>
     /* ==========================================================================
@@ -1925,8 +1924,52 @@
     (function () {
       'use strict';
 
-      // Register GSAP Plugins
-      gsap.registerPlugin(ScrollTrigger, SplitText, ScrollSmoother);
+      // Register GSAP Plugins safely
+      const pluginsToRegister = [ScrollTrigger];
+      if (typeof ScrollToPlugin !== 'undefined') pluginsToRegister.push(ScrollToPlugin);
+      if (typeof SplitText !== 'undefined') pluginsToRegister.push(SplitText);
+      if (typeof ScrollSmoother !== 'undefined') pluginsToRegister.push(ScrollSmoother);
+      gsap.registerPlugin(...pluginsToRegister);
+
+      // Defensive SplitText helper (uses official SplitText if available, or seamless DOM polyfill)
+      const SplitTextHelper = {
+        create: function(el, options) {
+          if (typeof SplitText !== 'undefined' && typeof SplitText.create === 'function') {
+            return SplitText.create(el, options);
+          }
+          if (typeof el === 'string') el = document.querySelector(el);
+          if (!el) return { chars: [], words: [], lines: [], revert: () => {} };
+          const originalText = el.textContent;
+          const type = (options && options.type) || 'words';
+
+          if (type.includes('chars')) {
+            const chars = [];
+            el.innerHTML = originalText.split('').map(char => {
+              if (char === ' ') return ' ';
+              return `<span class="split-char" style="display:inline-block; transform-style:preserve-3d;">${char}</span>`;
+            }).join('');
+            el.querySelectorAll('.split-char').forEach(c => chars.push(c));
+            return {
+              chars,
+              words: chars,
+              lines: [el],
+              revert: () => { el.textContent = originalText; }
+            };
+          } else {
+            const words = [];
+            el.innerHTML = originalText.split(' ').map(word => {
+              return `<span class="split-word" style="display:inline-block; margin-right:0.25em; transform-style:preserve-3d;">${word}</span>`;
+            }).join('');
+            el.querySelectorAll('.split-word').forEach(w => words.push(w));
+            return {
+              chars: words,
+              words,
+              lines: [el],
+              revert: () => { el.textContent = originalText; }
+            };
+          }
+        }
+      };
 
       // Check prefers-reduced-motion
       const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -1935,7 +1978,7 @@
          1. GSAP SCROLLSMOOTHER INTEGRATION
          -------------------------------------------------------------------------- */
       let smoother;
-      if (!prefersReducedMotion) {
+      if (typeof ScrollSmoother !== 'undefined' && !prefersReducedMotion) {
         smoother = ScrollSmoother.create({
           wrapper: '#smooth-wrapper',
           content: '#smooth-content',
@@ -2205,8 +2248,8 @@
         const heroBar = document.querySelector('.hero-bar');
 
         if (heroFirstName && heroLastName) {
-          const splitFirst = SplitText.create(heroFirstName, { type: 'chars' });
-          const splitLast = SplitText.create(heroLastName, { type: 'chars' });
+          const splitFirst = SplitTextHelper.create(heroFirstName, { type: 'chars' });
+          const splitLast = SplitTextHelper.create(heroLastName, { type: 'chars' });
           splitTextInstances.push(splitFirst, splitLast);
 
           const heroLoadTl = gsap.timeline({ delay: 0.15 });
@@ -2251,7 +2294,7 @@
         // 1. Hero Tagline - Per-character stagger reveal on load
         const heroTagline = document.querySelector('.hero-tagline');
         if (heroTagline) {
-          const splitTagline = SplitText.create(heroTagline, { type: 'words, chars' });
+          const splitTagline = SplitTextHelper.create(heroTagline, { type: 'words, chars' });
           splitTextInstances.push(splitTagline);
           gsap.from(splitTagline.chars, {
             opacity: 0,
@@ -2267,7 +2310,7 @@
         // 2. About Statement - SplitText words+lines reveal on scroll
         const aboutStmt = document.getElementById('about-text-reveal');
         if (aboutStmt) {
-          const splitAbout = SplitText.create(aboutStmt, { type: 'words, lines' });
+          const splitAbout = SplitTextHelper.create(aboutStmt, { type: 'words, lines' });
           splitTextInstances.push(splitAbout);
           gsap.fromTo(splitAbout.words, 
             { opacity: 0.12, filter: 'blur(8px)' },
@@ -2289,7 +2332,7 @@
         // 3. Gallery Centered Statement - SplitText words+lines reveal on scroll
         const galleryStmt = document.getElementById('gallery-text-reveal');
         if (galleryStmt) {
-          const splitGallery = SplitText.create(galleryStmt, { type: 'words, lines' });
+          const splitGallery = SplitTextHelper.create(galleryStmt, { type: 'words, lines' });
           splitTextInstances.push(splitGallery);
           gsap.fromTo(splitGallery.words,
             { opacity: 0.12, filter: 'blur(8px)' },
@@ -2311,7 +2354,7 @@
         // 4. Contact Heading - Per-character stagger reveal on scroll-in
         const contactHeading = document.querySelector('.contact-heading');
         if (contactHeading) {
-          const splitContactHeading = SplitText.create(contactHeading, { type: 'words, chars' });
+          const splitContactHeading = SplitTextHelper.create(contactHeading, { type: 'words, chars' });
           splitTextInstances.push(splitContactHeading);
           gsap.from(splitContactHeading.chars, {
             opacity: 0,
@@ -2331,7 +2374,7 @@
         // 5. Contact Blurb - SplitText words+lines reveal on scroll
         const contactBlurb = document.querySelector('.contact-blurb');
         if (contactBlurb) {
-          const splitBlurb = SplitText.create(contactBlurb, { type: 'words, lines' });
+          const splitBlurb = SplitTextHelper.create(contactBlurb, { type: 'words, lines' });
           splitTextInstances.push(splitBlurb);
           gsap.fromTo(splitBlurb.words,
             { opacity: 0.15, y: 15 },
