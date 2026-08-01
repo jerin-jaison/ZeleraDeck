@@ -23,7 +23,6 @@ import WhyUsPage from './pages/WhyUsPage'
 import SignupPage from './pages/SignupPage'
 import AboutPage from './pages/AboutPage'
 import ContactPage from './pages/ContactPage'
-import SocialProofToast from './components/SocialProofToast'
 import SplashScreen from './components/SplashScreen'
 import UnifiedStorefront from './pages/UnifiedStorefront'
 
@@ -128,16 +127,10 @@ function LegacyProSubpathRedirect() {
 }
 // ───────────────────────────────────────────────────────────────────────────
 
-const PUBLIC_TOAST_PATHS = ['/', '/why-us', '/contact']
-
 function AppRoutes() {
-  const location = useLocation()
-  const showToast = PUBLIC_TOAST_PATHS.includes(location.pathname)
-
   return (
     <>
       <GA4PageTracker />
-      {showToast && <SocialProofToast />}
       <Routes>
         {/* Preview route — always accessible regardless of maintenance */}
         <Route path="/maintenance-preview" element={

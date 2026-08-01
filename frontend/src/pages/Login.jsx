@@ -285,11 +285,16 @@ export default function Login() {
       const isProUser = Boolean(data.is_pro)
       auth.login(data.access, data.refresh, data.shop_name, data.slug, isProUser)
 
-      if (isProUser && data.slug) {
-        navigate(`/pro-admin/${data.slug}/dashboard`, { replace: true })
-      } else {
-        navigate('/dashboard', { replace: true })
-      }
+      // Surface success toast notification before redirecting
+      showToast('Signed in successfully. Redirecting to dashboard...', 'success')
+
+      setTimeout(() => {
+        if (isProUser && data.slug) {
+          navigate(`/pro-admin/${data.slug}/dashboard`, { replace: true })
+        } else {
+          navigate('/dashboard', { replace: true })
+        }
+      }, 600)
     } catch (err) {
       // Trigger GSAP error shake animation on failed attempt
       if (formBoxRef.current) {
@@ -308,7 +313,43 @@ export default function Login() {
           }
         )
       }
-      showToast(err?.response?.data?.error || 'Invalid phone or password. Please try again.', 'error')
+
+      // Extract exact backend error reason
+      const data = err?.response?.data
+      let errorMessage = ''
+
+      if (data) {
+        if (typeof data === 'string') {
+          errorMessage = data
+        } else if (data.error) {
+          errorMessage = data.error
+        } else if (data.detail) {
+          errorMessage = data.detail
+        } else if (data.message) {
+          errorMessage = data.message
+        } else if (data.phone && Array.isArray(data.phone)) {
+          errorMessage = data.phone[0]
+        } else if (data.password && Array.isArray(data.password)) {
+          errorMessage = data.password[0]
+        } else {
+          const firstVal = Object.values(data)[0]
+          if (Array.isArray(firstVal) && firstVal.length > 0) {
+            errorMessage = firstVal[0]
+          } else if (typeof firstVal === 'string') {
+            errorMessage = firstVal
+          }
+        }
+      }
+
+      if (!errorMessage) {
+        if (err?.message === 'Network Error' || !err?.response) {
+          errorMessage = 'Network error. Unable to connect to ZeleraDeck servers.'
+        } else {
+          errorMessage = 'Invalid phone or password'
+        }
+      }
+
+      showToast(errorMessage, 'error')
     } finally {
       setLoading(false)
     }
