@@ -17,11 +17,12 @@ import EditProduct from './pages/EditProduct'
 import StoreInfo from './pages/StoreInfo'
 import StorePage from './pages/StorePage'
 import ProductPage from './pages/ProductPage'
-import ContactPage from './pages/ContactPage'
-import AboutPage from './pages/AboutPage'
 import HomePage from './pages/HomePage'
+import OldHomePage from './pages/OldHomePage'
 import WhyUsPage from './pages/WhyUsPage'
 import SignupPage from './pages/SignupPage'
+import AboutPage from './pages/AboutPage'
+import ContactPage from './pages/ContactPage'
 import SocialProofToast from './components/SocialProofToast'
 import SplashScreen from './components/SplashScreen'
 import UnifiedStorefront from './pages/UnifiedStorefront'
@@ -150,6 +151,7 @@ function AppRoutes() {
               <Routes>
                 {/* Public marketing */}
                 <Route path="/" element={<HomePage />} />
+                <Route path="/old-home" element={<OldHomePage />} />
                 <Route path="/why-us" element={<WhyUsPage />} />
                 <Route path="/signup" element={<SignupPage />} />
                 <Route path="/login" element={<Login />} />

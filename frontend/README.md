@@ -38,4 +38,4 @@ Ready to take your business to the next level? Our team is here to support you e
 - +91 70127 83442
 - +91 95626 70230
 
-*ZeleraDeck — Your Digital Shop, Simplified.*
+*ZeleraDeck — Where we grow thogether.*

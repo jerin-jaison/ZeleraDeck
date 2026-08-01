@@ -1,0 +1,2818 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ZeleraDeck — Where Growth Begins</title>
+  <meta name="description" content="ZeleraDeck is a WhatsApp-first digital catalogue SaaS for local shop owners in Kerala, India. Get your products online, take orders straight through WhatsApp — no separate app needed.">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Playfair+Display:ital,wght@1,600;1,700;1,800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <!-- Core CDNs -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap-trial@3.12.5/dist/SplitText.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap-trial@3.12.5/dist/ScrollSmoother.min.js"></script>
+
+  <style>
+    /* ==========================================================================
+       DESIGN SYSTEM & CSS VARIABLES
+       ========================================================================== */
+    :root {
+      --black: #0A0A0A;
+      --black-lift: #131316;
+      --text: #F0EFEA;
+      --muted: #8A8A8A;
+      --dim: #2E2E2E;
+      --accent: #F04A2A;
+      --accent-secondary: #C8B29B; /* Muted metallic champagne/bronze */
+      --paper: #EFEFEF;
+      --border-hairline: rgba(240, 239, 234, 0.14);
+      --border-metallic: rgba(200, 178, 155, 0.28);
+      --font-grotesk: 'Inter Tight', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-didone: 'Playfair Display', Georgia, serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      --gutter: clamp(1.25rem, 3.5vw, 3.5rem);
+      --max-width: 1560px;
+
+      /* Dynamic Theme Colors for Persist UI */
+      --ui-text: var(--text);
+      --ui-border: var(--border-hairline);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      background-color: var(--black);
+      background-image: radial-gradient(circle at 50% 40%, #1A1A1E 0%, #0E0E10 55%, #060607 100%);
+      background-attachment: fixed;
+      color: var(--text);
+      font-family: var(--font-grotesk);
+      overflow-x: hidden;
+      width: 100%;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Film Grain Noise Overlay */
+    .film-grain {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.035;
+      mix-blend-mode: overlay;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--black);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--dim);
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--muted);
+    }
+
+    /* Typography & Utilities */
+    .font-didone {
+      font-family: var(--font-didone);
+      font-style: italic;
+    }
+    .font-mono {
+      font-family: var(--font-mono);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: 0.75rem;
+    }
+    .mint-gradient {
+      background: linear-gradient(180deg, #A7F3D0 0%, #06B6D4 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .container {
+      width: 100%;
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding-left: var(--gutter);
+      padding-right: var(--gutter);
+    }
+    .hairline-b {
+      border-bottom: 1px solid var(--border-hairline);
+    }
+    .hairline-t {
+      border-top: 1px solid var(--border-hairline);
+    }
+
+    /* Word Blur Reveal Styles */
+    .blur-word {
+      display: inline-block;
+      opacity: 0.15;
+      filter: blur(8px);
+      transition: opacity 0.1s linear, filter 0.1s linear;
+      will-change: opacity, filter;
+      margin-right: 0.25em;
+    }
+
+    /* Magnetic Elements */
+    .magnetic {
+      display: inline-block;
+      transition: transform 0.2s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+
+    /* ==========================================================================
+       GLOBAL PERSISTENT UI
+       ========================================================================== */
+    /* Frame Counter */
+    #frame-counter {
+      position: fixed;
+      left: var(--gutter);
+      top: 50%;
+      transform: translateY(-50%);
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      color: var(--text);
+      z-index: 100;
+      mix-blend-mode: difference;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+    }
+
+    /* Segmented Scroll Rail */
+    #scroll-rail {
+      position: fixed;
+      right: var(--gutter);
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 12px;
+      z-index: 100;
+      mix-blend-mode: difference;
+      transition: opacity 0.4s ease;
+    }
+    .rail-tick {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .rail-label {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--muted);
+      opacity: 0;
+      transform: translateX(10px);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: none;
+      white-space: nowrap;
+    }
+    .rail-line {
+      width: 16px;
+      height: 1px;
+      background: rgba(240, 239, 234, 0.3);
+      transition: all 0.3s ease;
+    }
+    .rail-tick.active .rail-line {
+      width: 32px;
+      background: var(--accent);
+    }
+    .rail-tick.active .rail-label,
+    .rail-tick:hover .rail-label {
+      opacity: 1;
+      transform: translateX(0);
+      color: var(--text);
+    }
+
+    @media (max-width: 900px) {
+      #scroll-rail { display: none; }
+    }
+
+    /* ==========================================================================
+       SECTION 1: HERO
+       ========================================================================== */
+    #hero {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: var(--gutter) 0;
+    }
+
+    #hero-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+      background: radial-gradient(circle at 50% 50%, rgba(240,74,42,0.15) 0%, rgba(6,182,212,0.08) 40%, rgba(10,10,10,1) 85%);
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .hero-tagline {
+      font-size: clamp(1rem, 1.8vw, 1.4rem);
+      max-width: 500px;
+      color: var(--text);
+      line-height: 1.4;
+      font-weight: 400;
+    }
+
+    .hero-name-wrap {
+      position: absolute;
+      width: 100%;
+      left: 0;
+      bottom: 80px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      pointer-events: none;
+      white-space: nowrap;
+      font-family: var(--font-grotesk);
+      font-size: clamp(3rem, 9vw, 10rem);
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      line-height: 0.9;
+      color: var(--text);
+    }
+
+    .hero-first-name {
+      display: inline-block;
+      margin-right: 0.25em;
+      color: var(--text);
+    }
+    .hero-last-name {
+      display: inline-block;
+      color: var(--accent);
+      font-style: normal;
+    }
+    .wordmark-accent {
+      color: var(--accent);
+      font-style: normal;
+    }
+
+    /* Kinetic Morph Hero Typography */
+    .hero-title-group,
+    .hero-phrase-group {
+      position: absolute;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.25em;
+      white-space: nowrap;
+      will-change: transform, opacity, filter;
+    }
+
+    .hero-title-group {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .hero-phrase-group {
+      opacity: 0;
+      transform: scale(0.65);
+      font-size: clamp(2.5rem, 7.5vw, 8rem);
+      gap: 0.5em;
+    }
+
+    .word-where {
+      font-family: var(--font-didone);
+      font-style: italic;
+      font-weight: 400;
+      color: var(--text);
+      text-transform: capitalize;
+    }
+
+    .word-growth {
+      font-family: var(--font-grotesk);
+      font-weight: 800;
+      color: var(--accent);
+      text-shadow: 0 0 50px rgba(240, 74, 42, 0.65), 0 0 20px rgba(240, 74, 42, 0.4);
+      letter-spacing: -0.02em;
+      margin: 0 0.2em;
+    }
+
+    .word-begins {
+      font-family: var(--font-didone);
+      font-style: italic;
+      font-weight: 400;
+      color: var(--text);
+      text-transform: capitalize;
+    }
+    .crop-mark {
+      position: absolute;
+      font-family: var(--font-mono);
+      color: var(--accent);
+      font-size: 1.2rem;
+      line-height: 1;
+    }
+    .crop-tl { top: 16px; left: 16px; }
+    .crop-tr { top: 16px; right: 16px; }
+    .crop-bl { bottom: 16px; left: 16px; }
+    .crop-br { bottom: 16px; right: 16px; }
+
+    .hero-bar {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border-hairline);
+    }
+    .hero-links {
+      display: flex;
+      gap: 2rem;
+    }
+    .hero-links a {
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.18s ease, text-shadow 0.18s ease;
+    }
+    .hero-links a:hover,
+    .hero-links a:focus-visible {
+      color: var(--accent-secondary);
+      text-shadow: 0 0 12px rgba(200, 178, 155, 0.45);
+    }
+
+    /* ==========================================================================
+       SECTION 2: NUMBERS / LEDGER
+       ========================================================================== */
+    #ledger {
+      padding: 6rem 0;
+      background: var(--black-lift);
+      border-top: 1px solid var(--border-hairline);
+      border-bottom: 1px solid var(--border-hairline);
+    }
+    .ledger-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 3rem;
+    }
+    .ledger-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .ledger-number {
+      font-size: clamp(2.5rem, 5vw, 4.5rem);
+      font-weight: 700;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+    }
+    .ledger-label {
+      color: var(--muted);
+    }
+
+    /* ==========================================================================
+       SECTION 3: ABOUT
+       ========================================================================== */
+    #about {
+      padding: 10rem 0;
+      position: relative;
+    }
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1.3fr 0.8fr;
+      gap: 5rem;
+      align-items: center;
+    }
+    @media (max-width: 992px) {
+      .about-grid { grid-template-columns: 1fr; gap: 4rem; }
+    }
+    .about-statement {
+      font-size: clamp(1.8rem, 3.5vw, 3.2rem);
+      line-height: 1.25;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+    .about-portrait-wrap {
+      position: relative;
+      width: 100%;
+      max-width: 440px;
+      margin: 0 auto;
+    }
+    .about-portrait {
+      width: 100%;
+      aspect-ratio: 4/3;
+      border-radius: 32px;
+      overflow: hidden;
+      position: relative;
+      border: 1px solid var(--border-metallic);
+      background: var(--black-lift);
+      box-shadow: 0 25px 50px rgba(0,0,0,0.7), 0 0 35px rgba(240, 74, 42, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.25rem;
+    }
+    .about-portrait img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      border-radius: 20px;
+      filter: contrast(110%);
+    }
+    .about-wash {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(240,74,42,0.2) 0%, rgba(6,182,212,0.15) 100%);
+      mix-blend-mode: color-dodge;
+      pointer-events: none;
+    }
+    .about-bio-rows {
+      margin-top: 3rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+    .bio-row {
+      display: flex;
+      justify-content: space-between;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border-hairline);
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+    .bio-row span:last-child {
+      color: var(--text);
+    }
+
+    /* ==========================================================================
+       SECTION 4: WORK / PROJECTS
+       ========================================================================== */
+    #work {
+      padding: 10rem 0;
+      position: relative;
+      overflow: hidden;
+      background: var(--black-lift);
+      border-top: 1px solid var(--border-hairline);
+      border-bottom: 1px solid var(--border-hairline);
+    }
+    
+    /* Giant Travelling Organic SVG Ribbon */
+    .work-ribbon-svg {
+      position: absolute;
+      top: -10%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 120vw;
+      height: 140%;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.18;
+    }
+
+    .work-container {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: start;
+    }
+    @media (max-width: 900px) {
+      .work-container { grid-template-columns: 1fr; }
+    }
+
+    .project-list {
+      display: flex;
+      flex-direction: column;
+      gap: 2.5rem;
+    }
+    .project-item {
+      cursor: pointer;
+      color: var(--dim);
+      transition: color 0.18s ease, text-shadow 0.18s ease, transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      text-decoration: none;
+    }
+    .project-item.active,
+    .project-item:hover,
+    .project-item:focus-visible {
+      color: var(--text);
+      transform: translateX(12px);
+      text-shadow: 0 0 20px rgba(240, 74, 42, 0.35);
+    }
+    .project-title-text {
+      font-size: clamp(2.2rem, 4.5vw, 4rem);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+    }
+    .project-meta-inline {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+    }
+
+    /* Sticky Velocity Skewed Preview Panel */
+    .sticky-preview-wrap {
+      position: sticky;
+      top: 15vh;
+      width: 100%;
+      aspect-ratio: 16/10;
+      perspective: 1000px;
+    }
+    .sticky-preview-card {
+      width: 100%;
+      height: 100%;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid var(--border-hairline);
+      box-shadow: 0 25px 50px rgba(0,0,0,0.6);
+      background: var(--dim);
+      transform-style: preserve-3d;
+      transition: transform 0.15s cubic-bezier(0.1, 0.9, 0.2, 1), border-color 0.18s ease, box-shadow 0.18s ease;
+      position: relative;
+    }
+    .sticky-preview-card:hover {
+      border-color: var(--accent-secondary);
+      box-shadow: 0 0 25px rgba(200, 178, 155, 0.2), 0 25px 50px rgba(0,0,0,0.7);
+    }
+    .sticky-preview-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .preview-badge {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      background: rgba(10,10,10,0.75);
+      backdrop-filter: blur(8px);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      border: 1px solid var(--border-hairline);
+    }
+
+    /* Full-Screen Project Detail Overlay */
+    #project-overlay {
+      position: fixed;
+      inset: 0;
+      background: var(--black);
+      z-index: 1000;
+      transform: translateY(100%);
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      padding: clamp(2rem, 5vw, 6rem) var(--gutter);
+      transition: transform 0.6s cubic-bezier(0.77, 0, 0.175, 1);
+    }
+    #project-overlay.open {
+      transform: translateY(0);
+    }
+    .overlay-close-btn {
+      position: fixed;
+      top: 2rem;
+      right: var(--gutter);
+      background: rgba(240,239,234,0.1);
+      border: 1px solid var(--border-hairline);
+      color: var(--text);
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      font-size: 1.4rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1010;
+      transition: background 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+    }
+    .overlay-close-btn:hover {
+      background: var(--accent);
+      border-color: var(--accent);
+      box-shadow: 0 0 25px rgba(240, 74, 42, 0.5);
+      transform: scale(1.1);
+    }
+    .overlay-header {
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    .overlay-eyebrow {
+      font-family: var(--font-mono);
+      color: var(--accent);
+      margin-bottom: 1rem;
+    }
+    .overlay-title {
+      font-size: clamp(3rem, 7vw, 6.5rem);
+      font-weight: 700;
+      line-height: 1;
+      margin-bottom: 3rem;
+    }
+    .overlay-hero-img {
+      width: 100%;
+      max-height: 70vh;
+      object-fit: cover;
+      border-radius: 16px;
+      margin-bottom: 4rem;
+      border: 1px solid var(--border-hairline);
+    }
+    .overlay-spec-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 2rem;
+      padding: 2rem 0;
+      border-top: 1px solid var(--border-hairline);
+      border-bottom: 1px solid var(--border-hairline);
+      margin-bottom: 4rem;
+    }
+    .overlay-body-copy {
+      font-size: clamp(1.1rem, 2vw, 1.4rem);
+      color: var(--muted);
+      line-height: 1.7;
+      max-width: 850px;
+      margin-bottom: 4rem;
+    }
+
+    /* ==========================================================================
+       SECTION 5: GALLERY — THE ROLLING RING
+       ========================================================================== */
+    #gallery-pin-wrap {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .gallery-ring-stage {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      perspective: 1200px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .gallery-statement-box {
+      position: relative;
+      z-index: 10;
+      max-width: 720px;
+      text-align: center;
+      padding: 0 1.5rem;
+    }
+    .gallery-statement-text {
+      font-size: clamp(1.8rem, 3.5vw, 3rem);
+      font-weight: 600;
+      line-height: 1.3;
+    }
+    
+    /* Rolling Card Elements */
+    .gallery-card {
+      position: absolute;
+      width: clamp(180px, 20vw, 320px);
+      aspect-ratio: 4/5;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid var(--border-hairline);
+      background: var(--dim);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+      backface-visibility: visible;
+      transform-style: preserve-3d;
+      will-change: transform;
+      transition: border-color 0.18s ease, box-shadow 0.18s ease;
+    }
+    .gallery-card:hover {
+      border-color: var(--accent-secondary);
+      box-shadow: 0 0 25px rgba(200, 178, 155, 0.25), 0 20px 40px rgba(0,0,0,0.6);
+    }
+    .gallery-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* ==========================================================================
+       SECTION 6: SKILLS
+       ========================================================================== */
+    #skills {
+      padding: 10rem 0;
+      position: relative;
+      background: var(--black-lift);
+      border-top: 1px solid var(--border-hairline);
+      border-bottom: 1px solid var(--border-hairline);
+    }
+    .skills-grid {
+      display: grid;
+      grid-template-columns: 0.9fr 1.1fr;
+      gap: 5rem;
+    }
+    @media (max-width: 900px) {
+      .skills-grid { grid-template-columns: 1fr; gap: 4rem; }
+    }
+
+    .skills-left {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .skills-heading {
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      font-weight: 700;
+      text-transform: uppercase;
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+    }
+    .skills-arrow-wrap {
+      margin-top: 3rem;
+      height: 80px;
+      display: flex;
+      align-items: center;
+    }
+    .skills-arrow-svg {
+      width: 120px;
+      height: 40px;
+      fill: none;
+      stroke: var(--accent);
+      stroke-width: 3;
+      will-change: transform;
+    }
+
+    /* Accordion */
+    .accordion-list {
+      display: flex;
+      flex-direction: column;
+    }
+    .accordion-item {
+      border-bottom: 1px solid var(--border-hairline);
+      transition: border-color 0.18s ease;
+    }
+    .accordion-item:hover {
+      border-bottom-color: var(--accent-secondary);
+    }
+    .accordion-header {
+      width: 100%;
+      padding: 1.75rem 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: none;
+      border: none;
+      color: var(--text);
+      font-size: clamp(1.3rem, 2.5vw, 1.8rem);
+      font-weight: 600;
+      cursor: pointer;
+      text-align: left;
+      transition: color 0.18s ease, text-shadow 0.18s ease;
+    }
+    .accordion-header:hover,
+    .accordion-header:focus-visible {
+      color: var(--text);
+      text-shadow: 0 0 16px rgba(200, 178, 155, 0.35);
+    }
+    .accordion-icon {
+      font-family: var(--font-mono);
+      font-size: 1.5rem;
+      color: var(--accent);
+      transition: transform 0.3s ease;
+    }
+    .accordion-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .accordion-body {
+      padding-bottom: 1.75rem;
+      color: var(--muted);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+    .skill-pill {
+      background: rgba(240,239,234,0.06);
+      border: 1px solid var(--border-hairline);
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      color: var(--text);
+      transition: border-color 0.18s ease, box-shadow 0.18s ease;
+    }
+    .skill-pill:hover {
+      border-color: var(--accent-secondary);
+      box-shadow: 0 0 14px rgba(200, 178, 155, 0.25);
+    }
+
+    /* ==========================================================================
+       SECTION 7: AWARDS / MISC TABLE
+       ========================================================================== */
+    #awards {
+      padding: 8rem 0;
+    }
+    .awards-table {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+    .awards-row {
+      display: grid;
+      grid-template-columns: 2fr 3fr 1.5fr 1fr;
+      padding: 1.5rem 1.25rem;
+      border-bottom: 1px solid var(--border-hairline);
+      align-items: center;
+      transition: all 0.18s ease;
+      border-radius: 8px;
+    }
+    @media (max-width: 768px) {
+      .awards-row { grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+    }
+    .awards-row.active,
+    .awards-row:hover {
+      background: var(--text);
+      color: var(--black);
+      border-color: var(--accent-secondary);
+      box-shadow: 0 0 30px rgba(240, 239, 234, 0.18);
+    }
+    .awards-row.active .muted-text,
+    .awards-row:hover .muted-text {
+      color: rgba(10,10,10,0.7);
+    }
+    .awards-row.header {
+      border-bottom: 2px solid var(--border-hairline);
+      font-family: var(--font-mono);
+      color: var(--muted);
+      pointer-events: none;
+      background: none !important;
+      box-shadow: none !important;
+    }
+
+    /* ==========================================================================
+       SECTION 8: CONTACT — THE LIGHT FLIP
+       ========================================================================== */
+    #contact-pin-wrap {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--black);
+    }
+    .contact-circle-layer {
+      position: absolute;
+      inset: 0;
+      background: var(--paper);
+      color: var(--black);
+      clip-path: circle(0% at 50% 100%);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: var(--gutter);
+      z-index: 5;
+    }
+    .contact-content {
+      max-width: 950px;
+      width: 100%;
+      text-align: center;
+    }
+    .contact-heading {
+      font-size: clamp(3.5rem, 9vw, 8rem);
+      font-weight: 800;
+      line-height: 0.95;
+      letter-spacing: -0.04em;
+      margin-bottom: 2rem;
+    }
+    .contact-blurb {
+      font-size: clamp(1.2rem, 2.2vw, 1.8rem);
+      text-align: justify;
+      line-height: 1.5;
+      margin-bottom: 3rem;
+      color: #333;
+    }
+    .email-link {
+      font-size: clamp(1.5rem, 4vw, 3.2rem);
+      font-weight: 700;
+      color: var(--black);
+      text-decoration: none;
+      position: relative;
+      display: inline-block;
+      margin-bottom: 3rem;
+      transition: text-shadow 0.18s ease;
+    }
+    .email-link:hover,
+    .email-link:focus-visible {
+      text-shadow: 0 0 25px rgba(240, 74, 42, 0.45);
+    }
+    .email-link::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: var(--accent);
+      transform: scaleX(1);
+      transform-origin: right;
+      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .email-link:hover::after {
+      transform: scaleX(0);
+      transform-origin: left;
+    }
+
+    /* ==========================================================================
+       SECTION 9: FOOTER & HALFTONE MATRIX
+       ========================================================================== */
+    #footer {
+      position: relative;
+      background: #060607;
+      border-top: 1px solid var(--border-hairline);
+      color: var(--text);
+      padding-top: 8rem;
+      padding-bottom: 2rem;
+      overflow: hidden;
+    }
+    .footer-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 3rem;
+      margin-bottom: 8rem;
+      position: relative;
+      z-index: 2;
+    }
+    .footer-col h4 {
+      font-family: var(--font-mono);
+      color: var(--muted);
+      margin-bottom: 1.25rem;
+    }
+    .footer-col ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .footer-col a {
+      color: var(--text);
+      text-decoration: none;
+      transition: color 0.18s ease, text-shadow 0.18s ease;
+    }
+    .footer-col a:hover,
+    .footer-col a:focus-visible {
+      color: var(--accent-secondary);
+      text-shadow: 0 0 12px rgba(200, 178, 155, 0.4);
+    }
+
+    /* Huge Edge-to-Edge Name in Footer */
+    .footer-huge-name {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      text-align: center;
+      font-size: clamp(4rem, 14vw, 16rem);
+      font-weight: 800;
+      line-height: 0.85;
+      letter-spacing: -0.05em;
+      white-space: nowrap;
+      user-select: none;
+    }
+    .footer-accent-dot {
+      color: var(--accent);
+    }
+
+    /* Halftone Dot Canvas Background */
+    #footer-dots-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    /* ==========================================================================
+       PERSISTENT TOP SITE NAVBAR
+       ========================================================================== */
+    #site-nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 500;
+      padding: 1.25rem 0;
+      transition: background 0.4s ease, backdrop-filter 0.4s ease, border-color 0.4s ease, padding 0.4s ease;
+      background: transparent;
+      border-bottom: 1px solid transparent;
+    }
+    #site-nav.scrolled {
+      background: rgba(10, 10, 10, 0.78);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border-hairline);
+      padding: 0.85rem 0;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    }
+    .nav-container {
+      width: 100%;
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding-left: var(--gutter);
+      padding-right: var(--gutter);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .nav-brand {
+      font-size: clamp(1.1rem, 2vw, 1.4rem);
+      font-weight: 700;
+      color: var(--text);
+      text-decoration: none;
+      letter-spacing: -0.02em;
+      transition: opacity 0.2s ease;
+    }
+    .nav-brand:hover {
+      opacity: 0.85;
+    }
+    .nav-links {
+      display: flex;
+      gap: 2.5rem;
+      align-items: center;
+    }
+    .nav-link {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.75rem;
+      letter-spacing: 0.08em;
+      transition: color 0.18s ease, text-shadow 0.18s ease;
+      position: relative;
+    }
+    .nav-link:hover,
+    .nav-link:focus-visible {
+      color: var(--accent-secondary);
+      text-shadow: 0 0 12px rgba(200, 178, 155, 0.45);
+      outline: none;
+    }
+    .nav-link:focus-visible::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 100%;
+      height: 1px;
+      background: var(--accent-secondary);
+    }
+    .nav-login-btn {
+      color: var(--text) !important;
+      border: 1px solid var(--accent);
+      padding: 0.45rem 1.25rem;
+      border-radius: 9999px;
+      font-weight: 600;
+      font-size: 0.75rem;
+      letter-spacing: 0.08em;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-left: 0.75rem;
+      background: rgba(200, 178, 155, 0.05);
+      backdrop-filter: blur(4px);
+    }
+    .nav-login-btn:hover,
+    .nav-login-btn:focus-visible {
+      background: var(--accent) !important;
+      color: var(--black) !important;
+      border-color: var(--accent) !important;
+      text-shadow: none !important;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 15px rgba(200, 178, 155, 0.35);
+    }
+    .mobile-login-btn {
+      margin-top: 1rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.65rem 1.75rem;
+      border: 1px solid var(--accent);
+      border-radius: 9999px;
+      color: var(--accent) !important;
+      text-decoration: none;
+      font-weight: 600;
+      width: fit-content;
+      transition: all 0.25s ease;
+    }
+    .mobile-login-btn:hover {
+      background: var(--accent);
+      color: var(--black) !important;
+    }
+
+    /* Mobile Hamburger Icon (<900px) */
+    .hamburger-btn {
+      display: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 8px;
+      width: 40px;
+      height: 40px;
+      position: relative;
+      z-index: 510;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 6px;
+    }
+    .hamburger-btn:focus-visible {
+      outline: 1px solid var(--accent-secondary);
+      border-radius: 4px;
+    }
+    .ham-bar {
+      width: 24px;
+      height: 2px;
+      background: var(--text);
+      border-radius: 1px;
+      transform-origin: center;
+      will-change: transform, opacity;
+    }
+
+    @media (max-width: 900px) {
+      .nav-links { display: none; }
+      .hamburger-btn { display: flex; }
+    }
+
+    /* Mobile Full-Screen Overlay Menu */
+    #mobile-menu-overlay {
+      position: fixed;
+      inset: 0;
+      background: var(--black);
+      z-index: 600;
+      opacity: 0;
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: clamp(6rem, 12vh, 8rem) var(--gutter) var(--gutter);
+      overflow-y: auto;
+      transition: opacity 0.3s ease;
+    }
+    #mobile-menu-overlay.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .mobile-menu-brand {
+      color: var(--accent);
+      margin-bottom: 2rem;
+    }
+    .mobile-menu-links {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+    .mobile-menu-link {
+      font-size: clamp(2rem, 6vw, 3.5rem);
+      font-weight: 700;
+      color: var(--text);
+      text-decoration: none;
+      transition: color 0.2s ease, transform 0.2s ease;
+      display: inline-block;
+    }
+    .mobile-menu-link:hover,
+    .mobile-menu-link:focus-visible {
+      color: var(--accent-secondary);
+      transform: translateX(10px);
+      outline: none;
+    }
+    .mobile-menu-link:focus-visible::after {
+      content: '';
+      display: block;
+      height: 1px;
+      background: var(--accent-secondary);
+      margin-top: 2px;
+      width: 100%;
+    }
+    .mobile-menu-footer {
+      border-top: 1px solid var(--border-hairline);
+      padding-top: 1.5rem;
+      margin-top: 3rem;
+    }
+    .mobile-menu-footer a {
+      color: var(--muted);
+      text-decoration: none;
+    }
+    .mobile-menu-footer a:hover {
+      color: var(--accent);
+    }
+
+    /* Scrolling Marquee Ticker Band */
+    #marquee-band {
+      width: 100vw;
+      overflow: hidden;
+      background: var(--black-lift);
+      border-top: 1px solid var(--border-hairline);
+      border-bottom: 1px solid var(--border-hairline);
+      padding: 1.25rem 0;
+      white-space: nowrap;
+      position: relative;
+      z-index: 2;
+    }
+    .marquee-track {
+      display: flex;
+      width: max-content;
+      will-change: transform;
+    }
+    .marquee-content {
+      display: flex;
+      gap: 2.5rem;
+      padding-right: 2.5rem;
+    }
+    .marquee-content span {
+      font-size: clamp(0.85rem, 1.5vw, 1.1rem);
+      letter-spacing: 0.12em;
+      color: var(--muted);
+      transition: color 0.2s ease;
+    }
+    .marquee-content span:nth-child(even) {
+      color: var(--accent-secondary);
+    }
+
+    /* =========================================================================
+       RESPONSIVE BREAKPOINTS — Prompt 9
+       Tested at: 1280 / 1024 / 900 / 600 / 400 / 320px
+       ========================================================================= */
+
+    /* iOS address-bar height fix: use dvh where supported */
+    @supports (height: 100dvh) {
+      #hero, .contact-circle-layer {
+        min-height: 100dvh;
+      }
+    }
+
+    /* Overflow guard — applied globally, never let anything bust the viewport */
+    html, body, #smooth-wrapper, #smooth-content {
+      overflow-x: hidden;
+      max-width: 100vw;
+    }
+
+    /* ── 1280px ── */
+    @media (max-width: 1280px) {
+      :root { --max-width: 1200px; }
+      .hero-name-wrap {
+        font-size: clamp(4rem, 10vw, 9rem);
+      }
+      .footer-huge-name {
+        font-size: clamp(4rem, 10vw, 9rem);
+      }
+    }
+
+    /* ── 1024px ── */
+    @media (max-width: 1024px) {
+      :root { --gutter: clamp(1.5rem, 3vw, 2.5rem); }
+      .about-grid {
+        grid-template-columns: 1fr !important;
+      }
+      .about-portrait-wrap {
+        max-width: 320px;
+        margin: 0 auto;
+      }
+      .skills-grid {
+        grid-template-columns: 1fr !important;
+      }
+      .skills-left {
+        margin-bottom: 2rem;
+      }
+      .work-container {
+        grid-template-columns: 1fr !important;
+      }
+    }
+
+    /* ── 900px (tablet/hamburger cutoff, already handled in nav CSS) ── */
+    @media (max-width: 900px) {
+      #scroll-rail { display: none !important; }
+      #frame-counter { font-size: 0.75rem; }
+      .footer-grid {
+        grid-template-columns: 1fr 1fr !important;
+      }
+      .ledger-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+      }
+    }
+
+    /* ── 600px (mobile) ── */
+    @media (max-width: 600px) {
+      :root { --gutter: 1.25rem; }
+
+      /* Hero name — must not overflow at 600px */
+      .hero-first-name,
+      #hero-first-name {
+        font-size: clamp(2.8rem, 14vw, 5.5rem) !important;
+        letter-spacing: -0.02em;
+      }
+      .hero-last-name,
+      #hero-last-name {
+        font-size: clamp(2.8rem, 14vw, 5.5rem) !important;
+      }
+      .hero-tagline {
+        font-size: clamp(0.85rem, 3.5vw, 1.05rem);
+        max-width: 100%;
+      }
+      .hero-bar {
+        flex-direction: column;
+        gap: 0.75rem;
+        align-items: flex-start;
+        padding: 1rem var(--gutter);
+      }
+
+      /* Work — single column */
+      .work-grid,
+      .work-container {
+        grid-template-columns: 1fr !important;
+        display: flex !important;
+        flex-direction: column !important;
+      }
+      .sticky-preview-wrap { display: none !important; }
+
+      /* Gallery — on mobile orbit becomes a horizontal scroll row */
+      #gallery-pin-wrap {
+        overflow-x: auto;
+        overflow-y: visible;
+        -webkit-overflow-scrolling: touch;
+        scroll-snap-type: x mandatory;
+        /* Disable the ScrollTrigger pin on mobile via a min-height override */
+      }
+      .gallery-ring-stage {
+        display: flex !important;
+        flex-direction: row !important;
+        gap: 1rem !important;
+        padding: 1.5rem var(--gutter) !important;
+        width: max-content !important;
+        position: static !important;
+        transform: none !important;
+        height: auto !important;
+      }
+      .gallery-statement-box {
+        position: static !important;
+        transform: none !important;
+        width: 80vw !important;
+        min-width: 240px !important;
+        flex-shrink: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        padding: 1rem !important;
+        background: rgba(255,255,255,0.04) !important;
+        border: 1px solid var(--border-hairline) !important;
+        border-radius: 8px !important;
+        scroll-snap-align: start !important;
+      }
+      .gallery-card {
+        position: static !important;
+        transform: none !important;
+        opacity: 1 !important;
+        width: 56vw !important;
+        min-width: 200px !important;
+        max-width: 260px !important;
+        flex-shrink: 0 !important;
+        scroll-snap-align: start !important;
+        border-radius: 8px !important;
+        overflow: hidden !important;
+      }
+      .gallery-card img {
+        width: 100% !important;
+        height: 220px !important;
+        object-fit: cover !important;
+      }
+
+      /* Skills — single column already via 1024px rule, confirm pill wrap */
+      .accordion-body {
+        flex-wrap: wrap;
+      }
+
+      /* Ledger — single column */
+      .ledger-grid {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 1.5rem;
+      }
+
+      /* Footer */
+      .footer-grid {
+        grid-template-columns: 1fr !important;
+      }
+      .footer-huge-name {
+        font-size: clamp(2.2rem, 11vw, 4.5rem);
+        word-break: break-word;
+      }
+
+      /* Persistent UI */
+      #scroll-rail { display: none !important; }
+      #frame-counter {
+        bottom: 1rem;
+        left: 1rem;
+        font-size: 0.7rem;
+      }
+
+      /* Awards table — stack on mobile */
+      .awards-table .awards-row {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 0.5rem;
+      }
+      .awards-table .awards-row > *:nth-child(3),
+      .awards-table .awards-row > *:nth-child(4) {
+        display: none;
+      }
+
+      /* Contact */
+      .contact-heading {
+        font-size: clamp(2.2rem, 10vw, 4rem) !important;
+      }
+    }
+
+    /* ── 400px ── */
+    @media (max-width: 400px) {
+      :root { --gutter: 1rem; }
+      .hero-first-name, #hero-first-name,
+      .hero-last-name, #hero-last-name {
+        font-size: clamp(2.2rem, 13vw, 3.5rem) !important;
+      }
+      .ledger-grid {
+        grid-template-columns: 1fr !important;
+      }
+      .footer-huge-name {
+        font-size: clamp(1.8rem, 10vw, 3rem);
+      }
+      .nav-brand {
+        font-size: 1rem;
+      }
+    }
+
+    /* ── 320px — absolute minimum, zero overflow tolerance ── */
+    @media (max-width: 320px) {
+      :root { --gutter: 0.75rem; }
+      .hero-first-name, #hero-first-name,
+      .hero-last-name, #hero-last-name {
+        font-size: 2rem !important;
+        letter-spacing: 0 !important;
+      }
+      .contact-heading {
+        font-size: 1.8rem !important;
+      }
+      .footer-huge-name {
+        font-size: 1.6rem !important;
+        word-break: break-all;
+      }
+      .nav-brand { font-size: 0.9rem; }
+      .mobile-menu-link {
+        font-size: 1.75rem !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Film Grain Overlay -->
+  <div class="film-grain"></div>
+
+  <!-- Persistent Site Top Navbar -->
+  <header id="site-nav" aria-label="Main Site Navigation">
+    <div class="nav-container">
+      <a href="#hero" class="nav-brand">
+        ZELERA<span class="wordmark-accent">DECK.</span>
+      </a>
+
+      <!-- Desktop Links (>900px) -->
+      <nav class="nav-links font-mono" aria-label="Header Links">
+        <a href="#work" class="nav-link magnetic">WORK</a>
+        <a href="#skills" class="nav-link magnetic">SKILLS</a>
+        <a href="#contact-pin-wrap" class="nav-link magnetic">CONTACT</a>
+        <a href="/login" target="_top" class="nav-link nav-login-btn font-mono">LOGIN</a>
+      </nav>
+
+      <!-- Mobile Hamburger Button (<900px) -->
+      <button class="hamburger-btn" id="hamburger-btn" aria-label="Toggle Navigation Menu" aria-expanded="false" aria-controls="mobile-menu-overlay">
+        <span class="ham-bar ham-bar-top"></span>
+        <span class="ham-bar ham-bar-mid"></span>
+        <span class="ham-bar ham-bar-bot"></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Mobile Full-Screen Overlay Menu -->
+  <div id="mobile-menu-overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Mobile Navigation Menu">
+    <div class="mobile-menu-inner">
+      <div class="mobile-menu-brand font-mono">// ZELERADECK</div>
+      <nav class="mobile-menu-links">
+        <a href="#hero" class="mobile-menu-link">00 / <span class="font-didone">Intro</span></a>
+        <a href="#work" class="mobile-menu-link">01 / <span class="font-didone">Work</span></a>
+        <a href="#skills" class="mobile-menu-link">02 / <span class="font-didone">Skills</span></a>
+        <a href="#contact-pin-wrap" class="mobile-menu-link">03 / <span class="font-didone">Contact</span></a>
+        <a href="/login" target="_top" class="mobile-menu-link mobile-login-btn font-mono">LOGIN ↗</a>
+      </nav>
+      <div class="mobile-menu-footer font-mono">
+        <a href="mailto:teamzelera@gmail.com">teamzelera@gmail.com</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Persistent UI: Frame Counter -->
+  <div id="frame-counter">(00)</div>
+
+  <!-- Persistent UI: Segmented Scroll Rail -->
+  <nav id="scroll-rail" aria-label="Section Navigation">
+    <a href="#hero" class="rail-tick active" data-section="0"><span class="rail-label">Intro</span><div class="rail-line"></div></a>
+    <a href="#ledger" class="rail-tick" data-section="1"><span class="rail-label">Ledger</span><div class="rail-line"></div></a>
+    <a href="#about" class="rail-tick" data-section="2"><span class="rail-label">About</span><div class="rail-line"></div></a>
+    <a href="#work" class="rail-tick" data-section="3"><span class="rail-label">Work</span><div class="rail-line"></div></a>
+    <a href="#skills" class="rail-tick" data-section="4"><span class="rail-label">Skills</span><div class="rail-line"></div></a>
+    <a href="#contact-pin-wrap" class="rail-tick" data-section="5"><span class="rail-label">Contact</span><div class="rail-line"></div></a>
+  </nav>
+
+  <!-- Smooth Scroll Wrapper & Content for ScrollSmoother -->
+  <div id="smooth-wrapper">
+    <div id="smooth-content">
+
+  <!-- ==========================================================================
+       SECTION 1: HERO
+       ========================================================================== -->
+  <section id="hero">
+    <canvas id="hero-canvas"></canvas>
+
+    <div class="container hero-content">
+      <div class="hero-tagline">
+        A WhatsApp-first digital catalogue for <span class="font-didone mint-gradient">local shops in Kerala</span> — your storefront, your WhatsApp link, no app needed.
+      </div>
+
+      <!-- Hero Kinetic Morph Typography Wrap -->
+      <div class="hero-name-wrap" id="hero-name-wrap">
+        <div class="hero-title-group" id="hero-title-group">
+          <span class="hero-first-name" id="hero-first-name">ZELERA</span>
+          <span class="hero-last-name wordmark-accent" id="hero-last-name">DECK.</span>
+        </div>
+        <div class="hero-phrase-group" id="hero-phrase-group">
+          <span class="phrase-word word-where">Where</span>
+          <span class="phrase-word word-growth">GROWTH</span>
+          <span class="phrase-word word-begins">Begins.</span>
+        </div>
+      </div>
+
+      <div class="hero-bar">
+        <div class="font-mono">→ V1.0 / KERALA SMB PLATFORM</div>
+        <div class="hero-links font-mono">
+          <a href="https://wa.me/917012783442?text=Hello%20ZeleraDeck" target="_blank" rel="noopener" class="magnetic">WHATSAPP ↗</a>
+          <a href="https://zeleradeck.com" target="_blank" rel="noopener" class="magnetic">ZELERADECK.COM ↗</a>
+        </div>
+        <div class="font-mono">SCROLL TO EXPLORE ↓</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       SECTION 2: NUMBERS / LEDGER
+       ========================================================================== -->
+  <section id="ledger">
+    <div class="container">
+      <div class="ledger-grid">
+        <div class="ledger-item">
+          <div class="ledger-number" data-target="2">02</div>
+          <div class="ledger-label font-mono">CO-FOUNDER &amp; DEVELOPER</div>
+        </div>
+        <div class="ledger-item">
+          <div class="ledger-number" data-target="0">00</div>
+          <div class="ledger-label font-mono">APPS TO INSTALL — ZERO, JUST WHATSAPP</div>
+        </div>
+        <div class="ledger-item">
+          <div class="ledger-number" data-target="150" data-suffix="+">0</div>
+          <div class="ledger-label font-mono">SHOPS ONBOARDED ACROSS KERALA</div>
+        </div>
+        <div class="ledger-item">
+          <div class="ledger-number" data-target="10" data-suffix="K+">0</div>
+          <div class="ledger-label font-mono">WHATSAPP ORDERS PROCESSED</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       SECTION 3: ABOUT
+       ========================================================================== -->
+  <section id="about">
+    <div class="container">
+      <div class="about-grid">
+        <div>
+          <div class="font-mono" style="color: var(--accent); margin-bottom: 1.5rem;">// ABOUT ZELERADECK</div>
+          <h2 class="about-statement" id="about-text-reveal">
+            ZeleraDeck gives local shop owners in Kerala a shareable digital catalogue and lets their customers order straight through a WhatsApp deep link — <span class="font-didone" style="font-style:italic;">no separate app to install,</span> no friction in between.
+          </h2>
+          <div class="about-bio-rows">
+            <div class="bio-row">
+              <span>FOUNDED BY</span>
+              <span>Jerin Jaison</span>
+            </div>
+            <div class="bio-row">
+              <span>BUILT IN</span>
+              <span>Kerala, India</span>
+            </div>
+            <div class="bio-row">
+              <span>LIVE AT</span>
+              <span><a href="https://zeleradeck.com" target="_blank" rel="noopener" style="color:var(--accent-secondary);text-decoration:none;">zeleradeck.com ↗</a></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="about-portrait-wrap">
+          <div class="about-portrait" data-speed="0.85">
+            <img src="files/logo1.1.png" alt="ZeleraDeck Brand Logo" onerror="this.src='files/logo1.1_no_bg.png'">
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       SECTION 4: WORK / PROJECTS
+       ========================================================================== -->
+  <section id="work">
+    <!-- Organic Travelling Accent Ribbon SVG -->
+    <svg class="work-ribbon-svg" viewBox="0 0 1000 1000" preserveAspectRatio="none">
+      <path id="ribbon-path" d="M -100 0 Q 300 300 800 600 T 1100 1200" stroke="url(#ribbon-grad)" stroke-width="80" fill="none" opacity="0.6"/>
+      <defs>
+        <linearGradient id="ribbon-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#F04A2A"/>
+          <stop offset="50%" stop-color="#06B6D4"/>
+          <stop offset="100%" stop-color="#F04A2A"/>
+        </linearGradient>
+      </defs>
+    </svg>
+
+    <div class="container work-container">
+      <div class="project-list" id="project-list">
+        <a href="#" class="project-item active" data-index="0"
+           data-img="files/work_noor_details.png"
+           data-title="CATALOGUE + WHATSAPP"
+           data-cat="CORE FEATURE"
+           data-year="2026"
+           data-body="Your products, live on a shareable public catalogue page. Every product card has a WhatsApp deep link built in — customers tap once and message you directly. No app to download, no checkout friction.">
+          <div class="project-meta-inline">[01] — 2026 / CORE</div>
+          <div class="project-title-text">CATALOGUE <span class="font-didone">+ WhatsApp</span></div>
+        </a>
+        <a href="#" class="project-item" data-index="1"
+           data-img="files/work_storefront_hero.png"
+           data-title="SHOP CUSTOMIZER"
+           data-cat="STOREFRONT TOOLS"
+           data-year="2026"
+           data-body="Tailor your storefront without writing a line of code. Upload your banner and logo, set your colours, add your contact details, and go live — all from a simple customizer panel built for shop owners, not developers.">
+          <div class="project-meta-inline">[02] — 2026 / TOOLS</div>
+          <div class="project-title-text">SHOP <span class="font-didone">Customizer</span></div>
+        </a>
+        <a href="#" class="project-item" data-index="2"
+           data-img="files/work_concierge_map.png"
+           data-title="PRO STOREFRONT"
+           data-cat="PRO TIER"
+           data-year="2026"
+           data-body="For shops ready to stand out. The Pro plan unlocks a premium catalogue layout, priority listing, map location, concierge inquiry forms, and a polished brand experience.">
+          <div class="project-meta-inline">[03] — 2026 / PRO</div>
+          <div class="project-title-text">PRO <span class="font-didone">Storefront</span></div>
+        </a>
+        <a href="#" class="project-item" data-index="3"
+           data-img="files/work_admin_dashboard.png"
+           data-title="OWNER DASHBOARD"
+           data-cat="SHOP MANAGEMENT"
+           data-year="2026"
+           data-body="One place to manage your full catalogue, track total products, update stock availability, and trigger quick actions — built for shop owners who want full control.">
+          <div class="project-meta-inline">[04] — 2026 / DASHBOARD</div>
+          <div class="project-title-text">OWNER <span class="font-didone">Dashboard</span></div>
+        </a>
+      </div>
+
+      <div class="sticky-preview-wrap">
+        <div class="sticky-preview-card" id="preview-card">
+          <div class="preview-badge" id="preview-badge">[01] [2026] PREVIEW</div>
+          <img id="preview-img" src="files/work_noor_details.png" alt="Project Preview">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Full-Screen Detail Overlay -->
+  <div id="project-overlay" role="dialog" aria-modal="true" aria-label="Project Details">
+    <button class="overlay-close-btn" id="overlay-close" aria-label="Close dialog">✕</button>
+    <div class="overlay-header">
+      <div class="overlay-eyebrow font-mono" id="overlay-eyebrow">[01] — CATEGORY / YEAR</div>
+      <h1 class="overlay-title" id="overlay-title">PROJECT <span class="font-didone">Title</span></h1>
+      <img src="" alt="Case Study Hero" class="overlay-hero-img" id="overlay-img">
+      <div class="overlay-spec-grid font-mono">
+        <div><div style="color:var(--muted)">CATEGORY</div><div id="overlay-role">ZeleraDeck Feature</div></div>
+        <div><div style="color:var(--muted)">PLATFORM</div><div id="overlay-tech">WhatsApp + Web</div></div>
+        <div><div style="color:var(--muted)">MARKET</div><div>Kerala SMBs</div></div>
+        <div><div style="color:var(--muted)">STATUS</div><div style="color:var(--accent)">Live at zeleradeck.com</div></div>
+      </div>
+      <div class="overlay-body-copy" id="overlay-body">
+        Project case study details will appear here.
+      </div>
+      <a href="#" target="_blank" rel="noopener" class="email-link" style="font-size: 1.5rem; margin-bottom: 2rem;">VIEW LIVE PROJECT ↗</a>
+    </div>
+  </div>
+
+  <!-- Scrolling Marquee Ticker Band -->
+  <div id="marquee-band" aria-hidden="true">
+    <div class="marquee-track font-mono">
+      <div class="marquee-content">
+        <span>CATALOGUE ★</span>
+        <span>WHATSAPP ORDERS ★</span>
+        <span>KERALA SMBs ★</span>
+        <span>SHOP CUSTOMIZER ★</span>
+        <span>PRO STOREFRONT ★</span>
+        <span>WHERE GROWTH BEGINS ★</span>
+      </div>
+      <div class="marquee-content" aria-hidden="true">
+        <span>CATALOGUE ★</span>
+        <span>WHATSAPP ORDERS ★</span>
+        <span>KERALA SMBs ★</span>
+        <span>SHOP CUSTOMIZER ★</span>
+        <span>PRO STOREFRONT ★</span>
+        <span>WHERE GROWTH BEGINS ★</span>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ==========================================================================
+       SECTION 6: SKILLS
+       ========================================================================== -->
+  <section id="skills">
+    <div class="container">
+      <div class="skills-grid">
+        <div class="skills-left">
+          <div>
+            <div class="font-mono" style="color:var(--accent); margin-bottom: 1.5rem;">// PRODUCT CAPABILITIES</div>
+            <h2 class="skills-heading">WHAT SHOP<br>OWNERS <span class="font-didone mint-gradient">Get.</span></h2>
+          </div>
+          <div class="skills-arrow-wrap">
+            <svg class="skills-arrow-svg" id="skills-travel-arrow" viewBox="0 0 100 40">
+              <path d="M 0 20 L 80 20 M 70 10 L 85 20 L 70 30" />
+            </svg>
+          </div>
+        </div>
+
+        <div class="accordion-list">
+          <div class="accordion-item">
+            <button class="accordion-header">
+              <span>01 / Public Catalogue Page</span>
+              <span class="accordion-icon">+</span>
+            </button>
+            <div class="accordion-content">
+              <div class="accordion-body">
+                <span class="skill-pill">Portrait-ratio product cards</span>
+                <span class="skill-pill">Shareable public link</span>
+                <span class="skill-pill">Mobile-first layout</span>
+                <span class="skill-pill">No customer app needed</span>
+                <span class="skill-pill">Instant storefront URL</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="accordion-item">
+            <button class="accordion-header">
+              <span>02 / WhatsApp Ordering</span>
+              <span class="accordion-icon">+</span>
+            </button>
+            <div class="accordion-content">
+              <div class="accordion-body">
+                <span class="skill-pill">Deep-link per product</span>
+                <span class="skill-pill">Zero install for customers</span>
+                <span class="skill-pill">Instant message thread</span>
+                <span class="skill-pill">No payment gateway needed</span>
+                <span class="skill-pill">Works on any phone</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="accordion-item">
+            <button class="accordion-header">
+              <span>03 / Shop Customizer</span>
+              <span class="accordion-icon">+</span>
+            </button>
+            <div class="accordion-content">
+              <div class="accordion-body">
+                <span class="skill-pill">Banner &amp; logo upload</span>
+                <span class="skill-pill">Colour &amp; brand controls</span>
+                <span class="skill-pill">Contact details panel</span>
+                <span class="skill-pill">No code required</span>
+                <span class="skill-pill">Live preview</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="accordion-item">
+            <button class="accordion-header">
+              <span>04 / Pro Storefront Plan</span>
+              <span class="accordion-icon">+</span>
+            </button>
+            <div class="accordion-content">
+              <div class="accordion-body">
+                <span class="skill-pill">Premium catalogue layout</span>
+                <span class="skill-pill">Priority listing</span>
+                <span class="skill-pill">Enhanced brand experience</span>
+                <span class="skill-pill">Advanced storefront options</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================== -->
+
+  <!-- ==========================================================================
+       SECTION 8: CONTACT — THE LIGHT FLIP
+       ========================================================================== -->
+  <section id="contact-pin-wrap">
+    <div class="contact-circle-layer" id="contact-circle-layer">
+      <div class="contact-content">
+        <div class="font-mono" style="color: var(--accent); margin-bottom: 1.5rem;">// GET YOUR SHOP ONLINE</div>
+        <h2 class="contact-heading">READY TO GROW<br>YOUR <span class="font-didone" style="font-style:italic;">Shop.</span></h2>
+        <p class="contact-blurb">
+          ZeleraDeck gets your products online in seconds and puts every order directly in your WhatsApp inbox. Built for small businesses across Kerala.
+        </p>
+        <a href="https://wa.me/917012783442?text=Hello%20ZeleraDeck" target="_blank" rel="noopener" class="email-link">CHAT ON WHATSAPP ↗</a>
+        <div style="margin-top:1.5rem; display:flex; flex-direction:column; gap:0.5rem; align-items:center;" class="font-mono">
+          <div><span style="color:var(--muted)">CALL / WHATSAPP: </span><a href="tel:+917012783442" style="color:var(--text); text-decoration:none;">+91 70127 83442</a> / <a href="tel:+919562670230" style="color:var(--text); text-decoration:none;">+91 95626 70230</a></div>
+          <div><span style="color:var(--muted)">EMAIL: </span><a href="mailto:teamzelera@gmail.com" style="color:var(--accent-secondary); text-decoration:none;">teamzelera@gmail.com</a></div>
+        </div>
+        <div class="font-mono" style="display:flex; justify-content:center; gap:2.5rem; color:#555; margin-top:2rem;">
+          <span>[KERALA IST UTC+5:30]</span>
+          <span>[WHERE WE GROW TOGETHER]</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       SECTION 9: FOOTER
+       ========================================================================== -->
+  <footer id="footer">
+    <canvas id="footer-dots-canvas"></canvas>
+
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-col">
+          <h4>NAVIGATION</h4>
+          <ul>
+            <li><a href="#hero">Intro</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#work">Features</a></li>
+            <li><a href="#gallery-pin-wrap">Gallery</a></li>
+            <li><a href="#contact-pin-wrap">Contact</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>CONNECT</h4>
+          <ul>
+            <li><a href="https://wa.me/917012783442?text=Hello%20ZeleraDeck" target="_blank" rel="noopener">WhatsApp (+91 70127 83442) ↗</a></li>
+            <li><a href="tel:+919562670230">Support (+91 95626 70230) ↗</a></li>
+            <li><a href="https://zeleradeck.com" target="_blank" rel="noopener">ZeleraDeck.com ↗</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>INFO</h4>
+          <ul>
+            <li style="color:var(--muted)">Founded by Jerin Jaison</li>
+            <li style="color:var(--muted)">Built in Kerala, India</li>
+            <li><a href="mailto:teamzelera@gmail.com" style="color:var(--accent-secondary);text-decoration:none;">teamzelera@gmail.com</a></li>
+            <li style="color:var(--muted)">© 2026 ZeleraDeck</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-huge-name">
+        ZELERA<span class="wordmark-accent">DECK.</span>
+      </div>
+    </div>
+  </footer>
+  </div><!-- /#smooth-content -->
+  </div><!-- /#smooth-wrapper -->
+
+  <!-- ==========================================================================
+       JAVASCRIPT LOGIC & SCROLL CHOREOGRAPHY
+       ========================================================================== -->
+  <script>
+    (function () {
+      'use strict';
+
+      // Register GSAP Plugins
+      gsap.registerPlugin(ScrollTrigger, SplitText, ScrollSmoother);
+
+      // Check prefers-reduced-motion
+      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      /* --------------------------------------------------------------------------
+         1. GSAP SCROLLSMOOTHER INTEGRATION
+         -------------------------------------------------------------------------- */
+      let smoother;
+      if (!prefersReducedMotion) {
+        smoother = ScrollSmoother.create({
+          wrapper: '#smooth-wrapper',
+          content: '#smooth-content',
+          smooth: 1.25,
+          effects: true,
+          smoothTouch: 0.1
+        });
+      }
+
+      /* --------------------------------------------------------------------------
+         2. PERSISTENT UI & FRAME COUNTER & RAIL
+         -------------------------------------------------------------------------- */
+      const frameCounter = document.getElementById('frame-counter');
+      const railTicks = document.querySelectorAll('.rail-tick');
+
+      function updateFrameCounter() {
+        const totalScroll = document.documentElement.scrollHeight - window.innerHeight;
+        if (totalScroll > 0) {
+          const progress = Math.min(1, Math.max(0, window.scrollY / totalScroll));
+          const progressInt = Math.floor(progress * 99);
+          frameCounter.textContent = `(${progressInt.toString().padStart(2, '0')})`;
+        }
+      }
+      window.addEventListener('scroll', updateFrameCounter, { passive: true });
+      updateFrameCounter();
+
+      // Rail Section Highlight
+      const sections = ['hero', 'ledger', 'about', 'work', 'skills', 'contact-pin-wrap'];
+      sections.forEach((secId, idx) => {
+        const el = document.getElementById(secId);
+        if (el) {
+          ScrollTrigger.create({
+            trigger: el,
+            start: 'top 50%',
+            end: 'bottom 50%',
+            onEnter: () => updateRail(idx),
+            onEnterBack: () => updateRail(idx)
+          });
+        }
+      });
+
+      function updateRail(activeIndex) {
+        railTicks.forEach((tick, idx) => {
+          if (idx === activeIndex) {
+            tick.classList.add('active');
+          } else {
+            tick.classList.remove('active');
+          }
+        });
+      }
+
+      /* --------------------------------------------------------------------------
+         3. THREE.JS HERO LIGHT-FIELD SHADER
+         -------------------------------------------------------------------------- */
+      const heroCanvas = document.getElementById('hero-canvas');
+      if (heroCanvas && typeof THREE !== 'undefined' && !prefersReducedMotion) {
+        const scene = new THREE.Scene();
+        const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+        const renderer = new THREE.WebGLRenderer({ canvas: heroCanvas, alpha: true, antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+
+        const uniforms = {
+          u_time: { value: 0 },
+          u_resolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
+          u_mouse: { value: new THREE.Vector2(0.5, 0.5) }
+        };
+
+        const vertexShader = `
+          void main() {
+            gl_Position = vec4(position, 1.0);
+          }
+        `;
+
+        const fragmentShader = `
+          uniform vec2 u_resolution;
+          uniform float u_time;
+          uniform vec2 u_mouse;
+
+          void main() {
+            vec2 st = gl_FragCoord.xy / u_resolution.xy;
+            vec2 mouse = u_mouse;
+
+            // Soft Volumetric Drifting Spheres
+            float d1 = length(st - vec2(0.3 + 0.1 * sin(u_time * 0.5), 0.6 + 0.1 * cos(u_time * 0.4)));
+            float d2 = length(st - vec2(0.7 + 0.15 * cos(u_time * 0.6), 0.4 + 0.1 * sin(u_time * 0.7)));
+            float dMouse = length(st - mouse);
+
+            float glow1 = smoothstep(0.6, 0.0, d1);
+            float glow2 = smoothstep(0.7, 0.0, d2);
+            float glowMouse = smoothstep(0.4, 0.0, dMouse);
+
+            // Palette mix — neutral cool field, restrained accent on mouse glow only
+            vec3 coreWhite = vec3(0.88, 0.88, 0.90);   // Soft white/silver
+            vec3 neutralGrey = vec3(0.55, 0.55, 0.60); // Mid neutral grey
+            vec3 accentHint = vec3(0.94, 0.29, 0.16);  // Accent on mouse only
+            vec3 bg = vec3(0.04, 0.04, 0.04);
+
+            vec3 color = bg + glow1 * coreWhite * 0.08 + glow2 * neutralGrey * 0.06 + glowMouse * accentHint * 0.06;
+
+            gl_FragColor = vec4(color, 1.0);
+          }
+        `;
+
+        const material = new THREE.ShaderMaterial({
+          vertexShader,
+          fragmentShader,
+          uniforms,
+          transparent: true
+        });
+
+        const geometry = new THREE.PlaneGeometry(2, 2);
+        const mesh = new THREE.Mesh(geometry, material);
+        scene.add(mesh);
+
+        let mouseX = 0.5, mouseY = 0.5;
+        window.addEventListener('pointermove', (e) => {
+          mouseX = e.clientX / window.innerWidth;
+          mouseY = 1.0 - (e.clientY / window.innerHeight);
+        });
+
+        window.addEventListener('resize', () => {
+          renderer.setSize(window.innerWidth, window.innerHeight);
+          uniforms.u_resolution.value.set(window.innerWidth, window.innerHeight);
+        });
+
+        let isHeroVisible = true;
+        let animationFrameId = null;
+
+        const heroObserver = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            isHeroVisible = entry.isIntersecting;
+            if (isHeroVisible && !animationFrameId) {
+              animationFrameId = requestAnimationFrame(animateHeroShader);
+            }
+          });
+        }, { threshold: 0.05 });
+        heroObserver.observe(document.getElementById('hero'));
+
+        function animateHeroShader(t) {
+          if (!isHeroVisible) {
+            animationFrameId = null;
+            return;
+          }
+          uniforms.u_time.value = t * 0.001;
+          uniforms.u_mouse.value.x += (mouseX - uniforms.u_mouse.value.x) * 0.05;
+          uniforms.u_mouse.value.y += (mouseY - uniforms.u_mouse.value.y) * 0.05;
+          renderer.render(scene, camera);
+          animationFrameId = requestAnimationFrame(animateHeroShader);
+        }
+        animationFrameId = requestAnimationFrame(animateHeroShader);
+      }
+
+      /* --------------------------------------------------------------------------
+         4. HERO SCROLL CHOREOGRAPHY (PINNED & SCRUBBED)
+         -------------------------------------------------------------------------- */
+      if (!prefersReducedMotion) {
+        const heroTimeline = gsap.timeline({
+          scrollTrigger: {
+            trigger: '#hero',
+            start: 'top top',
+            end: '+=180%',
+            pin: true,
+            scrub: 1,
+          }
+        });
+
+        const nameWrap = document.getElementById('hero-name-wrap');
+        const titleGroup = document.getElementById('hero-title-group');
+        const phraseGroup = document.getElementById('hero-phrase-group');
+        const wordGrowth = phraseGroup ? phraseGroup.querySelector('.word-growth') : null;
+
+        // Step 1: Rise to vertical center & initial scale
+        heroTimeline
+          .to(nameWrap, {
+            bottom: '50vh',
+            transform: 'translateY(50%)',
+            duration: 1,
+            ease: 'power1.inOut'
+          })
+          .to(titleGroup, {
+            scale: 1.3,
+            duration: 1,
+            ease: 'power1.inOut'
+          }, '<')
+
+        // Step 2: Kinetic Morph (Title blurs out, 'where GROWTH begins.' morphs in)
+          .to(titleGroup, {
+            opacity: 0,
+            scale: 1.7,
+            filter: 'blur(12px)',
+            duration: 1,
+            ease: 'power2.in'
+          })
+          .fromTo(phraseGroup, 
+            { opacity: 0, scale: 0.65, filter: 'blur(12px)' },
+            { opacity: 1, scale: 1.1, filter: 'blur(0px)', duration: 1.2, ease: 'power2.out' },
+            '-=0.8'
+          );
+
+        if (wordGrowth) {
+          heroTimeline.to(wordGrowth, {
+            scale: 1.18,
+            duration: 0.8,
+            ease: 'back.out(2)'
+          }, '-=0.6');
+        }
+
+        // Step 3: Scale out & drift gracefully into section 2
+        heroTimeline.to(phraseGroup, {
+          scale: 1.6,
+          opacity: 0,
+          y: -60,
+          duration: 1.2,
+          ease: 'power2.inOut'
+        });
+      }
+
+      /* --------------------------------------------------------------------------
+         5. LEDGER COUNT-UP ANIMATION
+         -------------------------------------------------------------------------- */
+      const ledgerNumbers = document.querySelectorAll('.ledger-number');
+      ledgerNumbers.forEach(numEl => {
+        const rawTarget = numEl.getAttribute('data-target');
+        const suffix = numEl.getAttribute('data-suffix') || '';
+        const targetVal = parseInt(rawTarget, 10);
+        if (isNaN(targetVal)) return;
+
+        ScrollTrigger.create({
+          trigger: numEl,
+          start: 'top 85%',
+          once: true,
+          onEnter: () => {
+            const counter = { val: 0 };
+            gsap.to(counter, {
+              val: targetVal,
+              duration: 1.8,
+              ease: 'power2.out',
+              onUpdate: function() {
+                const currentVal = Math.floor(counter.val);
+                const strVal = targetVal < 10 && !suffix ? currentVal.toString().padStart(2, '0') : currentVal.toString();
+                numEl.textContent = strVal + suffix;
+              }
+            });
+          }
+        });
+      });
+
+      /* --------------------------------------------------------------------------
+         6. GSAP SPLITTEXT REVEALS & MARQUEE TICKER
+         -------------------------------------------------------------------------- */
+      // Note: plugins already registered at line 1694 — no duplicate call needed
+
+      let splitTextInstances = [];
+
+      function initSplitTextReveals() {
+        // Revert any previous instances on clean re-split
+        splitTextInstances.forEach(inst => {
+          if (inst && typeof inst.revert === 'function') inst.revert();
+        });
+        splitTextInstances = [];
+
+        if (prefersReducedMotion) return;
+
+        // 0. Hero Wordmark - Character stagger & overshoot assemble entrance timeline on load
+        const heroFirstName = document.getElementById('hero-first-name');
+        const heroLastName = document.getElementById('hero-last-name');
+        const heroBar = document.querySelector('.hero-bar');
+
+        if (heroFirstName && heroLastName) {
+          const splitFirst = SplitText.create(heroFirstName, { type: 'chars' });
+          const splitLast = SplitText.create(heroLastName, { type: 'chars' });
+          splitTextInstances.push(splitFirst, splitLast);
+
+          const heroLoadTl = gsap.timeline({ delay: 0.15 });
+
+          if (heroBar) gsap.set(heroBar, { opacity: 0, y: 20 });
+
+          // Stagger characters in with overshoot (back.out ease) and slight 3D rotation/scale snap
+          heroLoadTl
+            .from(splitFirst.chars, {
+              opacity: 0,
+              y: 90,
+              rotateX: -60,
+              rotateZ: -6,
+              scale: 0.7,
+              transformOrigin: '0% 100%',
+              stagger: 0.035,
+              duration: 0.85,
+              ease: 'back.out(2)'
+            })
+            .from(splitLast.chars, {
+              opacity: 0,
+              y: 90,
+              rotateX: -60,
+              rotateZ: 6,
+              scale: 0.7,
+              transformOrigin: '100% 100%',
+              stagger: 0.035,
+              duration: 0.85,
+              ease: 'back.out(2)'
+            }, '-=0.65');
+
+          if (heroBar) {
+            heroLoadTl.to(heroBar, {
+              opacity: 1,
+              y: 0,
+              duration: 0.6,
+              ease: 'power2.out'
+            }, '-=0.45');
+          }
+        }
+
+        // 1. Hero Tagline - Per-character stagger reveal on load
+        const heroTagline = document.querySelector('.hero-tagline');
+        if (heroTagline) {
+          const splitTagline = SplitText.create(heroTagline, { type: 'words, chars' });
+          splitTextInstances.push(splitTagline);
+          gsap.from(splitTagline.chars, {
+            opacity: 0,
+            y: 16,
+            rotateX: -40,
+            stagger: 0.018,
+            duration: 0.6,
+            ease: 'power2.out',
+            delay: 0.45
+          });
+        }
+
+        // 2. About Statement - SplitText words+lines reveal on scroll
+        const aboutStmt = document.getElementById('about-text-reveal');
+        if (aboutStmt) {
+          const splitAbout = SplitText.create(aboutStmt, { type: 'words, lines' });
+          splitTextInstances.push(splitAbout);
+          gsap.fromTo(splitAbout.words, 
+            { opacity: 0.12, filter: 'blur(8px)' },
+            {
+              opacity: 1,
+              filter: 'blur(0px)',
+              stagger: 0.05,
+              ease: 'none',
+              scrollTrigger: {
+                trigger: aboutStmt,
+                start: 'top 80%',
+                end: 'bottom 40%',
+                scrub: 0.5
+              }
+            }
+          );
+        }
+
+        // 3. Gallery Centered Statement - SplitText words+lines reveal on scroll
+        const galleryStmt = document.getElementById('gallery-text-reveal');
+        if (galleryStmt) {
+          const splitGallery = SplitText.create(galleryStmt, { type: 'words, lines' });
+          splitTextInstances.push(splitGallery);
+          gsap.fromTo(splitGallery.words,
+            { opacity: 0.12, filter: 'blur(8px)' },
+            {
+              opacity: 1,
+              filter: 'blur(0px)',
+              stagger: 0.05,
+              ease: 'none',
+              scrollTrigger: {
+                trigger: '#gallery-pin-wrap',
+                start: 'top 40%',
+                end: 'top -20%',
+                scrub: 0.5
+              }
+            }
+          );
+        }
+
+        // 4. Contact Heading - Per-character stagger reveal on scroll-in
+        const contactHeading = document.querySelector('.contact-heading');
+        if (contactHeading) {
+          const splitContactHeading = SplitText.create(contactHeading, { type: 'words, chars' });
+          splitTextInstances.push(splitContactHeading);
+          gsap.from(splitContactHeading.chars, {
+            opacity: 0,
+            y: 35,
+            rotateX: -50,
+            stagger: 0.02,
+            duration: 0.65,
+            ease: 'power3.out',
+            scrollTrigger: {
+              trigger: '#contact-pin-wrap',
+              start: 'top 50%',
+              toggleActions: 'play none none reverse'
+            }
+          });
+        }
+
+        // 5. Contact Blurb - SplitText words+lines reveal on scroll
+        const contactBlurb = document.querySelector('.contact-blurb');
+        if (contactBlurb) {
+          const splitBlurb = SplitText.create(contactBlurb, { type: 'words, lines' });
+          splitTextInstances.push(splitBlurb);
+          gsap.fromTo(splitBlurb.words,
+            { opacity: 0.15, y: 15 },
+            {
+              opacity: 1,
+              y: 0,
+              stagger: 0.03,
+              duration: 0.5,
+              ease: 'power2.out',
+              scrollTrigger: {
+                trigger: '#contact-pin-wrap',
+                start: 'top 40%',
+                toggleActions: 'play none none reverse'
+              }
+            }
+          );
+        }
+      }
+
+      initSplitTextReveals();
+
+      // Handle Resize Debounce for SplitText Clean Re-Split
+      let splitResizeTimer;
+      window.addEventListener('resize', () => {
+        clearTimeout(splitResizeTimer);
+        splitResizeTimer = setTimeout(() => {
+          initSplitTextReveals();
+        }, 250);
+      });
+
+      // Horizontal Auto-Scrolling Marquee Ticker Driven by Scroll Velocity
+      const marqueeTrack = document.querySelector('.marquee-track');
+      if (marqueeTrack && !prefersReducedMotion) {
+        let marqueePos = 0;
+        let baseSpeed = 1.2;
+        let velocityBoost = 0;
+
+        window.addEventListener('scroll', () => {
+          const v = smoother ? smoother.getVelocity() : ScrollTrigger.getVelocity();
+          velocityBoost = v * 0.05;
+        });
+
+        gsap.ticker.add(() => {
+          velocityBoost *= 0.92;
+          const currentSpeed = baseSpeed + Math.abs(velocityBoost);
+          marqueePos -= currentSpeed;
+
+          const halfWidth = marqueeTrack.scrollWidth / 2;
+          if (marqueePos <= -halfWidth) {
+            marqueePos += halfWidth;
+          }
+          gsap.set(marqueeTrack, { x: marqueePos });
+        });
+      }
+
+      /* --------------------------------------------------------------------------
+         7. WORK SECTION — VELOCITY SKEW & STICKY PREVIEW
+         -------------------------------------------------------------------------- */
+      const projectItems = document.querySelectorAll('.project-item');
+      const previewImg = document.getElementById('preview-img');
+      const previewBadge = document.getElementById('preview-badge');
+      const previewCard = document.getElementById('preview-card');
+
+      projectItems.forEach((item, idx) => {
+        item.addEventListener('mouseenter', () => {
+          projectItems.forEach(p => p.classList.remove('active'));
+          item.classList.add('active');
+
+          const newImg = item.getAttribute('data-img');
+          const title = item.getAttribute('data-title');
+          const year = item.getAttribute('data-year');
+
+          previewImg.src = newImg;
+          previewBadge.textContent = `[0${idx+1}] [${year}] PREVIEW`;
+        });
+
+        // Click to Open Detail Overlay
+        item.addEventListener('click', (e) => {
+          e.preventDefault();
+          openProjectOverlay(item);
+        });
+      });
+
+      // Velocity Skew on Scroll
+      if (!prefersReducedMotion) {
+        let lastScrollY = window.scrollY;
+        window.addEventListener('scroll', () => {
+          const currentScrollY = window.scrollY;
+          const velocity = currentScrollY - lastScrollY;
+          lastScrollY = currentScrollY;
+
+          const skew = Math.max(-15, Math.min(15, velocity * 0.15));
+          gsap.to(previewCard, {
+            rotateY: skew,
+            duration: 0.2,
+            ease: 'power1.out'
+          });
+        });
+      }
+
+      /* --------------------------------------------------------------------------
+         8. FULL-SCREEN PROJECT OVERLAY
+         -------------------------------------------------------------------------- */
+      const overlay = document.getElementById('project-overlay');
+      const overlayClose = document.getElementById('overlay-close');
+      const overlayTitle = document.getElementById('overlay-title');
+      const overlayEyebrow = document.getElementById('overlay-eyebrow');
+      const overlayImg = document.getElementById('overlay-img');
+      const overlayBody = document.getElementById('overlay-body');
+
+      function openProjectOverlay(item) {
+        const title = item.getAttribute('data-title');
+        const cat = item.getAttribute('data-cat');
+        const year = item.getAttribute('data-year');
+        const img = item.getAttribute('data-img');
+        const body = item.getAttribute('data-body');
+
+        overlayTitle.innerHTML = title;
+        overlayEyebrow.textContent = `[${year}] — ${cat}`;
+        overlayImg.src = img;
+        overlayBody.textContent = body;
+
+        overlay.classList.add('open');
+        document.body.style.overflow = 'hidden';
+        if (smoother) smoother.paused(true);
+      }
+
+      function closeProjectOverlay() {
+        overlay.classList.remove('open');
+        document.body.style.overflow = '';
+        if (smoother) smoother.paused(false);
+      }
+
+      overlayClose.addEventListener('click', closeProjectOverlay);
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && overlay.classList.contains('open')) {
+          closeProjectOverlay();
+        }
+      });
+      // Safety setTimeout Fallback for Overlay Close
+      window.addEventListener('blur', () => {
+        setTimeout(() => {
+          if (overlay.classList.contains('open')) closeProjectOverlay();
+        }, 100);
+      });
+
+      /* --------------------------------------------------------------------------
+         9. GALLERY — ROLLING RING ORBIT (desktop only, ≥601px)
+            On mobile (≤600px) the CSS horizontal scroll-row takes over instead.
+         -------------------------------------------------------------------------- */
+      const ringCards = document.querySelectorAll('.gallery-card');
+      const isMobileGallery = () => window.innerWidth <= 600;
+
+      if (ringCards.length && !prefersReducedMotion && !isMobileGallery()) {
+        const galleryTl = gsap.timeline({
+          scrollTrigger: {
+            trigger: '#gallery-pin-wrap',
+            start: 'top top',
+            end: '+=200%',
+            pin: true,
+            scrub: 1
+          }
+        });
+
+        const count = ringCards.length;
+        ringCards.forEach((card, idx) => {
+          const angleOffset = (idx / count) * Math.PI * 2;
+
+          galleryTl.to(card, {
+            onUpdate: function() {
+              const progress = galleryTl.progress();
+              const currentAngle = angleOffset + progress * Math.PI * 2;
+              const radiusX = window.innerWidth * 0.35;
+              const radiusY = window.innerHeight * 0.3;
+
+              const x = Math.cos(currentAngle) * radiusX;
+              const y = Math.sin(currentAngle) * radiusY;
+              const scale = 0.6 + (Math.sin(currentAngle) + 1) * 0.25;
+              const rotateY = Math.cos(currentAngle) * 180;
+
+              gsap.set(card, {
+                x: x,
+                y: y,
+                scale: scale,
+                rotateY: rotateY,
+                zIndex: Math.floor(scale * 100)
+              });
+            }
+          }, 0);
+        });
+      }
+
+      /* --------------------------------------------------------------------------
+         10. SKILLS ACCORDION & TRAVELLING ARROW
+         -------------------------------------------------------------------------- */
+      const accordionHeaders = document.querySelectorAll('.accordion-header');
+      accordionHeaders.forEach(header => {
+        header.addEventListener('click', () => {
+          const content = header.nextElementSibling;
+          const icon = header.querySelector('.accordion-icon');
+          const isOpen = content.style.maxHeight && content.style.maxHeight !== '0px';
+
+          // Close all others
+          document.querySelectorAll('.accordion-content').forEach(c => c.style.maxHeight = '0px');
+          document.querySelectorAll('.accordion-icon').forEach(i => i.textContent = '+');
+
+          if (!isOpen) {
+            content.style.maxHeight = content.scrollHeight + 'px';
+            icon.textContent = '−';
+          }
+        });
+      });
+
+      // Travelling Arrow
+      const travelArrow = document.getElementById('skills-travel-arrow');
+      if (travelArrow && !prefersReducedMotion) {
+        gsap.to(travelArrow, {
+          x: '15vw',
+          ease: 'none',
+          scrollTrigger: {
+            trigger: '#skills',
+            start: 'top 70%',
+            end: 'bottom 30%',
+            scrub: 0.5
+          }
+        });
+      }
+
+      /* --------------------------------------------------------------------------
+         11. AWARDS TABLE TRACKER
+         -------------------------------------------------------------------------- */
+      const awardRows = document.querySelectorAll('.awards-row:not(.header)');
+      awardRows.forEach(row => {
+        row.addEventListener('mouseenter', () => {
+          awardRows.forEach(r => r.classList.remove('active'));
+          row.classList.add('active');
+        });
+      });
+
+      /* --------------------------------------------------------------------------
+         12. CONTACT SECTION — THE LIGHT FLIP
+         -------------------------------------------------------------------------- */
+      const contactCircleLayer = document.getElementById('contact-circle-layer');
+      if (contactCircleLayer && !prefersReducedMotion) {
+        gsap.to(contactCircleLayer, {
+          clipPath: 'circle(150% at 50% 100%)',
+          ease: 'none',
+          scrollTrigger: {
+            trigger: '#contact-pin-wrap',
+            start: 'top top',
+            end: '+=100%',
+            pin: true,
+            scrub: 1,
+            onUpdate: (self) => {
+              // Toggle persistent UI contrast
+              if (self.progress > 0.3) {
+                frameCounter.style.color = '#0A0A0A';
+              } else {
+                frameCounter.style.color = '#F0EFEA';
+              }
+            }
+          }
+        });
+      }
+
+      /* --------------------------------------------------------------------------
+         13. FOOTER HALFTONE DOT MATRIX CANVAS
+         -------------------------------------------------------------------------- */
+      const dotsCanvas = document.getElementById('footer-dots-canvas');
+      if (dotsCanvas && !prefersReducedMotion) {
+        const ctx = dotsCanvas.getContext('2d');
+        let dots = [];
+        let mouseX = -1000, mouseY = -1000;
+        let dotsRafId = null;
+        let isDotsVisible = false;
+
+        function initDots() {
+          dotsCanvas.width = dotsCanvas.offsetWidth;
+          dotsCanvas.height = dotsCanvas.offsetHeight;
+          dots = [];
+
+          const spacing = 24;
+          for (let x = spacing / 2; x < dotsCanvas.width; x += spacing) {
+            for (let y = spacing / 2; y < dotsCanvas.height; y += spacing) {
+              dots.push({ x, y });
+            }
+          }
+        }
+
+        window.addEventListener('resize', initDots);
+        initDots();
+
+        window.addEventListener('pointermove', (e) => {
+          const rect = dotsCanvas.getBoundingClientRect();
+          mouseX = e.clientX - rect.left;
+          mouseY = e.clientY - rect.top;
+        });
+
+        function renderDots() {
+          if (!isDotsVisible) { dotsRafId = null; return; }
+          ctx.clearRect(0, 0, dotsCanvas.width, dotsCanvas.height);
+
+          dots.forEach(d => {
+            const dist = Math.hypot(mouseX - d.x, mouseY - d.y);
+            const maxDist = 140;
+
+            if (dist < maxDist) {
+              const alpha = (1 - dist / maxDist);
+              ctx.fillStyle = `rgba(240, 74, 42, ${alpha * 0.8})`;
+              ctx.beginPath();
+              ctx.arc(d.x, d.y, 3, 0, Math.PI * 2);
+              ctx.fill();
+            } else {
+              ctx.fillStyle = 'rgba(240, 239, 234, 0.08)';
+              ctx.beginPath();
+              ctx.arc(d.x, d.y, 1.5, 0, Math.PI * 2);
+              ctx.fill();
+            }
+          });
+
+          dotsRafId = requestAnimationFrame(renderDots);
+        }
+
+        // Only run canvas rAF when footer is visible
+        const dotsObserver = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            isDotsVisible = entry.isIntersecting;
+            if (isDotsVisible && !dotsRafId) {
+              dotsRafId = requestAnimationFrame(renderDots);
+            }
+          });
+        }, { threshold: 0.05 });
+        dotsObserver.observe(dotsCanvas);
+      }
+
+      /* --------------------------------------------------------------------------
+         14. MAGNETIC LINKS INTERACTION
+         -------------------------------------------------------------------------- */
+      if (!prefersReducedMotion) {
+        const magneticElements = document.querySelectorAll('.magnetic');
+        magneticElements.forEach(el => {
+          el.addEventListener('mousemove', (e) => {
+            const rect = el.getBoundingClientRect();
+            const x = e.clientX - (rect.left + rect.width / 2);
+            const y = e.clientY - (rect.top + rect.height / 2);
+            gsap.to(el, { x: x * 0.3, y: y * 0.3, duration: 0.2 });
+          });
+          el.addEventListener('mouseleave', () => {
+            gsap.to(el, { x: 0, y: 0, duration: 0.4, ease: 'power2.out' });
+          });
+        });
+      }
+
+      /* --------------------------------------------------------------------------
+         15. SITE NAVBAR SCROLLTRIGGER & MOBILE OVERLAY MENU
+         -------------------------------------------------------------------------- */
+      const siteNav = document.getElementById('site-nav');
+      const hamburgerBtn = document.getElementById('hamburger-btn');
+      const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
+      const mobileMenuLinks = document.querySelectorAll('.mobile-menu-link');
+      const hamBarTop = document.querySelector('.ham-bar-top');
+      const hamBarMid = document.querySelector('.ham-bar-mid');
+      const hamBarBot = document.querySelector('.ham-bar-bot');
+
+      // ScrollTrigger: Navbar transparent over hero, translucent blurred dark past hero
+      ScrollTrigger.create({
+        trigger: '#hero',
+        start: 'bottom 80px',
+        onEnter: () => siteNav.classList.add('scrolled'),
+        onLeaveBack: () => siteNav.classList.remove('scrolled')
+      });
+
+      let isMenuOpen = false;
+
+      function openMobileMenu() {
+        if (isMenuOpen) return;
+        isMenuOpen = true;
+        hamburgerBtn.setAttribute('aria-expanded', 'true');
+        mobileMenuOverlay.setAttribute('aria-hidden', 'false');
+        mobileMenuOverlay.classList.add('open');
+
+        document.body.style.overflow = 'hidden';
+        if (smoother) smoother.paused(true);
+
+        // GSAP Morph Hamburger into ✕
+        if (!prefersReducedMotion) {
+          gsap.to(hamBarTop, { y: 8, rotate: 45, duration: 0.3, ease: 'power2.inOut' });
+          gsap.to(hamBarMid, { opacity: 0, scaleX: 0, duration: 0.2 });
+          gsap.to(hamBarBot, { y: -8, rotate: -45, duration: 0.3, ease: 'power2.inOut' });
+
+          // Staggered reveal of mobile menu links
+          gsap.fromTo(mobileMenuLinks, 
+            { y: 35, opacity: 0 },
+            { y: 0, opacity: 1, duration: 0.4, stagger: 0.06, ease: 'power2.out', delay: 0.1 }
+          );
+        }
+      }
+
+      function closeMobileMenu() {
+        if (!isMenuOpen) return;
+        isMenuOpen = false;
+        hamburgerBtn.setAttribute('aria-expanded', 'false');
+        mobileMenuOverlay.setAttribute('aria-hidden', 'true');
+
+        document.body.style.overflow = '';
+        if (smoother) smoother.paused(false);
+
+        if (!prefersReducedMotion) {
+          // GSAP Morph ✕ back to Hamburger
+          gsap.to(hamBarTop, { y: 0, rotate: 0, duration: 0.3, ease: 'power2.inOut' });
+          gsap.to(hamBarMid, { opacity: 1, scaleX: 1, duration: 0.3 });
+          gsap.to(hamBarBot, { y: 0, rotate: 0, duration: 0.3, ease: 'power2.inOut' });
+
+          // Reverse staggered hide
+          gsap.to(mobileMenuLinks, {
+            y: -20,
+            opacity: 0,
+            duration: 0.25,
+            stagger: 0.04,
+            ease: 'power2.in',
+            onComplete: () => {
+              mobileMenuOverlay.classList.remove('open');
+            }
+          });
+        } else {
+          mobileMenuOverlay.classList.remove('open');
+        }
+      }
+
+      hamburgerBtn.addEventListener('click', () => {
+        if (isMenuOpen) {
+          closeMobileMenu();
+        } else {
+          openMobileMenu();
+        }
+      });
+
+      mobileMenuLinks.forEach(link => {
+        link.addEventListener('click', closeMobileMenu);
+      });
+
+      // Outside Click Close Handler
+      mobileMenuOverlay.addEventListener('click', (e) => {
+        if (e.target === mobileMenuOverlay) {
+          closeMobileMenu();
+        }
+      });
+
+      // Esc Key Close Handler
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && isMenuOpen) {
+          closeMobileMenu();
+        }
+      });
+
+      // Safety setTimeout Fallback for Mobile Menu Close (tab backgrounded)
+      window.addEventListener('blur', () => {
+        setTimeout(() => {
+          if (isMenuOpen) closeMobileMenu();
+        }, 100);
+      });
+
+      // Smooth Anchor Navigation Handler via ScrollSmoother
+      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+          const targetId = this.getAttribute('href');
+          if (targetId && targetId !== '#') {
+            const targetEl = document.querySelector(targetId);
+            if (targetEl) {
+              e.preventDefault();
+              if (smoother) {
+                smoother.scrollTo(targetEl, true, 'top top');
+              } else {
+                targetEl.scrollIntoView({ behavior: 'smooth' });
+              }
+            }
+          }
+        });
+      });
+
+    })();
+  </script>
+</body>
+</html>
