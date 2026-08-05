@@ -1,0 +1,70 @@
+﻿name: Supabase Keep-Alive
+
+# ── Schedule ──────────────────────────────────────────────────────────────────
+# Runs at 00:00 UTC every Sunday (0) and Friday (5).
+# Supabase pauses free-tier projects after 7 days of inactivity;
+# twice-a-week pings give us a comfortable safety margin.
+on:
+  schedule:
+    - cron: '0 0 * * 0,5'
+  workflow_dispatch:        # allow one-click manual runs from the Actions tab
+
+jobs:
+  ping-supabase:
+    name: Insert keep-alive row & prune old rows
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    env:
+      # These secrets must exist in Settings → Secrets and variables → Actions
+      SUPABASE_URL:      ${{ secrets.SUPABASE_URL }}
+      SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+
+    steps:
+      # ── 1. Insert a new keep-alive row ──────────────────────────────────────
+      - name: Insert row into keepalive_log
+        id: insert
+        run: |
+          HTTP_STATUS=$(curl --silent --output /dev/null --write-out "%{http_code}" \
+            --request POST \
+            --url    "${SUPABASE_URL}/rest/v1/keepalive_log" \
+            --header "apikey: ${SUPABASE_ANON_KEY}" \
+            --header "Authorization: Bearer ${SUPABASE_ANON_KEY}" \
+            --header "Content-Type: application/json" \
+            --header "Prefer: return=minimal" \
+            --data   '{"source": "github-actions"}')
+
+          echo "http_status=${HTTP_STATUS}" >> "$GITHUB_OUTPUT"
+
+          if [[ "$HTTP_STATUS" != "201" ]]; then
+            echo "::error::Supabase insert failed — HTTP ${HTTP_STATUS}"
+            exit 1
+          fi
+
+          echo "✅  Keep-alive row inserted successfully (HTTP ${HTTP_STATUS})"
+
+      # ── 2. Delete rows older than 14 days ───────────────────────────────────
+      - name: Purge rows older than 14 days
+        run: |
+          HTTP_STATUS=$(curl --silent --output /dev/null --write-out "%{http_code}" \
+            --request DELETE \
+            --url    "${SUPABASE_URL}/rest/v1/keepalive_log?created_at=lt.$(date -u -d '14 days ago' +'%Y-%m-%dT%H:%M:%SZ')" \
+            --header "apikey: ${SUPABASE_ANON_KEY}" \
+            --header "Authorization: Bearer ${SUPABASE_ANON_KEY}" \
+            --header "Prefer: return=minimal")
+
+          if [[ "$HTTP_STATUS" != "204" && "$HTTP_STATUS" != "200" ]]; then
+            echo "::warning::Purge step returned HTTP ${HTTP_STATUS} — rows may not have been deleted"
+          else
+            echo "🧹  Old keep-alive rows purged (HTTP ${HTTP_STATUS})"
+          fi
+
+      # ── 3. Summary ──────────────────────────────────────────────────────────
+      - name: Write job summary
+        if: always()
+        run: |
+          echo "## Supabase Keep-Alive — $(date -u +'%Y-%m-%d %H:%M UTC')" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Step   | Result |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| ------ | ------ |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Insert | HTTP ${{ steps.insert.outputs.http_status }} |" >> "$GITHUB_STEP_SUMMARY"
