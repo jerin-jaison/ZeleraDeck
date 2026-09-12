@@ -21,6 +21,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { useParams, Link } from 'react-router-dom'
 import api from '../../api/axios'
+import { supabase } from '../../api/supabase'
 
 export default function ProAdminDashboardPage() {
   const { slug } = useParams()
@@ -34,8 +35,26 @@ export default function ProAdminDashboardPage() {
   const products = productsData?.results || []
   const totalProducts = productsData?.count || 0
   const inStockCount = products.filter(p => p.is_in_stock).length
-  const categories = productsData?.categories || []
-  const categoryCount = categories.length
+
+  // Live storefront views count for this month from Supabase
+  const now = new Date()
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString()
+
+  const { data: monthViewsCount = 0, isLoading: isLoadingViews } = useQuery({
+    queryKey: ['pro-admin-month-views', slug],
+    queryFn: async () => {
+      if (!slug) return 0
+      const { count, error } = await supabase
+        .from('storefront_views')
+        .select('*', { count: 'exact', head: true })
+        .eq('shop_id', slug)
+        .gte('viewed_at', monthStart)
+      if (error) return 0
+      return count ?? 0
+    },
+    enabled: !!slug,
+    staleTime: 60_000,
+  })
 
   return (
     <div className="px-4 py-8 md:px-8 lg:px-16 lg:py-12 space-y-8 lg:space-y-12">
@@ -71,19 +90,27 @@ export default function ProAdminDashboardPage() {
           </div>
         </div>
 
-        {/* Categories */}
-        <div className="bg-white p-5 lg:p-8 border border-[#e2e2e2] shadow-[0_4px_32px_rgba(0,0,0,0.02)]">
-          <p className="text-[12px] uppercase tracking-[0.1em] text-[#7e7576] font-semibold mb-4">
-            Categories
-          </p>
-          <h2 className="font-serif text-[40px] text-black leading-none">
-            {isLoading ? '—' : categoryCount}
-          </h2>
-          <div className="mt-4 flex items-center gap-2 text-[11px] text-[#7e7576] font-bold uppercase tracking-wider">
-            <span className="material-symbols-outlined text-[14px]">category</span>
-            <span>Product collections</span>
+        {/* Visitors This Month / Storefront Views */}
+        <Link
+          to={`/pro-admin/${slug}/analytics`}
+          className="bg-white p-5 lg:p-8 border border-[#e2e2e2] shadow-[0_4px_32px_rgba(0,0,0,0.02)] hover:border-black transition-all group block"
+        >
+          <div className="flex items-center justify-between mb-4">
+            <p className="text-[12px] uppercase tracking-[0.1em] text-[#7e7576] font-semibold">
+              Visitors This Month
+            </p>
+            <span className="material-symbols-outlined text-[16px] text-[#7e7576] group-hover:text-black group-hover:translate-x-0.5 transition-all">
+              arrow_forward
+            </span>
           </div>
-        </div>
+          <h2 className="font-serif text-[40px] text-black leading-none">
+            {isLoadingViews ? '—' : monthViewsCount}
+          </h2>
+          <div className="mt-4 flex items-center gap-2 text-[11px] text-[#7e7576] font-bold uppercase tracking-wider group-hover:text-black transition-colors">
+            <span className="material-symbols-outlined text-[14px]">monitoring</span>
+            <span>Click for detailed analytics</span>
+          </div>
+        </Link>
       </section>
 
       {/* ── Main Row: Quick Actions + Top Products ───────────────────────────── */}

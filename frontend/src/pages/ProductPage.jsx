@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { ChevronLeft } from 'lucide-react'
 import api from '../api/axios'
+import { supabase } from '../api/supabase'
 import SEOHead from '../components/SEOHead'
 
 /** Append Cloudinary auto-format + quality optimisation */
@@ -152,11 +153,30 @@ function MediaCarousel({ slides }) {
 export default function ProductPage() {
   const { slug, displayId } = useParams()
   const navigate = useNavigate()
+  const viewTracked = useRef(false)
 
   const { data, isLoading } = useQuery({
     queryKey: ['public-product', slug, displayId],
     queryFn: () => api.get(`store/${slug}/product/${displayId}/`).then((r) => r.data),
   })
+
+  // ── Track product view once data is available ─────────────────────────
+  useEffect(() => {
+    if (viewTracked.current) return
+    if (!data?.product?.display_id || !slug) return
+    viewTracked.current = true
+
+    supabase
+      .from('storefront_views')
+      .insert({
+        shop_id: slug,
+        page_type: 'product',
+        product_display_id: data.product.display_id,
+        product_name: data.product.name,
+      })
+      .then(() => {})
+      .catch(() => {})
+  }, [data, slug])
 
   if (isLoading) {
     return (

@@ -23,6 +23,7 @@ import WhyUsPage from './pages/WhyUsPage'
 import SignupPage from './pages/SignupPage'
 import AboutPage from './pages/AboutPage'
 import ContactPage from './pages/ContactPage'
+import NotFoundPage from './pages/NotFoundPage'
 import SplashScreen from './components/SplashScreen'
 import UnifiedStorefront from './pages/UnifiedStorefront'
 
@@ -44,6 +45,7 @@ import ProAdminProductFormPage from './pro/admin/ProAdminProductFormPage'
 import ProAdminAboutPage from './pro/admin/ProAdminAboutPage'
 import ProAdminContactPage from './pro/admin/ProAdminContactPage'
 import ProAdminHomepagePage from './pro/admin/ProAdminHomepagePage'
+import ProAdminAnalyticsPage from './pro/admin/ProAdminAnalyticsPage'
 
 // Admin pages
 import AdminLayout from './pages/admin/AdminLayout'
@@ -94,16 +96,6 @@ function Protected({ children }) {
   }
 
   return children
-}
-
-function NotFoundPage() {
-  return (
-    <div className="bg-white min-h-screen flex flex-col items-center justify-center px-6 text-center">
-      <p className="text-[96px] font-black text-[#F0F0F0] leading-none">404</p>
-      <p className="text-xl font-bold text-[#0A0A0A] mt-2">Page not found</p>
-      <p className="text-sm text-[#737373] mt-2">This page doesn't exist.</p>
-    </div>
-  )
 }
 
 // ── Legacy redirect helpers — keep old /store/ and /pro/ URLs alive indefinitely
@@ -182,6 +174,7 @@ function AppRoutes() {
                 }>
                   <Route index element={<Navigate to="dashboard" replace />} />
                   <Route path="dashboard" element={<ProAdminDashboardPage />} />
+                  <Route path="analytics" element={<ProAdminAnalyticsPage />} />
                   <Route path="homepage" element={<ProAdminHomepagePage />} />
                   <Route path="products" element={<ProAdminProductsPage />} />
                   <Route path="products/add" element={<ProAdminProductFormPage mode="add" />} />

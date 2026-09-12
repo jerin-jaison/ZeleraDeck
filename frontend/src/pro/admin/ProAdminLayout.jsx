@@ -18,6 +18,7 @@ import { useAuth } from '../../hooks/useAuth'
 
 const NAV_ITEMS = [
   { to: 'dashboard', label: 'Dashboard', icon: 'dashboard' },
+  { to: 'analytics', label: 'Analytics', icon: 'monitoring' },
   { to: 'homepage', label: 'Homepage', icon: 'home' },
   { to: 'products', label: 'Products', icon: 'inventory_2' },
   { to: 'about', label: 'About Page', icon: 'info' },
