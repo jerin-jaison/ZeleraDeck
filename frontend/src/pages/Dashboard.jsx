@@ -1,8 +1,10 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { Package, Search, X, SearchX, Tag, Filter, ArrowUpDown } from 'lucide-react'
+import { Package, Search, X, SearchX, Tag, Filter, ArrowUpDown, Eye } from 'lucide-react'
+import { gsap } from 'gsap'
 import api from '../api/axios'
+import { supabase } from '../api/supabase'
 import { useAuth } from '../hooks/useAuth'
 import BottomNav from '../components/BottomNav'
 import DashboardProductListItem from '../components/DashboardProductListItem'
@@ -97,6 +99,47 @@ export default function Dashboard() {
   const totalAll = statsData?.pagination?.total ?? 0
   const totalInStock = inStockData?.pagination?.total ?? 0
   const totalOutStock = outStockData?.pagination?.total ?? 0
+
+  // ── Storefront view stats from Supabase ─────────────────────────────
+  const shopSlug = shop?.slug || localStorage.getItem('slug') || ''
+
+  const now = new Date()
+  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString()
+  const weekStart  = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString()
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString()
+
+  const fetchCount = async (since) => {
+    if (!shopSlug) return 0
+    const { count, error } = await supabase
+      .from('storefront_views')
+      .select('*', { count: 'exact', head: true })
+      .eq('shop_id', shopSlug)
+      .gte('viewed_at', since)
+    if (error) return 0
+    return count ?? 0
+  }
+
+  const { data: viewsToday }  = useQuery({ queryKey: ['views-today',  shopSlug], queryFn: () => fetchCount(todayStart), enabled: !!shopSlug, staleTime: 60_000 })
+  const { data: viewsWeek  }  = useQuery({ queryKey: ['views-week',   shopSlug], queryFn: () => fetchCount(weekStart),  enabled: !!shopSlug, staleTime: 60_000 })
+  const { data: viewsMonth }  = useQuery({ queryKey: ['views-month',  shopSlug], queryFn: () => fetchCount(monthStart), enabled: !!shopSlug, staleTime: 60_000 })
+
+  // GSAP count-up animation for storefront view numbers
+  const todayRef  = useRef(null)
+  const weekRef   = useRef(null)
+  const monthRef  = useRef(null)
+
+  const animateCount = (el, target) => {
+    if (!el || target === undefined) return
+    gsap.fromTo({ val: 0 }, { val: target }, {
+      duration: 1.4,
+      ease: 'power2.out',
+      onUpdate: function () { el.textContent = Math.round(this.targets()[0].val) },
+    })
+  }
+
+  useEffect(() => { animateCount(todayRef.current,  viewsToday)  }, [viewsToday])
+  useEffect(() => { animateCount(weekRef.current,   viewsWeek)   }, [viewsWeek])
+  useEffect(() => { animateCount(monthRef.current,  viewsMonth)  }, [viewsMonth])
 
   const handleUpdate = () => {
     qc.invalidateQueries({ queryKey: ['shop-products'] })
@@ -200,6 +243,59 @@ export default function Dashboard() {
             <p className="text-[10px] text-[#737373] mt-0.5">{label}</p>
           </div>
         ))}
+      </div>
+
+      {/* Storefront Views Card — dark glassmorphism analytics panel */}
+      <div
+        className="mx-4 mt-3 rounded-2xl overflow-hidden"
+        style={{
+          background: 'linear-gradient(135deg, #12122a 0%, #1a1a3e 100%)',
+          border: '1px solid rgba(201,162,39,0.3)',
+          boxShadow: '0 4px 32px rgba(0,0,0,0.35), inset 0 1px 0 rgba(201,162,39,0.12)',
+        }}
+      >
+        {/* Card header */}
+        <div className="px-4 pt-4 pb-3 flex items-center gap-2 border-b border-white/5">
+          <Eye className="w-3.5 h-3.5" style={{ color: '#c9a227' }} />
+          <p
+            className="text-[11px] uppercase tracking-widest font-semibold"
+            style={{ fontFamily: "'Cinzel', Georgia, serif", color: '#c9a227', letterSpacing: '0.15em' }}
+          >
+            Storefront Views
+          </p>
+        </div>
+
+        {/* Stat columns */}
+        <div className="grid grid-cols-3 divide-x divide-white/5 px-0">
+          {[
+            { label: 'Today',     ref: todayRef,  val: viewsToday },
+            { label: 'This Week', ref: weekRef,   val: viewsWeek  },
+            { label: 'This Month',ref: monthRef,  val: viewsMonth },
+          ].map(({ label, ref, val }) => (
+            <div key={label} className="flex flex-col items-center py-4 px-2">
+              <span
+                ref={ref}
+                className="text-2xl font-bold leading-none"
+                style={{ fontFamily: "'Cinzel', Georgia, serif", color: '#f0d060' }}
+              >
+                {val ?? '—'}
+              </span>
+              <span
+                className="mt-1.5 text-[9px] uppercase tracking-wider"
+                style={{ color: 'rgba(201,162,39,0.65)' }}
+              >
+                {label}
+              </span>
+            </div>
+          ))}
+        </div>
+
+        {/* Footer note */}
+        <div className="px-4 pb-3">
+          <p className="text-[9px]" style={{ color: 'rgba(255,255,255,0.25)' }}>
+            Unique page loads on your public storefront link
+          </p>
+        </div>
       </div>
 
       {/* Search bar */}

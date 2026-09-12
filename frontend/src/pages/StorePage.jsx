@@ -1,8 +1,9 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { Search, X, PackageSearch, Filter } from 'lucide-react'
 import api from '../api/axios'
+import { supabase } from '../api/supabase'
 import ImageWithFallback from '../components/ImageWithFallback'
 import SkeletonCard from '../components/SkeletonCard'
 import Pagination from '../components/Pagination'
@@ -81,11 +82,28 @@ export default function StorePage() {
   const [categoryFilter, setCategoryFilter] = useState('all')
   const [showFilters, setShowFilters] = useState(false)
 
+  // ── Track storefront view once per page load ───────────────────────────
+  const viewTracked = useRef(false)
+
   const { data, isLoading, isFetching, error } = useQuery({
     queryKey: ['public-store', slug, currentPage],
     queryFn: () => api.get(`store/${slug}/?page=${currentPage}&page_size=12`).then((r) => r.data),
     placeholderData: (prev) => prev,
   })
+
+  useEffect(() => {
+    // Only fire once per page load, and only once shop data is confirmed available
+    if (viewTracked.current) return
+    if (!data?.slug) return
+    viewTracked.current = true
+
+    // Fire-and-forget: silently ignore any errors so customers are never affected
+    supabase
+      .from('storefront_views')
+      .insert({ shop_id: data.slug })
+      .then(() => {})
+      .catch(() => {})
+  }, [data?.slug])
 
   const shopCategories = data?.categories || []
 
