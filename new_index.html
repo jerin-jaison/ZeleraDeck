@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZELERA DECK — The Website That Sells Itself</title>
+<meta name="description" content="ZELERA DECK is an instant website builder for small businesses. A website in a minute. No hosting bill, no domain hassle, just your shop live on WhatsApp.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollToPlugin.min.js"></script>
+<style>
+:root{
+  --obsidian:#0B0B0A;
+  --ivory:#F3F0E8;
+  --copper:#B66A45;
+  --chartreuse:#C5D36B;
+  --petrol:#123B3A;
+  --muted-ivory:rgba(243,240,232,0.65);
+  --dim-ivory:rgba(243,240,232,0.35);
+  --bdr-ivory:rgba(243,240,232,0.12);
+  --bdr-copper:rgba(182,106,69,0.35);
+  --font-serif:'Cormorant Garamond',Georgia,serif;
+  --font-sans:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+  --font-brand:'Space Grotesk',sans-serif;
+  --font-mono:'JetBrains Mono',monospace;
+  --gut:clamp(1.25rem,5vw,4.5rem);
+  --max-w:1320px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;background:var(--obsidian);color:var(--ivory);font-family:var(--font-sans);-webkit-font-smoothing:antialiased}
+body{overflow-x:hidden;line-height:1.6;background:var(--obsidian)}
+
+/* GRAIN OVERLAY */
+.grain-overlay{position:fixed;inset:0;pointer-events:none;z-index:9999;opacity:.028;mix-blend-mode:overlay;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:var(--obsidian)}
+::-webkit-scrollbar-thumb{background:var(--copper);border-radius:2px}
+
+/* TYPOGRAPHY HELPERS */
+.serif{font-family:var(--font-serif);font-style:italic}
+.serif-normal{font-family:var(--font-serif);font-style:normal}
+.mono{font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.08em;font-size:.78rem}
+.copper{color:var(--copper)}
+.chartreuse{color:var(--chartreuse)}
+.petrol-bg{background:var(--petrol);color:var(--ivory)}
+.ivory-bg{background:var(--ivory);color:var(--obsidian)}
+.obsidian-bg{background:var(--obsidian);color:var(--ivory)}
+
+/* BRAND FONT OVERRIDE FOR ZELERA DECK ONLY */
+.brand-font{font-family:var(--font-brand);font-weight:800;letter-spacing:-.03em;text-transform:uppercase}
+
+/* CONTAINER */
+.cnt{width:100%;max-width:var(--max-w);margin:0 auto;padding:0 var(--gut)}
+
+/* MINIMAL FIXED NAVBAR */
+#nav{position:fixed;top:0;left:0;width:100%;z-index:900;padding:1.5rem 0;transition:background .4s,border-color .4s,padding .3s}
+#nav.scrolled{background:rgba(11,11,10,0.88);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid var(--bdr-ivory);padding:1rem 0}
+.nav-i{display:flex;justify-content:space-between;align-items:center}
+.nav-brand{font-family:var(--font-brand);font-size:1.45rem;font-weight:800;letter-spacing:-.03em;color:var(--ivory);text-decoration:none;text-transform:uppercase}
+.nav-brand span{color:var(--copper)}
+.nav-links{display:flex;gap:2rem;align-items:center}
+.nav-a{color:var(--muted-ivory);text-decoration:none;font-family:var(--font-mono);font-size:.78rem;letter-spacing:.06em;transition:color .2s}
+.nav-a:hover{color:var(--ivory)}
+.nav-cta{color:var(--obsidian)!important;background:var(--chartreuse);padding:.55rem 1.3rem;border-radius:9999px;font-weight:600;font-size:.82rem;font-family:var(--font-sans);transition:transform .2s,box-shadow .2s}
+.nav-cta:hover{transform:translateY(-2px);box-shadow:0 4px 20px rgba(197,211,107,0.35)}
+
+/* HAMBURGER FOR MOBILE */
+.ham{display:none;background:none;border:none;cursor:pointer;padding:6px;flex-direction:column;gap:5px;z-index:910}
+.hb{width:22px;height:2px;background:var(--ivory);border-radius:1px;transition:all .3s}
+@media(max-width:850px){.nav-links{display:none}.ham{display:flex}}
+
+/* MOBILE OVERLAY */
+#mob{position:fixed;inset:0;background:var(--obsidian);z-index:950;opacity:0;pointer-events:none;display:flex;flex-direction:column;justify-content:space-between;padding:7rem var(--gut) 3rem;transition:opacity .4s ease}
+#mob.open{opacity:1;pointer-events:auto}
+.mob-ls{display:flex;flex-direction:column;gap:1.75rem}
+.mob-a{font-family:var(--font-serif);font-size:2.4rem;color:var(--ivory);text-decoration:none;transition:color .2s}
+.mob-a:hover{color:var(--copper)}
+.mob-cta{display:inline-block;background:var(--chartreuse);color:var(--obsidian);padding:.8rem 2rem;border-radius:9999px;font-weight:700;text-decoration:none;width:fit-content;margin-top:1rem}
+
+/* SCROLL STORY SECTIONS (PINNED FULLSCREEN STAGES) */
+.story-stage{position:relative;width:100%;min-height:100vh;display:flex;align-items:center;justify-content:center;overflow:hidden}
+
+/* SCROLL 01 — THE HOOK WITH TYPING ANIMATION & GLASSMORPHISM CTA */
+#scroll-01{background:var(--obsidian);color:var(--ivory)}
+.hook-wrap{text-align:center;max-width:1100px;margin:0 auto;padding:0 var(--gut);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3rem}
+.typewriter-text{font-family:var(--font-serif);font-size:clamp(2.8rem,7.5vw,7.2rem);font-weight:700;line-height:1.05;letter-spacing:-.03em}
+.hook-cursor{display:inline-block;width:10px;height:0.85em;background:var(--copper);margin-left:8px;vertical-align:baseline;animation:blink 0.8s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+/* GLASSMORPHISM BUTTON */
+.glass-btn{
+  position:relative;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:0.95rem 2.4rem;
+  border-radius:9999px;
+  background:rgba(243,240,232,0.06);
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+  border:1px solid rgba(243,240,232,0.2);
+  color:var(--ivory);
+  text-decoration:none;
+  font-family:var(--font-sans);
+  font-weight:500;
+  font-size:0.95rem;
+  letter-spacing:0.04em;
+  box-shadow:0 12px 35px rgba(0,0,0,0.4),0 0 25px rgba(182,106,69,0.15);
+  opacity:0;
+  transform:translateY(25px);
+  pointer-events:none;
+  transition:opacity 0.8s ease,transform 0.8s cubic-bezier(0.16,1,0.3,1),box-shadow 0.3s ease,border-color 0.3s ease,background 0.3s ease;
+  animation:glassLevitate 3.5s ease-in-out infinite alternate;
+}
+.glass-btn.visible{
+  opacity:1;
+  transform:translateY(0);
+  pointer-events:auto;
+}
+.glass-btn:hover{
+  background:rgba(243,240,232,0.12);
+  border-color:rgba(182,106,69,0.5);
+  box-shadow:0 15px 45px rgba(0,0,0,0.5),0 0 35px rgba(182,106,69,0.3);
+  color:#fff;
+}
+.glass-arrow{
+  display:inline-block;
+  margin-left:8px;
+  color:var(--copper);
+  transition:transform 0.3s ease;
+}
+.glass-btn:hover .glass-arrow{
+  transform:translateY(4px);
+  color:var(--chartreuse);
+}
+@keyframes glassLevitate{
+  0%{transform:translateY(0px)}
+  50%{transform:translateY(-7px)}
+  100%{transform:translateY(0px)}
+}
+
+/* SCROLL 02 — THE 60 SECOND PROMISE */
+#scroll-02{background:var(--obsidian);border-top:1px solid var(--bdr-ivory)}
+.promise-grid{display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center}
+@media(max-width:900px){.promise-grid{grid-template-columns:1fr;text-align:center}}
+.promise-title{font-family:var(--font-serif);font-size:clamp(3rem,6vw,5.5rem);line-height:1.05;margin-bottom:1.5rem}
+.promise-sub{font-size:clamp(1.1rem,1.8vw,1.4rem);color:var(--muted-ivory);margin-bottom:2.5rem}
+.pipeline-card{background:rgba(243,240,232,0.04);border:1px solid var(--bdr-ivory);border-radius:24px;padding:2.5rem;box-shadow:0 30px 60px rgba(0,0,0,0.5)}
+.pipe-step{display:flex;align-items:center;gap:1.25rem;padding:1rem 0;border-bottom:1px solid var(--bdr-ivory)}
+.pipe-step:last-child{border-bottom:none}
+.pipe-num{font-family:var(--font-mono);color:var(--copper);font-size:.85rem}
+.pipe-txt{font-size:1.1rem;font-weight:600}
+.pipe-badge{margin-left:auto;background:rgba(197,211,107,0.15);color:var(--chartreuse);padding:4px 12px;border-radius:12px;font-family:var(--font-mono);font-size:.72rem}
+
+/* SCROLL 03 — HIT THE PAIN POINT */
+#scroll-03{background:#050505;color:var(--ivory);text-align:center;position:relative}
+.pain-slide{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 var(--gut);opacity:0;transform:translateY(40px);filter:blur(10px);pointer-events:none}
+.pain-slide.active{opacity:1;transform:translateY(0);filter:blur(0px);pointer-events:auto}
+.pain-h{font-family:var(--font-serif);font-size:clamp(2.5rem,6vw,6rem);line-height:1.1;letter-spacing:-.03em}
+
+/* SCROLL 04 — PRODUCT DEMO (WEBSITE TRANSFORMS) */
+#scroll-04{background:var(--ivory);color:var(--obsidian);padding:6rem 0}
+.demo-top{text-align:center;max-width:800px;margin:0 auto 4rem}
+.demo-say{font-family:var(--font-serif);font-size:clamp(2.2rem,5vw,4.5rem);line-height:1.1;margin-bottom:1rem}
+.demo-browser{max-width:960px;margin:0 auto;background:#fff;border-radius:20px;box-shadow:0 30px 80px rgba(0,0,0,0.15);overflow:hidden;border:1px solid rgba(0,0,0,0.08)}
+.browser-bar{background:#f0eee8;padding:12px 20px;display:flex;align-items:center;gap:12px;border-bottom:1px solid rgba(0,0,0,0.06)}
+.dots{display:flex;gap:6px}
+.dot{width:10px;height:10px;border-radius:50%;background:#e0dcd2}
+.address-bar{background:#fff;padding:6px 16px;border-radius:12px;font-family:var(--font-mono);font-size:.82rem;color:#555;flex:1;display:flex;align-items:center;gap:8px}
+.demo-viewport{padding:3rem 2.5rem;min-height:380px;display:flex;flex-direction:column;justify-content:center}
+.demo-biz-tag{font-family:var(--font-mono);font-size:.78rem;color:var(--copper);text-transform:uppercase;margin-bottom:.75rem}
+.demo-biz-title{font-family:var(--font-serif);font-size:clamp(2rem,4vw,3.2rem);margin-bottom:1rem}
+.demo-biz-desc{font-size:1.05rem;color:#555;max-width:600px;margin-bottom:2rem}
+.demo-biz-cta{display:inline-flex;align-items:center;gap:8px;background:var(--obsidian);color:var(--ivory);padding:.75rem 1.8rem;border-radius:9999px;font-weight:600;text-decoration:none;width:fit-content}
+
+/* SCROLL 05 — NO HOSTING BILL */
+#scroll-05{background:var(--ivory);color:var(--obsidian);text-align:center;border-top:1px solid rgba(0,0,0,0.08)}
+.no-bill-line{font-family:var(--font-serif);font-size:clamp(3rem,7.5vw,7.5rem);font-weight:700;line-height:1.05;letter-spacing:-.03em}
+
+/* SCROLL 06 — SUBDOMAIN IDENTITY FOR ZELERADECK.COM/<SLUG> */
+#scroll-06{background:var(--obsidian);color:var(--ivory);text-align:center;padding:7rem 0}
+.sub-bar-wrap{max-width:640px;margin:3rem auto;background:rgba(243,240,232,0.06);border:1px solid var(--bdr-copper);border-radius:9999px;padding:1rem 2rem;display:flex;align-items:center;justify-content:center;gap:12px;box-shadow:0 0 40px rgba(182,106,69,0.15)}
+.sub-url{font-family:var(--font-mono);font-size:clamp(1.1rem,2.5vw,1.8rem);color:var(--chartreuse)}
+
+/* SCROLL 07 — WHATSAPP SIMULATOR */
+#scroll-07{background:#0c1312;color:var(--ivory);padding:7rem 0}
+.wa-sim-wrap{max-width:540px;margin:3rem auto 0;background:#111b19;border-radius:24px;border:1px solid rgba(197,211,107,0.2);overflow:hidden;box-shadow:0 25px 60px rgba(0,0,0,0.6)}
+.wa-sim-header{background:#1f2c28;padding:16px 20px;display:flex;align-items:center;gap:12px}
+.wa-avatar{width:38px;height:38px;border-radius:50%;background:var(--petrol);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--chartreuse);font-size:.9rem}
+.wa-sim-body{padding:20px;display:flex;flex-direction:column;gap:14px;min-height:320px}
+.wa-msg{max-width:82%;padding:12px 16px;border-radius:16px;font-size:.95rem;line-height:1.4}
+.wa-msg.zelra{background:#1f2c28;color:var(--ivory);align-self:flex-start;border-bottom-left-radius:4px}
+.wa-msg.user{background:#005c4b;color:#fff;align-self:flex-end;border-bottom-right-radius:4px}
+.wa-msg.system{background:rgba(197,211,107,0.1);color:var(--chartreuse);align-self:center;text-align:center;font-family:var(--font-mono);font-size:.8rem;max-width:100%}
+.wa-cta-btn{display:flex;align-items:center;justify-content:center;gap:10px;background:#25d366;color:#000;padding:1rem 2rem;border-radius:9999px;font-weight:700;font-size:1.05rem;text-decoration:none;margin:2rem auto 0;width:fit-content;box-shadow:0 0 30px rgba(37,211,102,0.35)}
+.wa-cta-btn:hover{transform:translateY(-2px);box-shadow:0 4px 35px rgba(37,211,102,0.55)}
+
+/* SCROLL 08 — WHAT YOU GET (SEQUENTIAL REVEAL) */
+#scroll-08{background:var(--obsidian);color:var(--ivory);padding:7rem 0}
+.get-list{display:flex;flex-direction:column;gap:1.5rem;max-width:800px;margin:3rem auto 0;text-align:center}
+.get-item{font-family:var(--font-serif);font-size:clamp(1.8rem,4vw,3.5rem);color:var(--muted-ivory);transition:all .4s}
+.get-item.highlight{color:var(--ivory);font-style:italic}
+
+/* SCROLL 09 — SEO / AEO DISCOVERABILITY */
+#scroll-09{background:var(--petrol);color:var(--ivory);padding:7rem 0}
+.seo-flow-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:2rem;margin-top:4rem}
+.flow-card{background:rgba(243,240,232,0.06);border:1px solid rgba(243,240,232,0.12);padding:2rem;border-radius:20px}
+.flow-card h4{font-family:var(--font-mono);color:var(--chartreuse);margin-bottom:.75rem;font-size:.85rem}
+.flow-card p{color:var(--muted-ivory);font-size:.95rem}
+
+/* SCROLL 10 — FAQ */
+#scroll-10{background:var(--obsidian);color:var(--ivory);padding:7rem 0}
+.faq-grid{max-width:820px;margin:3.5rem auto 0}
+.faq-row{border-bottom:1px solid var(--bdr-ivory)}
+.faq-q{width:100%;padding:1.6rem 0;display:flex;justify-content:space-between;align-items:center;background:none;border:none;color:var(--ivory);font-family:var(--font-serif);font-size:clamp(1.3rem,2.5vw,1.8rem);cursor:pointer;text-align:left;gap:1.5rem}
+.faq-q:hover{color:var(--copper)}
+.faq-ico{font-family:var(--font-mono);font-size:1.4rem;color:var(--copper);transition:transform .3s}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .4s cubic-bezier(.16,1,.3,1)}
+.faq-ai{padding-bottom:1.6rem;color:var(--muted-ivory);font-size:1.05rem;line-height:1.6}
+
+/* FINAL CTA SECTION */
+#scroll-final{background:#000;color:var(--ivory);min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:5rem var(--gut);position:relative}
+.final-h{font-family:var(--font-serif);font-size:clamp(3.5rem,9vw,9rem);font-weight:700;line-height:1;margin:1.5rem 0 3rem;letter-spacing:-.04em}
+.final-btns{display:flex;flex-wrap:wrap;gap:1.5rem;justify-content:center;align-items:center}
+.btn-pri{background:var(--chartreuse);color:var(--obsidian);padding:1rem 2.5rem;border-radius:9999px;font-weight:700;font-size:1.1rem;text-decoration:none;transition:transform .2s,box-shadow .2s}
+.btn-pri:hover{transform:translateY(-2px);box-shadow:0 0 30px rgba(197,211,107,0.45)}
+.btn-sec{background:transparent;color:var(--ivory);border:1px solid var(--bdr-ivory);padding:1rem 2.2rem;border-radius:9999px;font-weight:600;font-size:1rem;text-decoration:none;transition:border-color .2s,color .2s}
+.btn-sec:hover{border-color:var(--copper);color:var(--copper)}
+
+/* FOOTER */
+#footer{background:#050505;border-top:1px solid var(--bdr-ivory);padding:3rem 0;font-family:var(--font-mono);font-size:.78rem;color:var(--muted-ivory)}
+.ft-inner{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1.5rem}
+
+/* PRESERVED OVERLAY FOR COMPATIBILITY */
+#project-overlay,#ov{position:fixed;inset:0;background:var(--obsidian);z-index:9990;transform:translateY(100%);overflow-y:auto;display:flex;flex-direction:column;padding:4rem var(--gut);transition:transform .5s ease}
+#project-overlay.open,#ov.open{transform:translateY(0)}
+.overlay-close-btn,.ov-cls{position:fixed;top:2rem;right:var(--gut);background:rgba(243,240,232,0.1);border:1px solid var(--bdr-ivory);color:var(--ivory);width:48px;height:48px;border-radius:50%;font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:9995}
+
+@media(max-width:600px){
+  :root{--gut:1.1rem}
+  .demo-viewport{padding:1.75rem 1.25rem}
+  .pipeline-card{padding:1.5rem}
+  .wa-sim-wrap{max-width:100%}
+}
+</style>
+</head>
+<body>
+
+<div class="grain-overlay" aria-hidden="true"></div>
+
+<!-- MINIMAL FIXED NAVBAR -->
+<header id="nav" aria-label="Main navigation">
+  <div class="cnt nav-i">
+    <a href="#scroll-01" class="nav-brand">ZELERA DECK<span>.</span></a>
+    <nav class="nav-links" aria-label="Site navigation">
+      <a href="#scroll-02" class="nav-a">HOW IT WORKS</a>
+      <a href="#scroll-09" class="nav-a">DISCOVERABILITY</a>
+      <a href="#scroll-10" class="nav-a">FAQ</a>
+      <a href="https://wa.me/917012783442?text=Hi%2C+I+want+to+build+my+website+with+Zelera+Deck" target="_blank" rel="noopener" class="nav-cta">Build my website →</a>
+    </nav>
+    <button class="ham" id="ham" aria-label="Toggle menu" aria-expanded="false" aria-controls="mob">
+      <span class="hb"></span>
+      <span class="hb"></span>
+    </button>
+  </div>
+</header>
+
+<!-- MOBILE MENU -->
+<div id="mob" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Mobile navigation">
+  <div>
+    <div class="mono brand-font" style="color:var(--copper);margin-bottom:2rem">// ZELERA DECK</div>
+    <nav class="mob-ls">
+      <a href="#scroll-01" class="mob-a">01 / Intro</a>
+      <a href="#scroll-02" class="mob-a">02 / 60-Second Promise</a>
+      <a href="#scroll-04" class="mob-a">03 / Product Demo</a>
+      <a href="#scroll-07" class="mob-a">04 / WhatsApp CTA</a>
+      <a href="#scroll-10" class="mob-a">05 / FAQ</a>
+    </nav>
+  </div>
+  <div>
+    <a href="https://wa.me/917012783442?text=Hi%2C+I+want+to+build+my+website+with+Zelera+Deck" target="_blank" rel="noopener" class="mob-cta">Build my website →</a>
+  </div>
+</div>
+
+<!-- SCROLL 01 — THE HOOK WITH TYPING ANIMATION & GLASSMORPHISM CTA -->
+<section id="scroll-01" class="story-stage">
+  <div class="hook-wrap">
+    <div style="min-height:180px;display:flex;align-items:center;justify-content:center">
+      <span class="typewriter-text" id="typewriter"></span><span class="hook-cursor"></span>
+    </div>
+    
+    <!-- GLASSMORPHISM SCROLL TO KNOW MORE BUTTON -->
+    <a href="#scroll-02" id="glass-scroll-btn" class="glass-btn">
+      <span>Scroll to know more</span> <span class="glass-arrow">↓</span>
+    </a>
+  </div>
+</section>
+
+<!-- SCROLL 02 — THE 60 SECOND PROMISE -->
+<section id="scroll-02" class="story-stage" style="padding:6rem 0">
+  <div class="cnt">
+    <div class="promise-grid">
+      <div>
+        <p class="mono copper" style="margin-bottom:1rem">// THE PROMISE</p>
+        <h2 class="promise-title">A website.<br><span class="serif">In a minute.</span></h2>
+        <p class="promise-sub">Tell us what you do.<br>We'll handle the rest.</p>
+        <div style="display:flex;gap:1.5rem;flex-wrap:wrap" class="mono">
+          <span>✓ No coding</span>
+          <span>✓ No waiting</span>
+          <span>✓ No hassle</span>
+        </div>
+      </div>
+      <div>
+        <div class="pipeline-card">
+          <div class="pipe-step">
+            <span class="pipe-num">01</span>
+            <span class="pipe-txt">Business Idea</span>
+            <span class="pipe-badge">Input</span>
+          </div>
+          <div class="pipe-step">
+            <span class="pipe-num">02</span>
+            <span class="pipe-txt">Zelera Deck Layout Engine</span>
+            <span class="pipe-badge">Auto-Generate</span>
+          </div>
+          <div class="pipe-step">
+            <span class="pipe-num">03</span>
+            <span class="pipe-txt">WhatsApp Storefront Link</span>
+            <span class="pipe-badge">Instant</span>
+          </div>
+          <div class="pipe-step">
+            <span class="pipe-num">04</span>
+            <span class="pipe-txt">Live Online</span>
+            <span class="pipe-badge" style="background:rgba(182,106,69,0.2);color:var(--copper)">Active</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SCROLL 03 — HIT THE PAIN POINT -->
+<section id="scroll-03" class="story-stage">
+  <div class="pain-slide active" id="pain-1">
+    <h3 class="pain-h">Still paying <span class="copper serif">₹20,000+</span> for a website?</h3>
+  </div>
+  <div class="pain-slide" id="pain-2">
+    <h3 class="pain-h">Still waiting <span class="serif" style="color:var(--chartreuse)">2 weeks?</span></h3>
+  </div>
+  <div class="pain-slide" id="pain-3">
+    <h3 class="pain-h">Still figuring out <span class="serif">hosting?</span></h3>
+  </div>
+  <div class="pain-slide" id="pain-4">
+    <h3 class="pain-h">You shouldn't have to.</h3>
+  </div>
+  <div class="pain-slide" id="pain-5">
+    <p class="mono copper" style="margin-bottom:1.5rem">// RE-ENGINEERED</p>
+    <h3 class="pain-h">That's why we built <span class="brand-font copper">ZELERA DECK.</span></h3>
+  </div>
+</section>
+
+<!-- SCROLL 04 — PRODUCT DEMO (WEBSITE TRANSFORMS) -->
+<section id="scroll-04">
+  <div class="cnt">
+    <div class="demo-top">
+      <p class="mono copper" style="margin-bottom:1rem">// THE DEMONSTRATION</p>
+      <h2 class="demo-say">You say it.<br><span class="serif" id="demo-prompt-txt">"I run a bakery in Kochi."</span></h2>
+      <p style="font-size:1.1rem;color:#666">Watch Zelera Deck transform into your live website in real time.</p>
+    </div>
+    
+    <div class="demo-browser">
+      <div class="browser-bar">
+        <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+        <div class="address-bar">
+          <span style="color:#aaa">https://</span><span id="demo-url" style="color:#111;font-weight:600">zeleradeck.com/crumb-and-co</span>
+        </div>
+      </div>
+      <div class="demo-viewport" id="demo-viewport-card">
+        <div class="demo-biz-tag" id="demo-tag">ARTISAN BAKERY & PASTRY</div>
+        <h3 class="demo-biz-title" id="demo-title">Crumb & Co. Artisan Bakes</h3>
+        <p class="demo-biz-desc" id="demo-desc">Handcrafted sourdough, French croissants, and custom cakes in Kochi. Order directly via WhatsApp.</p>
+        <a href="https://wa.me/917012783442" target="_blank" rel="noopener" class="demo-biz-cta">
+          <span>Order on WhatsApp</span> ↗
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SCROLL 05 — NO HOSTING BILL -->
+<section id="scroll-05" class="story-stage">
+  <div class="cnt">
+    <p class="mono copper" style="margin-bottom:2rem">// ZERO FRICTION</p>
+    <div class="no-bill-line" id="nb-1">No hosting bill.</div>
+    <div class="no-bill-line" id="nb-2" style="display:none">No domain bill.</div>
+    <div class="no-bill-line" id="nb-3" style="display:none">No technical headache.</div>
+    <div class="no-bill-line serif copper" id="nb-4" style="display:none">Just your website.</div>
+    <p style="margin-top:3rem;font-size:1.1rem;color:#666;font-family:var(--font-mono)">*Your Zelera Deck site lives on a lightning-fast zeleradeck.com shareable link.</p>
+  </div>
+</section>
+
+<!-- SCROLL 06 — SUBDOMAIN IDENTITY FOR ZELERADECK.COM/<SLUG> -->
+<section id="scroll-06">
+  <div class="cnt">
+    <p class="mono copper" style="margin-bottom:1rem">// YOUR IDENTITY</p>
+    <h2 class="serif" style="font-size:clamp(2.5rem,6vw,5.5rem);line-height:1.1">Your business. Your link.<br><span class="copper">Your website.</span></h2>
+    
+    <div class="sub-bar-wrap">
+      <span style="color:var(--muted-ivory);font-family:var(--font-mono)">https://</span>
+      <span class="sub-url" id="sub-dynamic-link">zeleradeck.com/rahul-cafe</span>
+    </div>
+    <p class="mono" style="color:var(--muted-ivory)">SHAREABLE ON WHATSAPP, INSTAGRAM & GOOGLE MAPS</p>
+  </div>
+</section>
+
+<!-- SCROLL 07 — WHATSAPP SIMULATOR -->
+<section id="scroll-07">
+  <div class="cnt" style="text-align:center">
+    <p class="mono chartreuse" style="margin-bottom:1rem">// THE CONVERSION</p>
+    <h2 class="serif" style="font-size:clamp(2.5rem,5.5vw,5rem);line-height:1.1">Don't fill out a form.<br><span class="copper">Just say hello.</span></h2>
+    
+    <div class="wa-sim-wrap">
+      <div class="wa-sim-header">
+        <div class="wa-avatar">ZD</div>
+        <div style="text-align:left">
+          <div style="font-weight:600;font-size:.95rem">Zelera Deck Assistant</div>
+          <div style="font-size:.75rem;color:var(--chartreuse)">Online & Ready</div>
+        </div>
+      </div>
+      <div class="wa-sim-body">
+        <div class="wa-msg zelra">Hey 👋 What kind of business do you run?</div>
+        <div class="wa-msg user">A clothing store called Urban Threads.</div>
+        <div class="wa-msg zelra">Got it! Building your custom website...</div>
+        <div class="wa-msg system">⚡ BUILDING WEBSITE: 82% COMPLETE</div>
+        <div class="wa-msg zelra">Your website is live and ready! 🎉</div>
+      </div>
+    </div>
+
+    <a href="https://wa.me/917012783442?text=Hi%2C+I+want+to+build+my+website+with+Zelera+Deck" target="_blank" rel="noopener" class="wa-cta-btn">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z"/><path d="M12 0C5.37 0 0 5.37 0 12c0 2.12.55 4.11 1.52 5.84L.06 23.5l5.83-1.53A12 12 0 0012 24c6.63 0 12-5.37 12-12S18.63 0 12 0zm0 21.88a9.88 9.88 0 01-5.03-1.38l-.36-.21-3.74.98 1-3.65-.24-.37A9.86 9.86 0 012.12 12C2.12 6.57 6.57 2.12 12 2.12c5.43 0 9.88 4.45 9.88 9.88 0 5.43-4.45 9.88-9.88 9.88z"/></svg>
+      Build mine → WhatsApp
+    </a>
+  </div>
+</section>
+
+<!-- SCROLL 08 — WHAT YOU GET (SEQUENTIAL REVEAL) -->
+<section id="scroll-08">
+  <div class="cnt">
+    <p class="mono copper" style="text-align:center;margin-bottom:1rem">// THE INVENTORY</p>
+    <h2 class="serif" style="text-align:center;font-size:clamp(2.5rem,5vw,4.5rem);margin-bottom:3rem">Everything you need to exist online.</h2>
+    
+    <div class="get-list">
+      <div class="get-item">A beautiful website.</div>
+      <div class="get-item">Mobile ready.</div>
+      <div class="get-item">Fast loading.</div>
+      <div class="get-item">SEO ready.</div>
+      <div class="get-item">Search-friendly content.</div>
+      <div class="get-item">Structured FAQ discovery.</div>
+      <div class="get-item">WhatsApp integration.</div>
+      <div class="get-item highlight">Your Zelera Deck link.</div>
+    </div>
+  </div>
+</section>
+
+<!-- SCROLL 09 — SEO / AEO DISCOVERABILITY -->
+<section id="scroll-09">
+  <div class="cnt">
+    <p class="mono chartreuse" style="margin-bottom:1rem">// DISCOVERABILITY</p>
+    <h2 class="serif" style="font-size:clamp(2.5rem,5.5vw,5rem);line-height:1.05">Built for people.<br>Built for search.<br><span class="chartreuse">Built for AI.</span></h2>
+    
+    <div class="seo-flow-grid">
+      <div class="flow-card">
+        <h4>01 / CUSTOMER SEARCH</h4>
+        <p>"Best bakery near me" or "Gyms in Kochi"</p>
+      </div>
+      <div class="flow-card">
+        <h4>02 / AI &amp; SEARCH ENGINE</h4>
+        <p>Google and ChatGPT read structured business data.</p>
+      </div>
+      <div class="flow-card">
+        <h4>03 / STRUCTURED CONTENT</h4>
+        <p>Zelera Deck formats semantic headings, schema, &amp; FAQs.</p>
+      </div>
+      <div class="flow-card">
+        <h4>04 / YOUR ZELERA DECK SITE</h4>
+        <p>Surfaced directly to buying customers.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SCROLL 10 — FAQ -->
+<section id="scroll-10">
+  <div class="cnt">
+    <div style="text-align:center">
+      <p class="mono copper" style="margin-bottom:1rem">// CLEAR ANSWERS</p>
+      <h2 class="serif" style="font-size:clamp(2.8rem,6vw,5.5rem)">Questions?<br><span class="copper">Good. You probably have a few.</span></h2>
+    </div>
+    
+    <div class="faq-grid">
+      <div class="faq-row">
+        <button class="faq-q"><span>Do I need hosting?</span><span class="faq-ico">+</span></button>
+        <div class="faq-a"><p class="faq-ai">No. Zelera Deck handles all hosting on ultra-fast global infrastructure. There are no extra hosting bills.</p></div>
+      </div>
+      <div class="faq-row">
+        <button class="faq-q"><span>Can I use my own domain?</span><span class="faq-ico">+</span></button>
+        <div class="faq-a"><p class="faq-ai">Yes! Your site comes with a free zeleradeck.com link, and you can easily connect your custom domain whenever you're ready.</p></div>
+      </div>
+      <div class="faq-row">
+        <button class="faq-q"><span>Can customers order on WhatsApp?</span><span class="faq-ico">+</span></button>
+        <div class="faq-a"><p class="faq-ai">Yes. Every product and contact CTA links directly into a pre-filled WhatsApp conversation on your phone.</p></div>
+      </div>
+      <div class="faq-row">
+        <button class="faq-q"><span>Can I edit my website later?</span><span class="faq-ico">+</span></button>
+        <div class="faq-a"><p class="faq-ai">Absolutely. You can update your products, images, and shop details anytime through WhatsApp or your owner dashboard.</p></div>
+      </div>
+      <div class="faq-row">
+        <button class="faq-q"><span>Will Google find my website?</span><span class="faq-ico">+</span></button>
+        <div class="faq-a"><p class="faq-ai">Zelera Deck sites are built with semantic HTML5, clean metadata, and FAQ schema so search engines can easily index your business.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL SECTION -->
+<section id="scroll-final">
+  <p class="mono copper">// THE CONCLUSION</p>
+  <p class="serif" style="font-size:clamp(1.5rem,3vw,2.5rem);margin-top:1rem;color:var(--muted-ivory)">So...</p>
+  <h2 class="final-h">Ready to exist online?</h2>
+  <div class="final-btns">
+    <a href="https://wa.me/917012783442?text=Hi%2C+I+want+to+build+my+website+with+Zelera+Deck" target="_blank" rel="noopener" class="btn-pri">Build my website →</a>
+    <a href="https://wa.me/917012783442?text=Hi%2C+I+have+a+question+about+Zelera+Deck" target="_blank" rel="noopener" class="btn-sec">Talk to Zelera Deck on WhatsApp</a>
+  </div>
+  <p class="mono" style="margin-top:3.5rem;color:var(--muted-ivory)">FROM IDEA → TO LIVE WEBSITE</p>
+</section>
+
+<!-- FOOTER -->
+<footer id="footer">
+  <div class="cnt ft-inner">
+    <div>ZELERA DECK © 2026. All rights reserved.</div>
+    <div>Built in Kerala, India. Live at zeleradeck.com</div>
+  </div>
+</footer>
+
+<!-- PRESERVED PROJECT OVERLAY MODAL -->
+<div id="project-overlay" role="dialog" aria-modal="true" aria-label="Project Details">
+  <button class="overlay-close-btn" id="overlay-close" aria-label="Close dialog">✕</button>
+  <div style="max-width:900px;margin:auto">
+    <h2 style="font-family:var(--font-serif);font-size:3rem;margin-bottom:1rem">Project Details</h2>
+    <p style="color:var(--muted-ivory)">Zelera Deck feature overlay details.</p>
+  </div>
+</div>
+
+<script>
+(function(){
+  'use strict';
+  gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
+  const prm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* SCROLL 01 TYPEWRITER SEQUENTIAL ANIMATION & GLASSMORPHISM BUTTON REVEAL */
+  const typewriterEl = document.getElementById('typewriter');
+  const glassBtn = document.getElementById('glass-scroll-btn');
+  const phrases = [
+    "You need a website.",
+    "You don't need a web developer.",
+    "You need Zelera Deck."
+  ];
+
+  let phraseIdx = 0;
+  let charIdx = 0;
+  let isDeleting = false;
+
+  function typeStep() {
+    const currentPhrase = phrases[phraseIdx];
+    
+    if (!isDeleting) {
+      charIdx++;
+      if (typewriterEl) typewriterEl.textContent = currentPhrase.substring(0, charIdx);
+
+      if (charIdx === currentPhrase.length) {
+        if (phraseIdx < phrases.length - 1) {
+          isDeleting = true;
+          setTimeout(typeStep, 1800);
+        } else {
+          // Final phrase typed: reveal Glassmorphism button
+          if (glassBtn) glassBtn.classList.add('visible');
+          return;
+        }
+        return;
+      }
+    } else {
+      charIdx--;
+      if (typewriterEl) typewriterEl.textContent = currentPhrase.substring(0, charIdx);
+
+      if (charIdx === 0) {
+        isDeleting = false;
+        phraseIdx++;
+      }
+    }
+    
+    const speed = isDeleting ? 30 : 60;
+    setTimeout(typeStep, speed);
+  }
+
+  // Start typing on load
+  setTimeout(typeStep, 400);
+
+  /* SCROLL 03 PAIN SLIDES ANIMATION */
+  const pains = [
+    document.getElementById('pain-1'),
+    document.getElementById('pain-2'),
+    document.getElementById('pain-3'),
+    document.getElementById('pain-4'),
+    document.getElementById('pain-5')
+  ];
+
+  if (pains[0] && !prm) {
+    const painTl = gsap.timeline({
+      scrollTrigger: {
+        trigger: '#scroll-03',
+        start: 'top top',
+        end: '+=350%',
+        pin: true,
+        scrub: 0.8
+      }
+    });
+
+    for (let i = 0; i < pains.length - 1; i++) {
+      painTl
+        .to(pains[i], { opacity: 0, y: -50, filter: 'blur(10px)', duration: 1 })
+        .to(pains[i+1], { opacity: 1, y: 0, filter: 'blur(0px)', duration: 1 }, '-=0.4');
+    }
+  }
+
+  /* SCROLL 04 DEMO DYNAMIC PREVIEW SWITCHER FOR ZELERADECK.COM/<SLUG> */
+  const demoPrompts = [
+    { prompt: '"I run a bakery in Kochi."', url: 'zeleradeck.com/crumb-and-co', tag: 'ARTISAN BAKERY', title: 'Crumb & Co. Artisan Bakes', desc: 'Handcrafted sourdough, French croissants, and custom cakes in Kochi. Order directly via WhatsApp.' },
+    { prompt: '"I need a site for my gym."', url: 'zeleradeck.com/fitzone-kochi', tag: 'FITNESS & GYM', title: 'FitZone Elite Gym', desc: 'State-of-the-art strength training, personal coaches, and flexible memberships. Join today via WhatsApp.' },
+    { prompt: '"I run a salon & spa."', url: 'zeleradeck.com/aroma-studio', tag: 'HAIR & BEAUTY SALON', title: 'Aroma Luxury Studio', desc: 'Premium hair styling, organic facials, and spa treatments. Book your appointment instantly on WhatsApp.' }
+  ];
+
+  let demoIdx = 0;
+  const demoPromptTxt = document.getElementById('demo-prompt-txt');
+  const demoUrl = document.getElementById('demo-url');
+  const demoTag = document.getElementById('demo-tag');
+  const demoTitle = document.getElementById('demo-title');
+  const demoDesc = document.getElementById('demo-desc');
+
+  setInterval(function(){
+    demoIdx = (demoIdx + 1) % demoPrompts.length;
+    const cur = demoPrompts[demoIdx];
+    if (demoPromptTxt) demoPromptTxt.textContent = cur.prompt;
+    if (demoUrl) demoUrl.textContent = cur.url;
+    if (demoTag) demoTag.textContent = cur.tag;
+    if (demoTitle) demoTitle.textContent = cur.title;
+    if (demoDesc) demoDesc.textContent = cur.desc;
+  }, 3500);
+
+  /* SCROLL 05 NO BILL STAGE */
+  const nb1 = document.getElementById('nb-1');
+  const nb2 = document.getElementById('nb-2');
+  const nb3 = document.getElementById('nb-3');
+  const nb4 = document.getElementById('nb-4');
+
+  if (nb1 && nb2 && !prm) {
+    const nbTl = gsap.timeline({
+      scrollTrigger: {
+        trigger: '#scroll-05',
+        start: 'top top',
+        end: '+=250%',
+        pin: true,
+        scrub: 0.8
+      }
+    });
+
+    nbTl
+      .to(nb1, { display: 'none', duration: 0.5 })
+      .to(nb2, { display: 'block', opacity: 1, duration: 0.8 })
+      .to(nb2, { display: 'none', duration: 0.5 })
+      .to(nb3, { display: 'block', opacity: 1, duration: 0.8 })
+      .to(nb3, { display: 'none', duration: 0.5 })
+      .to(nb4, { display: 'block', opacity: 1, duration: 1 });
+  }
+
+  /* SCROLL 06 DYNAMIC SUBDOMAIN ROTATOR FOR ZELERADECK.COM/<SLUG> */
+  const subLinks = ['zeleradeck.com/rahul-cafe', 'zeleradeck.com/aroma-studio', 'zeleradeck.com/fitzone', 'zeleradeck.com/greenleaf-dental'];
+  let subIdx = 0;
+  const subEl = document.getElementById('sub-dynamic-link');
+  setInterval(function(){
+    subIdx = (subIdx + 1) % subLinks.length;
+    if (subEl) subEl.textContent = subLinks[subIdx];
+  }, 2200);
+
+  /* SCROLL 08 GET LIST HIGHLIGHT ON SCROLL */
+  const getItems = document.querySelectorAll('.get-item');
+  getItems.forEach(function(item) {
+    ScrollTrigger.create({
+      trigger: item,
+      start: 'top 75%',
+      onEnter: function(){ item.classList.add('highlight'); }
+    });
+  });
+
+  /* FAQ ACCORDION */
+  document.querySelectorAll('.faq-q').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      const content = btn.nextElementSibling;
+      const icon = btn.querySelector('.faq-ico');
+      const isOpen = content.style.maxHeight && content.style.maxHeight !== '0px';
+
+      document.querySelectorAll('.faq-a').forEach(function(c){ c.style.maxHeight = '0px'; });
+      document.querySelectorAll('.faq-ico').forEach(function(i){ i.textContent = '+'; });
+
+      if (!isOpen) {
+        content.style.maxHeight = content.scrollHeight + 'px';
+        if (icon) icon.textContent = '−';
+      }
+    });
+  });
+
+  /* NAVBAR SCROLLED STATE */
+  const nav = document.getElementById('nav');
+  ScrollTrigger.create({
+    trigger: '#scroll-01',
+    start: 'top -80px',
+    onEnter: function(){ if(nav) nav.classList.add('scrolled'); },
+    onLeaveBack: function(){ if(nav) nav.classList.remove('scrolled'); }
+  });
+
+  /* HAMBURGER MOBILE MENU */
+  const ham = document.getElementById('ham');
+  const mob = document.getElementById('mob');
+  let mobOpen = false;
+  if (ham && mob) {
+    ham.addEventListener('click', function() {
+      mobOpen = !mobOpen;
+      mob.classList.toggle('open', mobOpen);
+    });
+    document.querySelectorAll('.mob-a').forEach(function(l){
+      l.addEventListener('click', function(){ mob.classList.remove('open'); mobOpen = false; });
+    });
+  }
+})();
+</script>
+</body>
+</html>
