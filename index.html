@@ -803,38 +803,255 @@
       font-style: italic
     }
 
-    /* SCROLL 09 — SEO / AEO DISCOVERABILITY */
+
+
+    /* SCROLL 09 — EDITORIAL DISCOVERABILITY KINETIC TYPOGRAPHY */
     #scroll-09 {
-      background: var(--petrol);
-      color: var(--ivory);
-      padding: 7rem 0
+      background: var(--obsidian) !important;
+      position: relative !important;
+      overflow: hidden !important;
+      width: 100% !important;
+      min-height: 100vh !important;
     }
 
-    .seo-flow-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 2rem;
-      margin-top: 4rem
+    .disc-pin-stage {
+      min-height: 100vh;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      padding: 3rem var(--gut);
+      text-align: center;
+      box-sizing: border-box;
     }
 
-    .flow-card {
-      background: rgba(243, 240, 232, 0.06);
-      border: 1px solid rgba(243, 240, 232, 0.12);
-      padding: 2rem;
-      border-radius: 20px
+    .disc-header-wrap {
+      max-width: 850px;
+      margin: 0 auto 2rem;
+      z-index: 5;
+      position: relative;
+      text-align: center;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
     }
 
-    .flow-card h4 {
+    .disc-eyebrow {
       font-family: var(--font-mono);
       color: var(--chartreuse);
-      margin-bottom: .75rem;
-      font-size: .85rem
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-size: 0.85rem;
+      margin-bottom: 1rem;
+      text-align: center;
     }
 
-    .flow-card p {
-      color: var(--muted-ivory);
-      font-size: .95rem
+    .disc-head-1 {
+      font-family: var(--font-serif);
+      font-size: clamp(2.2rem, 5.5vw, 4.8rem);
+      line-height: 1.08;
+      color: var(--ivory);
+      text-align: center;
+      margin: 0 auto;
     }
+
+    .disc-head-2 {
+      font-family: var(--font-serif);
+      font-size: clamp(2.2rem, 5.5vw, 4.8rem);
+      line-height: 1.08;
+      color: var(--chartreuse);
+      text-align: center;
+      margin: 0 auto;
+    }
+
+    .disc-sub {
+      font-size: clamp(1rem, 1.8vw, 1.25rem);
+      color: var(--muted-ivory);
+      margin-top: 1.25rem;
+      max-width: 650px;
+      margin-left: auto;
+      margin-right: auto;
+      line-height: 1.6;
+      font-family: var(--font-serif);
+      font-style: italic;
+      text-align: center;
+    }
+
+    .disc-canvas {
+      position: relative;
+      width: 100%;
+      max-width: 950px;
+      height: 45vh;
+      min-height: 320px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .disc-intent-cloud {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      margin: auto;
+      width: 100%;
+      height: fit-content;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 1.2rem 2.5rem;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .disc-intent-tag {
+      font-family: var(--font-serif);
+      font-size: clamp(1.4rem, 3.5vw, 2.8rem);
+      color: var(--ivory);
+      opacity: 0.25;
+      white-space: nowrap;
+    }
+
+    .disc-scene-abs {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      margin: auto;
+      width: 100%;
+      height: fit-content;
+      max-width: 850px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      visibility: hidden;
+      z-index: 3;
+      pointer-events: none;
+    }
+
+    .disc-scene-abs.active-interact {
+      pointer-events: auto;
+    }
+
+    .disc-focus-phrase {
+      font-family: var(--font-serif);
+      font-size: clamp(2.4rem, 5.5vw, 5rem);
+      color: var(--chartreuse);
+      line-height: 1.1;
+      font-style: italic;
+      text-align: center;
+    }
+
+    .disc-looking-line {
+      font-family: var(--font-mono);
+      font-size: clamp(0.85rem, 1.4vw, 1.1rem);
+      color: var(--copper);
+      letter-spacing: 0.15em;
+      margin-top: 1.25rem;
+      text-transform: uppercase;
+      text-align: center;
+    }
+
+    .disc-biz-name {
+      font-family: var(--font-brand);
+      font-size: clamp(2.6rem, 6vw, 5.5rem);
+      color: var(--ivory);
+      letter-spacing: -0.02em;
+      text-transform: uppercase;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .disc-exist-line {
+      font-family: var(--font-serif);
+      font-size: clamp(1.2rem, 2.2vw, 1.8rem);
+      color: var(--chartreuse);
+      margin-top: 1rem;
+      font-style: italic;
+      text-align: center;
+    }
+
+    .disc-reason-line {
+      font-family: var(--font-serif);
+      font-size: clamp(2rem, 4.2vw, 3.8rem);
+      color: var(--copper);
+      line-height: 1.15;
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+
+    .disc-proof-words {
+      display: flex;
+      justify-content: center;
+      gap: 0.8rem 1.8rem;
+      flex-wrap: wrap;
+      font-family: var(--font-mono);
+      font-size: clamp(0.75rem, 1.2vw, 1rem);
+      color: var(--ivory);
+      letter-spacing: 0.12em;
+    }
+
+    .disc-proof-word {
+      padding: 8px 18px;
+      border: 1px solid var(--bdr-ivory);
+      border-radius: 9999px;
+      background: rgba(243, 240, 232, 0.03);
+    }
+
+    .disc-obvious-line {
+      font-family: var(--font-serif);
+      font-size: clamp(2.2rem, 4.8vw, 4.2rem);
+      color: var(--ivory);
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+
+    .disc-action-triggers {
+      display: flex;
+      justify-content: center;
+      gap: 1.2rem 2rem;
+      flex-wrap: wrap;
+    }
+
+    .disc-act-btn {
+      font-family: var(--font-mono);
+      font-size: clamp(0.85rem, 1.4vw, 1.1rem);
+      color: var(--chartreuse);
+      padding: 10px 22px;
+      border: 1px solid rgba(197, 211, 107, 0.3);
+      border-radius: 9999px;
+      background: rgba(197, 211, 107, 0.05);
+    }
+
+    .disc-final-statement {
+      font-family: var(--font-serif);
+      font-size: clamp(2rem, 5vw, 4.2rem);
+      line-height: 1.15;
+      color: var(--ivory);
+      margin-bottom: 1.25rem;
+      text-align: center;
+    }
+
+    .disc-found-tag {
+      font-family: var(--font-mono);
+      color: var(--copper);
+      font-size: clamp(0.85rem, 1.5vw, 1.1rem);
+      letter-spacing: 0.15em;
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+
 
     /* SCROLL 10 — FAQ */
     #scroll-10 {
@@ -1043,8 +1260,9 @@
       <a href="#scroll-01" class="nav-brand">ZELERA DECK<span>.</span></a>
       <nav class="nav-links" aria-label="Site navigation">
         <a href="#scroll-02" class="nav-a">HOW IT WORKS</a>
-        <a href="#scroll-09" class="nav-a">DISCOVERABILITY</a>
+        <!-- <a href="#scroll-09" class="nav-a">DISCOVERABILITY</a> -->
         <a href="#scroll-10" class="nav-a">FAQ</a>
+        <a href="/login" class="nav-a">LOGIN</a>
         <a href="https://wa.me/917012783442?text=Hi%2C+I+want+to+build+my+website+with+Zelera+Deck" target="_blank"
           rel="noopener" class="nav-cta">Build my website →</a>
       </nav>
@@ -1058,13 +1276,18 @@
   <!-- MOBILE MENU -->
   <div id="mob" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Mobile navigation">
     <div>
-      <div class="mono brand-font" style="color:var(--copper);margin-bottom:2rem">// ZELERA DECK</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem">
+        <div class="mono brand-font" style="color:var(--copper)">// ZELERA DECK</div>
+        <button id="mob-close" class="mob-close-btn" aria-label="Close menu"
+          style="background:none;border:none;color:var(--ivory);font-size:1.8rem;cursor:pointer;padding:0.25rem 0.5rem;line-height:1;transition:color 0.2s;">✕</button>
+      </div>
       <nav class="mob-ls">
-        <a href="#scroll-01" class="mob-a">01 / Intro</a>
-        <a href="#scroll-02" class="mob-a">02 / 60-Second Promise</a>
-        <a href="#scroll-04" class="mob-a">03 / Product Demo</a>
-        <a href="#scroll-07" class="mob-a">04 / WhatsApp CTA</a>
-        <a href="#scroll-10" class="mob-a">05 / FAQ</a>
+        <a href="#scroll-01" class="mob-a">01 / Home</a>
+        <!-- <a href="#scroll-02" class="mob-a">02 / 60-Second Promise</a> -->
+        <a href="#scroll-04" class="mob-a">02 / Product Demo</a>
+        <!-- <a href="#scroll-07" class="mob-a">04 / WhatsApp CTA</a> -->
+        <a href="#scroll-10" class="mob-a">03 / FAQ</a>
+        <a href="/login" class="mob-a" style="color:var(--chartreuse);">04 / Login →</a>
       </nav>
     </div>
     <div>
@@ -1088,7 +1311,7 @@
   </section>
 
   <!-- SCROLL 02 — THE 60 SECOND PROMISE -->
-  <section id="scroll-02" class="story-stage" style="padding:6rem 0">
+  <!-- <section id="scroll-02" class="story-stage" style="padding:6rem 0">
     <div class="cnt">
       <div class="promise-grid">
         <div>
@@ -1127,7 +1350,7 @@
         </div>
       </div>
     </div>
-  </section>
+  </section> -->
 
   <!-- SCROLL 03 — HIT THE PAIN POINT -->
   <section id="scroll-03" class="story-stage">
@@ -1197,154 +1420,133 @@
     </div>
   </section>
 
-  <!-- SCROLL 06 — SUBDOMAIN IDENTITY FOR ZELERADECK.COM/<SLUG> -->
-  <section id="scroll-06">
-    <div class="cnt">
-      <p class="mono copper" style="margin-bottom:1rem">// YOUR IDENTITY</p>
-      <h2 class="serif" style="font-size:clamp(2.5rem,6vw,5.5rem);line-height:1.1">Your business. Your link.<br><span
-          class="copper">Your website.</span></h2>
 
-      <div class="sub-bar-wrap">
-        <span style="color:var(--muted-ivory);font-family:var(--font-mono)">https://</span>
-        <span class="sub-url" id="sub-dynamic-link">zeleradeck.com/rahul-cafe</span>
+  <!-- SCROLL 08 — WHAT YOU GET (SEQUENTIAL REVEAL) -->
+  <!-- <section id="scroll-08">
+      <div class="cnt">
+        <p class="mono copper" style="text-align:center;margin-bottom:1rem">// THE INVENTORY</p>
+        <h2 class="serif" style="text-align:center;font-size:clamp(2.5rem,5vw,4.5rem);margin-bottom:3rem">Everything you
+          need to exist online.</h2>
+
+        <div class="get-list">
+          <div class="get-item">A beautiful website.</div>
+          <div class="get-item">Mobile ready.</div>
+          <div class="get-item">Fast loading.</div>
+          <div class="get-item">SEO ready.</div>
+          <div class="get-item">Search-friendly content.</div>
+          <div class="get-item">Structured FAQ discovery.</div>
+          <div class="get-item">WhatsApp integration.</div>
+          <div class="get-item highlight">Your Zelera Deck link.</div>
+        </div>
       </div>
-      <p class="mono" style="color:var(--muted-ivory)">SHAREABLE ON WHATSAPP, INSTAGRAM & GOOGLE MAPS</p>
-    </div>
-  </section>
+    </section> -->
 
-  <!-- SCROLL 07 — WHATSAPP SIMULATOR -->
-  <section id="scroll-07">
-    <div class="cnt" style="text-align:center">
-      <p class="mono chartreuse" style="margin-bottom:1rem">// THE CONVERSION</p>
-      <h2 class="serif" style="font-size:clamp(2.5rem,5.5vw,5rem);line-height:1.1">Don't fill out a form.<br><span
-          class="copper">Just say hello.</span></h2>
 
-      <div class="wa-sim-wrap">
-        <div class="wa-sim-header">
-          <div class="wa-avatar">ZD</div>
-          <div style="text-align:left">
-            <div style="font-weight:600;font-size:.95rem">Zelera Deck Assistant</div>
-            <div style="font-size:.75rem;color:var(--chartreuse)">Online & Ready</div>
+
+  <!-- SCROLL 09 — DISCOVERABILITY EDITORIAL KINETIC TYPOGRAPHY -->
+
+  <!-- SCROLL 09 — DISCOVERABILITY EDITORIAL KINETIC TYPOGRAPHY -->
+  <!-- <section id="scroll-09" class="story-stage">
+    <div class="disc-pin-stage" id="disc-stage"> -->
+
+  <!-- FIXED HEADER FOR DISCOVERABILITY STORY -->
+  <!-- <div class="disc-header-wrap" id="disc-header">
+        <div class="disc-eyebrow">// DISCOVERABILITY</div>
+        <h2 class="disc-head-1" id="disc-h1">They don't know your name.</h2>
+        <h2 class="disc-head-2" id="disc-h2" style="display:none;opacity:0">They know what they need.</h2>
+        <p class="disc-sub" id="disc-sub-copy">
+          Your next customer probably won't search for your business.<br>
+          They'll search for what they're looking for.<br>
+          Your website gives them somewhere to find you.
+        </p>
+      </div> -->
+
+  <!-- CANVAS CONTAINER FOR ANIMATED TYPOGRAPHIC SCENES -->
+  <!-- <div class="disc-canvas"> -->
+
+  <!-- SCENE 1: NEED INTENTIONS -->
+  <!-- <div class="disc-intent-cloud" id="disc-cloud">
+          <span class="disc-intent-tag" style="font-size:1.2em;opacity:0.3">best bakery near me</span>
+          <span class="disc-intent-tag" style="font-size:0.9em;opacity:0.2">custom cakes kochi</span>
+          <span class="disc-intent-tag" style="font-size:1.1em;opacity:0.35">tuition centre near me</span>
+          <span class="disc-intent-tag" style="font-size:1.0em;opacity:0.25">best salon near me</span>
+          <span class="disc-intent-tag" style="font-size:0.85em;opacity:0.2">interior designer kerala</span>
+          <span class="disc-intent-tag" style="font-size:0.95em;opacity:0.3">wedding photographer kochi</span>
+        </div> -->
+
+  <!-- SCENE 2: NARROW FOCUS -->
+  <!-- <div class="disc-scene-abs" id="disc-scene-2">
+          <div class="disc-focus-phrase">"best bakery near me"</div>
+          <div class="disc-looking-line">Someone is looking.</div>
+        </div> -->
+
+  <!-- SCENE 3: DISCOVERY REVEAL -->
+  <!-- <div class="disc-scene-abs" id="disc-scene-3">
+          <div class="disc-biz-name">Maya's Bakehouse</div>
+          <div class="disc-exist-line">Now they know you exist.</div>
+        </div> -->
+
+  <!-- SCENE 4: TRUST & PROOF -->
+  <!-- <div class="disc-scene-abs" id="disc-scene-4">
+          <div class="disc-reason-line">Now they need a reason to stay.</div>
+          <div class="disc-proof-words">
+            <span class="disc-proof-word">YOUR WORK</span>
+            <span class="disc-proof-word">YOUR SERVICES</span>
+            <span class="disc-proof-word">YOUR LOCATION</span>
+            <span class="disc-proof-word">YOUR CONTACT</span>
+            <span class="disc-proof-word">YOUR PROOF</span>
           </div>
-        </div>
-        <div class="wa-sim-body">
-          <div class="wa-msg zelra">Hey 👋 What kind of business do you run?</div>
-          <div class="wa-msg user">A clothing store called Urban Threads.</div>
-          <div class="wa-msg zelra">Got it! Building your custom website...</div>
-          <div class="wa-msg system">⚡ BUILDING WEBSITE: 82% COMPLETE</div>
-          <div class="wa-msg zelra">Your website is live and ready! 🎉</div>
-        </div>
-      </div>
+        </div> -->
 
-      <a href="https://wa.me/917012783442?text=Hi%2C+I+want+to+build+my+website+with+Zelera+Deck" target="_blank"
-        rel="noopener" class="wa-cta-btn">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
-          <path
-            d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z" />
-          <path
-            d="M12 0C5.37 0 0 5.37 0 12c0 2.12.55 4.11 1.52 5.84L.06 23.5l5.83-1.53A12 12 0 0012 24c6.63 0 12-5.37 12-12S18.63 0 12 0zm0 21.88a9.88 9.88 0 01-5.03-1.38l-.36-.21-3.74.98 1-3.65-.24-.37A9.86 9.86 0 012.12 12C2.12 6.57 6.57 2.12 12 2.12c5.43 0 9.88 4.45 9.88 9.88 0 5.43-4.45 9.88-9.88 9.88z" />
-        </svg>
-        Build mine → WhatsApp
+  <!-- SCENE 5: ACTION -->
+  <!-- <div class="disc-scene-abs" id="disc-scene-5">
+          <div class="disc-obvious-line">Make the next step obvious.</div>
+          <div class="disc-action-triggers">
+            <span class="disc-act-btn">WhatsApp</span>
+            <span class="disc-act-btn">Call</span>
+            <span class="disc-act-btn">Visit</span>
+            <span class="disc-act-btn">Enquire</span>
+          </div>
+        </div> -->
+
+  <!-- SCENE 6: FINAL STATEMENT -->
+  <!-- <div class="disc-scene-abs active-interact" id="disc-scene-6">
+          <div class="disc-final-statement">
+            People are already looking.<br>
+            <span class="serif chartreuse">Give them somewhere to find you.</span>
+          </div>
+          <div class="disc-found-tag">BUILT TO BE FOUND.</div>
+          <a href="https://wa.me/917012783442?text=Hi%2C+I+want+to+build+my+website+with+Zelera+Deck" target="_blank" rel="noopener" class="btn-pri">
+            Build my website →
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </section> -->
+
+
+
+
+  <!-- SCROLL 10 — KNOWLEDGE HUB GATEWAY -->
+  <section id="scroll-10">
+    <div class="cnt" style="text-align:center">
+      <p class="mono copper" style="margin-bottom:1.5rem">// KNOWLEDGE HUB</p>
+      <h2 class="serif" style="font-size:clamp(2.8rem,6vw,5.5rem);line-height:1.1;margin-bottom:2rem">
+        Questions?<br><span class="copper">Good. We have 100+ clear answers.</span>
+      </h2>
+      <p
+        style="font-size:clamp(1.1rem,2vw,1.4rem);color:var(--muted-ivory);max-width:700px;margin:0 auto 3rem;font-family:var(--font-serif);font-style:italic">
+        Explore our dedicated Knowledge Hub for pricing details, SEO strategies, AI answer engine compatibility, domain
+        setup, and local business growth guides.
+      </p>
+      <a href="faq.html" class="btn-pri"
+        style="display:inline-flex;align-items:center;gap:0.75rem;padding:1.25rem 2.5rem;font-size:1.1rem">
+        Explore 100+ FAQs in Knowledge Hub →
       </a>
     </div>
   </section>
 
-  <!-- SCROLL 08 — WHAT YOU GET (SEQUENTIAL REVEAL) -->
-  <section id="scroll-08">
-    <div class="cnt">
-      <p class="mono copper" style="text-align:center;margin-bottom:1rem">// THE INVENTORY</p>
-      <h2 class="serif" style="text-align:center;font-size:clamp(2.5rem,5vw,4.5rem);margin-bottom:3rem">Everything you
-        need to exist online.</h2>
-
-      <div class="get-list">
-        <div class="get-item">A beautiful website.</div>
-        <div class="get-item">Mobile ready.</div>
-        <div class="get-item">Fast loading.</div>
-        <div class="get-item">SEO ready.</div>
-        <div class="get-item">Search-friendly content.</div>
-        <div class="get-item">Structured FAQ discovery.</div>
-        <div class="get-item">WhatsApp integration.</div>
-        <div class="get-item highlight">Your Zelera Deck link.</div>
-      </div>
-    </div>
-  </section>
-
-  <!-- SCROLL 09 — SEO / AEO DISCOVERABILITY -->
-  <section id="scroll-09">
-    <div class="cnt">
-      <p class="mono chartreuse" style="margin-bottom:1rem">// DISCOVERABILITY</p>
-      <h2 class="serif" style="font-size:clamp(2.5rem,5.5vw,5rem);line-height:1.05">Built for people.<br>Built for
-        search.<br><span class="chartreuse">Built for AI.</span></h2>
-
-      <div class="seo-flow-grid">
-        <div class="flow-card">
-          <h4>01 / CUSTOMER SEARCH</h4>
-          <p>"Best bakery near me" or "Gyms in Kochi"</p>
-        </div>
-        <div class="flow-card">
-          <h4>02 / AI &amp; SEARCH ENGINE</h4>
-          <p>Google and ChatGPT read structured business data.</p>
-        </div>
-        <div class="flow-card">
-          <h4>03 / STRUCTURED CONTENT</h4>
-          <p>Zelera Deck formats semantic headings, schema, &amp; FAQs.</p>
-        </div>
-        <div class="flow-card">
-          <h4>04 / YOUR ZELERA DECK SITE</h4>
-          <p>Surfaced directly to buying customers.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- SCROLL 10 — FAQ -->
-  <section id="scroll-10">
-    <div class="cnt">
-      <div style="text-align:center">
-        <p class="mono copper" style="margin-bottom:1rem">// CLEAR ANSWERS</p>
-        <h2 class="serif" style="font-size:clamp(2.8rem,6vw,5.5rem)">Questions?<br><span class="copper">Good. You
-            probably have a few.</span></h2>
-      </div>
-
-      <div class="faq-grid">
-        <div class="faq-row">
-          <button class="faq-q"><span>Do I need hosting?</span><span class="faq-ico">+</span></button>
-          <div class="faq-a">
-            <p class="faq-ai">No. Zelera Deck handles all hosting on ultra-fast global infrastructure. There are no
-              extra hosting bills.</p>
-          </div>
-        </div>
-        <div class="faq-row">
-          <button class="faq-q"><span>Can I use my own domain?</span><span class="faq-ico">+</span></button>
-          <div class="faq-a">
-            <p class="faq-ai">Yes! Your site comes with a free zeleradeck.com link, and you can easily connect your
-              custom domain whenever you're ready.</p>
-          </div>
-        </div>
-        <div class="faq-row">
-          <button class="faq-q"><span>Can customers order on WhatsApp?</span><span class="faq-ico">+</span></button>
-          <div class="faq-a">
-            <p class="faq-ai">Yes. Every product and contact CTA links directly into a pre-filled WhatsApp conversation
-              on your phone.</p>
-          </div>
-        </div>
-        <div class="faq-row">
-          <button class="faq-q"><span>Can I edit my website later?</span><span class="faq-ico">+</span></button>
-          <div class="faq-a">
-            <p class="faq-ai">Absolutely. You can update your products, images, and shop details anytime through
-              WhatsApp or your owner dashboard.</p>
-          </div>
-        </div>
-        <div class="faq-row">
-          <button class="faq-q"><span>Will Google find my website?</span><span class="faq-ico">+</span></button>
-          <div class="faq-a">
-            <p class="faq-ai">Zelera Deck sites are built with semantic HTML5, clean metadata, and FAQ schema so search
-              engines can easily index your business.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
 
   <!-- FINAL SECTION -->
   <section id="scroll-final">
@@ -1556,16 +1758,86 @@
       /* HAMBURGER MOBILE MENU */
       const ham = document.getElementById('ham');
       const mob = document.getElementById('mob');
+      const mobClose = document.getElementById('mob-close');
       let mobOpen = false;
       if (ham && mob) {
         ham.addEventListener('click', function () {
           mobOpen = !mobOpen;
           mob.classList.toggle('open', mobOpen);
         });
-        document.querySelectorAll('.mob-a').forEach(function (l) {
+        if (mobClose) {
+          mobClose.addEventListener('click', function () {
+            mob.classList.remove('open');
+            mobOpen = false;
+          });
+        }
+        document.querySelectorAll('.mob-a, .mob-cta').forEach(function (l) {
           l.addEventListener('click', function () { mob.classList.remove('open'); mobOpen = false; });
         });
       }
+
+      /* GSAP SCROLLTRIGGER FOR DISCOVERABILITY SECTION (#scroll-09) */
+      const discStage = document.getElementById('disc-stage');
+      if (discStage) {
+        const mm = gsap.matchMedia();
+
+        mm.add("(min-width: 10px)", function () {
+          if (prm) {
+            gsap.set(['#disc-scene-2', '#disc-scene-3', '#disc-scene-4', '#disc-scene-5'], { display: 'none' });
+            gsap.set('#disc-scene-6', { autoAlpha: 1, position: 'relative', top: 'auto', left: 'auto', transform: 'none' });
+            return;
+          }
+
+          const cloud = document.getElementById('disc-cloud');
+          const scene2 = document.getElementById('disc-scene-2');
+          const scene3 = document.getElementById('disc-scene-3');
+          const scene4 = document.getElementById('disc-scene-4');
+          const scene5 = document.getElementById('disc-scene-5');
+          const scene6 = document.getElementById('disc-scene-6');
+          const h1 = document.getElementById('disc-h1');
+          const h2 = document.getElementById('disc-h2');
+          const sub = document.getElementById('disc-sub-copy');
+
+          // Set initial GSAP states
+          gsap.set([scene2, scene3, scene4, scene5, scene6], { autoAlpha: 0, y: 40 });
+          gsap.set(cloud, { autoAlpha: 1 });
+
+          const discTl = gsap.timeline({
+            scrollTrigger: {
+              trigger: '#scroll-09',
+              start: 'top top',
+              end: '+=450%',
+              pin: true,
+              scrub: 0.8
+            }
+          });
+
+          discTl
+            // Scene 1 -> 2
+            .to(cloud, { autoAlpha: 0, scale: 0.9, duration: 1 })
+            .to(h1, { autoAlpha: 0, duration: 0.5 }, '-=0.5')
+            .to(h2, { display: 'block', autoAlpha: 1, duration: 0.8 }, '-=0.3')
+            .to(scene2, { autoAlpha: 1, y: 0, duration: 1.2 }, '-=0.5')
+
+            // Scene 2 -> 3
+            .to(scene2, { autoAlpha: 0, y: -40, duration: 0.8 }, '+=0.6')
+            .to(sub, { autoAlpha: 0, y: -20, duration: 0.6 }, '-=0.8')
+            .to(scene3, { autoAlpha: 1, y: 0, duration: 1.2 }, '-=0.2')
+
+            // Scene 3 -> 4
+            .to(scene3, { autoAlpha: 0, y: -40, duration: 0.8 }, '+=0.6')
+            .to(scene4, { autoAlpha: 1, y: 0, duration: 1.2 }, '-=0.2')
+
+            // Scene 4 -> 5
+            .to(scene4, { autoAlpha: 0, y: -40, duration: 0.8 }, '+=0.6')
+            .to(scene5, { autoAlpha: 1, y: 0, duration: 1.2 }, '-=0.2')
+
+            // Scene 5 -> 6
+            .to(scene5, { autoAlpha: 0, y: -40, duration: 0.8 }, '+=0.6')
+            .to(scene6, { autoAlpha: 1, y: 0, duration: 1.2 }, '-=0.2');
+        });
+      }
+
     })();
   </script>
 </body>
