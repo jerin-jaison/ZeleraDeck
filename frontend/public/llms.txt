@@ -44,7 +44,7 @@ plans to expand across South India.
 
 | Plan                     | Price       | Description                                      |
 |--------------------------|-------------|--------------------------------------------------|
-| Standard Plan            | ₹699/month  | Cancel anytime. No hidden setup fees.            |
+| Standard Plan            | 799/month  | Cancel anytime. No hidden setup fees.            |
 | Launch Offer (3 Months)  | ₹1,599      | Entire first 3 months (~₹533/mo). Zero commission|
 
 All plans include: shareable link, QR code, WhatsApp ordering, mobile dashboard, unlimited products, no commissions.
