@@ -1,12 +1,13 @@
+import { company } from '../config/company'
+import PublicFooter from '../components/PublicFooter'
 import { useState } from 'react'
 import { MessageCircle, Mail, Phone, CheckCircle, Send, Clock, MapPin, ArrowRight } from 'lucide-react'
 import SEOHead from '../components/SEOHead'
 import PublicNavbar from '../components/PublicNavbar'
-import { Link } from 'react-router-dom'
 
 const WA_NUMBER = '917012783442'
 const WA_URL    = `https://wa.me/${WA_NUMBER}?text=Hi%2C%20I%20want%20to%20know%20more%20about%20ZeleraDeck`
-const EMAIL     = 'teamzelera@gmail.com'
+const EMAIL     = company.email
 const PHONE     = '+91 70127 83442'
 
 const CONTACT_METHODS = [
@@ -263,23 +264,7 @@ export default function ContactPage() {
 
         </main>
 
-        <footer className="bg-[#0F172A] border-t border-white/8 px-4 py-10">
-          <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
-            <div className="flex items-center gap-2.5">
-              <img src="/logo-zd-nobg.png" alt="ZeleraDeck" className="w-10 h-10 object-contain" />
-              <div>
-                <span className="text-sm font-bold text-white block" style={{ fontFamily: "'Poppins', sans-serif" }}>ZeleraDeck</span>
-                <span className="text-xs text-[#475569]">Where we grow together</span>
-              </div>
-            </div>
-            <nav className="flex flex-wrap justify-center gap-x-6 gap-y-2" aria-label="Footer navigation">
-              {[['Home', '/'], ['About', '/about'], ['Why Us', '/why-us'], ['Contact', '/contact']].map(([l, t]) => (
-                <Link key={t} to={t} className="text-xs text-[#475569] hover:text-white transition-colors">{l}</Link>
-              ))}
-            </nav>
-            <p className="text-xs text-[#334155]">© {new Date().getFullYear()} ZeleraDeck</p>
-          </div>
-        </footer>
+        <PublicFooter />
       </div>
     </>
   )

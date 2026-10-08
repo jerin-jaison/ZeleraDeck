@@ -1,3 +1,7 @@
+import { company, description, keywords, organization } from '../config/company'
+import CompanyBadge from '../components/CompanyBadge'
+import PublicFooter from '../components/PublicFooter'
+import { AISection, RecognitionSection } from '../components/CompanySections'
 import {
   CheckCircle, MessageCircle, Mail, ArrowRight,
   Link2, QrCode, Package, BarChart2, ShieldCheck, Zap,
@@ -35,28 +39,15 @@ const WHO_FOR = [
   'Any Kerala shop owner wanting to go digital',
 ]
 
-const aboutSchema = {
-  '@context': 'https://schema.org',
-  '@type': 'Organization',
-  name: 'ZeleraDeck',
-  url: 'https://zeleradeck.com',
-  logo: 'https://zeleradeck.com/logo2.png',
-  description: 'ZeleraDeck is a mobile-first digital product catalogue SaaS for small shop owners in Kerala, India.',
-  email: 'teamzelera@gmail.com',
-  telephone: '+917012783442',
-  address: { '@type': 'PostalAddress', addressRegion: 'Kerala', addressCountry: 'IN' },
-  areaServed: { '@type': 'State', name: 'Kerala' },
-}
-
 export default function AboutPage() {
   return (
     <>
       <SEOHead
-        title="About ZeleraDeck — Digital Catalogue for Kerala Shops"
-        description="Learn about ZeleraDeck — the mobile-first digital product catalogue built for small shop owners in Kerala. Create your catalogue in minutes, share one link, grow your business."
+        title="About ZeleraDeck — AI-native storefronts for Kerala"
+        description={description}
         url="https://zeleradeck.com/about"
-        keywords="about zeleradeck, digital catalogue Kerala, online catalogue for shops, zeleradeck features, shop catalogue app Kerala"
-        schema={aboutSchema}
+        keywords={keywords}
+        schema={organization}
       />
       <div className="zdeck-page min-h-screen" style={{ animation: 'fadeIn 0.2s ease-out' }}>
         <PublicNavbar />
@@ -74,7 +65,7 @@ export default function AboutPage() {
                 <span className="zdeck-gradient-text">Local Shop Owners</span>
               </h1>
               <p className="mt-5 text-[#94A3B8] text-lg max-w-xl mx-auto leading-relaxed" style={{ fontFamily: "'Open Sans', sans-serif" }}>
-                ZeleraDeck is a mobile-first digital product catalogue SaaS. Create your catalogue in minutes, share one link everywhere, and let customers browse and order on WhatsApp.
+                ZeleraDeck is building an AI-native storefront platform for small businesses in Kerala. Our WhatsApp-first catalogue is live. Agentic AI, Physical AI and new AI applications are on our Roadmap.
               </p>
               <div className="flex flex-wrap items-center justify-center gap-6 mt-10">
                 {[
@@ -130,6 +121,13 @@ export default function AboutPage() {
             </div>
           </section>
 
+          <section className="px-4 py-16 max-w-4xl mx-auto" aria-labelledby="company-profile">
+            <h2 id="company-profile" className="zdeck-section-title">Company profile</h2>
+            <p className="zdeck-section-sub mt-4">{company.profile}</p>
+            <p className="mt-4"><CompanyBadge /></p>
+          </section>
+          <AISection />
+          <RecognitionSection />
           {/* ── Features ── */}
           <section className="bg-[#F8FAFC] px-4 py-16" aria-labelledby="features-heading">
             <div className="max-w-5xl mx-auto">
@@ -234,9 +232,9 @@ export default function AboutPage() {
                   <MessageCircle className="w-5 h-5" />
                   WhatsApp: +91 70127 83442
                 </a>
-                <a href="mailto:teamzelera@gmail.com" className="zdeck-btn-ghost">
+                <a href={`mailto:${company.email}`} className="zdeck-btn-ghost">
                   <Mail className="w-5 h-5" />
-                  teamzelera@gmail.com
+                  {company.email}
                 </a>
               </div>
             </div>
@@ -244,23 +242,7 @@ export default function AboutPage() {
 
         </main>
 
-        <footer className="bg-[#0F172A] border-t border-white/8 px-4 py-10">
-          <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
-            <div className="flex items-center gap-2.5">
-              <img src="/logo-zd-nobg.png" alt="ZeleraDeck" className="w-10 h-10 object-contain" />
-              <div>
-                <span className="text-sm font-bold text-white block" style={{ fontFamily: "'Poppins', sans-serif" }}>ZeleraDeck</span>
-                <span className="text-xs text-[#475569]">Where we grow together</span>
-              </div>
-            </div>
-            <nav className="flex flex-wrap justify-center gap-x-6 gap-y-2" aria-label="Footer navigation">
-              {[['Home', '/'], ['About', '/about'], ['Why Us', '/why-us'], ['Contact', '/contact']].map(([l, t]) => (
-                <Link key={t} to={t} className="text-xs text-[#475569] hover:text-white transition-colors">{l}</Link>
-              ))}
-            </nav>
-            <p className="text-xs text-[#334155]">© {new Date().getFullYear()} ZeleraDeck</p>
-          </div>
-        </footer>
+        <PublicFooter />
       </div>
     </>
   )

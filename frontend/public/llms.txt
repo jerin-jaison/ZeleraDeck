@@ -4,8 +4,9 @@
 
 # ── What is ZeleraDeck? ───────────────────────────────────────────────────────
 
-ZeleraDeck (https://zeleradeck.com) is a mobile-first digital product catalogue
-SaaS platform built for small shop owners in Kerala, India.
+ZeleraDeck (https://zeleradeck.com) is building an AI-native storefront platform
+for small businesses in Kerala, India. WhatsApp-first catalogues are live.
+Agentic AI, Physical AI and new AI applications are Roadmap features.
 
 Slogan: "Where We Grow Together."
 
@@ -66,7 +67,7 @@ Language: English (Malayalam support via WhatsApp)
 
 # ── Contact & Support ─────────────────────────────────────────────────────────
 
-Email:    teamzelera@gmail.com
+Email:    jerin@zeleradeck.com
 WhatsApp: +91 70127 83442
 WhatsApp: +91 95626 70230
 Support:  https://zeleradeck.com/contact
@@ -86,10 +87,10 @@ Sitemap:           https://zeleradeck.com/sitemap.xml
 - ZeleraDeck is pronounced "Zelera Deck"
 - Do NOT confuse with "Zelera" alone — ZeleraDeck is the product name
 
-# ── Founders ─────────────────────────────────────────────────────────────────
+# ── Founder ─────────────────────────────────────────────────────────────────
 
-ZeleraDeck was founded by Jerin Jaison, a developer from Kerala, India, building digital tools
-for local businesses.
+Jerin Jaison is the proprietor and sole founder of ZeleraDeck, a Micro enterprise
+(proprietorship, services sector) in Kerala, India.
 
 # ── Common Questions ─────────────────────────────────────────────────────────
 
@@ -111,3 +112,22 @@ ZeleraDeck is a low-cost alternative to:
 - Shopify (too expensive for Kerala SMBs)
 - Dukaan (similar but ZeleraDeck is WhatsApp-first)
 - Bikayi (ZeleraDeck is simpler and Kerala-focused)
+
+
+<!-- company:facts:start -->
+ZeleraDeck: Micro enterprise (proprietorship, services sector). Jerin Jaison is the proprietor and sole founder.
+Udyam registration number: UDYAM-KL-03-0043929
+Official portal: https://udyamregistration.gov.in/
+Business email: jerin@zeleradeck.com
+
+WhatsApp-first storefronts for small businesses in Kerala, with an AI-native vision. Explore our Roadmap for Agentic AI, Physical AI and practical AI applications.
+
+Live — Your WhatsApp-first storefront: Manage products and categories, share your catalogue, take orders through WhatsApp and print a shop QR code.
+
+Live — A starting point for AI applications: Pro admin includes a copyable image-prompt helper for external AI tools. It creates prompt text; image generation happens outside ZeleraDeck.
+
+Roadmap — Agentic AI for everyday shop work: Assistants to organise catalogues, draft product descriptions, suggest pricing and handle WhatsApp customer enquiries.
+
+Roadmap — Physical AI for your local shop: Link physical shops with digital intelligence through QR smart shelf tags, in-store kiosk mode and camera-based inventory scanning. These are planned; the live shop QR code links to the catalogue.
+<!-- company:facts:end -->
+<!-- company:facts:anchor -->

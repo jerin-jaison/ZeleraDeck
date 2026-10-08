@@ -48,4 +48,10 @@ Don’t let bigger competitors steal your loyal customers. Modernize your busine
 
 **Contact Us for a Free Consultation:**
 * **Phone / WhatsApp:** +91 7012783442
-* **Email:** teamzelera@gmail.com
+* **Email:** jerin@zeleradeck.com
+
+
+ZeleraDeck is building an AI-native, WhatsApp-first storefront platform for small businesses in Kerala.
+Micro enterprise (proprietorship, services sector). Jerin Jaison is the proprietor and sole founder.
+Live: catalogues, WhatsApp ordering, shop QR codes and a Pro admin prompt helper for external AI image tools.
+Roadmap: Agentic AI assistants for catalogues, descriptions, pricing and WhatsApp enquiries; Physical AI through QR smart shelf tags, kiosk mode and camera inventory scanning. These AI applications are planned, not currently available.

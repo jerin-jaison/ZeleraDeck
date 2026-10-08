@@ -4,9 +4,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ZELERA DECK — The Website That Sells Itself</title>
+  <title>ZeleraDeck — AI-native storefronts for Kerala</title>
   <meta name="description"
-    content="ZELERA DECK is an instant website builder for small businesses. A website in a minute. No hosting bill, no domain hassle, just your shop live on WhatsApp.">
+    content="WhatsApp-first storefronts for small businesses in Kerala, with an AI-native vision. Explore our Roadmap for Agentic AI, Physical AI and practical AI applications.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
@@ -525,34 +525,92 @@
       letter-spacing: -.03em
     }
 
-    /* SCROLL 04 — PRODUCT DEMO (WEBSITE TRANSFORMS) */
+    /* SCROLL 04 — PRODUCT DEMO (REAL SHOPS SHOWCASE) */
     #scroll-04 {
       background: var(--ivory);
       color: var(--obsidian);
-      padding: 6rem 0
+      padding: 6rem 0;
+      position: relative;
     }
 
     .demo-top {
       text-align: center;
-      max-width: 800px;
-      margin: 0 auto 4rem
+      max-width: 850px;
+      margin: 0 auto 3rem;
     }
 
     .demo-say {
       font-family: var(--font-serif);
-      font-size: clamp(2.2rem, 5vw, 4.5rem);
+      font-size: clamp(2.2rem, 5vw, 4.2rem);
       line-height: 1.1;
-      margin-bottom: 1rem
+      margin-bottom: 0.75rem;
+      color: var(--obsidian);
+      font-weight: 700;
+    }
+
+    .demo-sub {
+      font-size: clamp(1.05rem, 1.8vw, 1.25rem);
+      color: #555;
+      margin-bottom: 2rem;
+    }
+
+    .zd-shop-tabs {
+      display: inline-flex;
+      background: rgba(0, 0, 0, 0.06);
+      padding: 5px;
+      border-radius: 9999px;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      gap: 6px;
+    }
+
+    .zd-tab-btn {
+      background: transparent;
+      border: none;
+      color: #555;
+      padding: 0.65rem 1.8rem;
+      border-radius: 9999px;
+      font-family: var(--font-brand);
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .zd-tab-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #bbb;
+      transition: background 0.25s;
+    }
+
+    .zd-tab-btn.active {
+      background: var(--obsidian);
+      color: var(--ivory);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+    }
+
+    .zd-tab-btn.active .zd-tab-dot {
+      background: var(--copper);
+    }
+
+    .zd-tab-btn:focus-visible {
+      outline: 2px solid var(--copper);
+      outline-offset: 2px;
     }
 
     .demo-browser {
-      max-width: 960px;
+      max-width: 980px;
       margin: 0 auto;
       background: #fff;
       border-radius: 20px;
-      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.15);
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.12);
       overflow: hidden;
-      border: 1px solid rgba(0, 0, 0, 0.08)
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      position: relative;
     }
 
     .browser-bar {
@@ -561,74 +619,172 @@
       display: flex;
       align-items: center;
       gap: 12px;
-      border-bottom: 1px solid rgba(0, 0, 0, 0.06)
+      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
     }
 
     .dots {
       display: flex;
-      gap: 6px
+      gap: 6px;
+      flex-shrink: 0;
     }
 
     .dot {
       width: 10px;
       height: 10px;
       border-radius: 50%;
-      background: #e0dcd2
+      background: #e0dcd2;
     }
 
-    .address-bar {
+    .zd-address-link {
       background: #fff;
       padding: 6px 16px;
       border-radius: 12px;
       font-family: var(--font-mono);
       font-size: .82rem;
-      color: #555;
+      color: #333;
       flex: 1;
       display: flex;
       align-items: center;
-      gap: 8px
+      gap: 8px;
+      text-decoration: none;
+      border: 1px solid rgba(0, 0, 0, 0.06);
+      transition: border-color 0.2s, background 0.2s;
+      overflow: hidden;
+      white-space: nowrap;
     }
 
-    .demo-viewport {
-      padding: 3rem 2.5rem;
-      min-height: 380px;
+    .zd-address-link:hover,
+    .zd-address-link:focus-visible {
+      border-color: var(--copper);
+      background: #faf9f6;
+      outline: none;
+    }
+
+    #zd-address-text {
+      color: #111;
+      font-weight: 600;
+    }
+
+    .zd-screen-wrap {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 10;
+      min-height: 360px;
+      max-height: 560px;
+      background: #faf8f5;
+      overflow: hidden;
+    }
+
+    .zd-preview-card {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.45s ease, visibility 0.45s ease;
+      pointer-events: none;
+    }
+
+    .zd-preview-card.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .zd-screenshot {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top center;
+      display: block;
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+    }
+
+    .zd-iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      opacity: 0;
+      transition: opacity 0.45s ease;
+      pointer-events: none;
+      display: block;
+    }
+
+    .zd-iframe.ready {
+      opacity: 1;
+    }
+
+    .zd-frame-footer {
       display: flex;
-      flex-direction: column;
-      justify-content: center
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-top: 1.5rem;
+      max-width: 980px;
+      margin-left: auto;
+      margin-right: auto;
+      padding: 0 0.25rem;
     }
 
-    .demo-biz-tag {
-      font-family: var(--font-mono);
-      font-size: .78rem;
-      color: var(--copper);
-      text-transform: uppercase;
-      margin-bottom: .75rem
-    }
-
-    .demo-biz-title {
-      font-family: var(--font-serif);
-      font-size: clamp(2rem, 4vw, 3.2rem);
-      margin-bottom: 1rem
-    }
-
-    .demo-biz-desc {
-      font-size: 1.05rem;
-      color: #555;
-      max-width: 600px;
-      margin-bottom: 2rem
-    }
-
-    .demo-biz-cta {
+    .zd-step-bar {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
+      gap: 0.5rem;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+    }
+
+    .zd-step-item {
+      background: transparent;
+      border: none;
+      padding: 5px 14px;
+      border-radius: 9999px;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      color: #666;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+
+    .zd-step-item.active {
+      background: rgba(182, 106, 69, 0.15);
+      color: var(--copper);
+      font-weight: 700;
+    }
+
+    .zd-step-item:focus-visible {
+      outline: 2px solid var(--copper);
+    }
+
+    .zd-step-sep {
+      color: #ccc;
+    }
+
+    .zd-open-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-sans);
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--obsidian);
+      background: rgba(0, 0, 0, 0.05);
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      padding: 6px 16px;
+      border-radius: 9999px;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+
+    .zd-open-link:hover,
+    .zd-open-link:focus-visible {
       background: var(--obsidian);
       color: var(--ivory);
-      padding: .75rem 1.8rem;
-      border-radius: 9999px;
-      font-weight: 600;
-      text-decoration: none;
-      width: fit-content
+      outline: none;
     }
 
     /* SCROLL 05 — NO HOSTING BILL */
@@ -1248,6 +1404,33 @@
       }
     }
   </style>
+<!-- company:seo:start -->
+<link rel="canonical" href="https://zeleradeck.com/">
+<meta name="keywords" content="ZeleraDeck, AI, Agentic AI, Physical AI, AI applications, Kerala small businesses, WhatsApp-first storefront">
+<meta property="og:title" content="ZeleraDeck — AI-native storefronts for Kerala">
+<meta property="og:description" content="WhatsApp-first storefronts for small businesses in Kerala, with an AI-native vision. Explore our Roadmap for Agentic AI, Physical AI and practical AI applications.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://zeleradeck.com/">
+<meta property="og:image" content="https://zeleradeck.com/logo-zd-nobg.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="ZeleraDeck — AI-native storefronts for Kerala">
+<meta name="twitter:description" content="WhatsApp-first storefronts for small businesses in Kerala, with an AI-native vision. Explore our Roadmap for Agentic AI, Physical AI and practical AI applications.">
+<meta name="twitter:image" content="https://zeleradeck.com/logo-zd-nobg.png">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","name":"ZeleraDeck","url":"https://zeleradeck.com","logo":"https://zeleradeck.com/logo-zd-nobg.png","description":"WhatsApp-first storefronts for small businesses in Kerala, with an AI-native vision. Explore our Roadmap for Agentic AI, Physical AI and practical AI applications. Micro enterprise (proprietorship, services sector). Jerin Jaison is the proprietor and sole founder.","keywords":"ZeleraDeck, AI, Agentic AI, Physical AI, AI applications, Kerala small businesses, WhatsApp-first storefront","email":"jerin@zeleradeck.com","telephone":"+917012783442","founder":{"@type":"Person","name":"Jerin Jaison"},"identifier":{"@type":"PropertyValue","propertyID":"Udyam Registration","value":"UDYAM-KL-03-0043929"},"address":{"@type":"PostalAddress","addressRegion":"Kerala","addressCountry":"IN"}}</script>
+<style>
+.company-section { padding: 4rem var(--gut); max-width: var(--max-w); margin: auto; }
+.company-section h2 { font-family: var(--font-serif); font-size: clamp(1.8rem,4vw,3rem); margin-bottom: 1.5rem; }
+.company-section h3 { margin: 1rem 0 .75rem; font-size: 1.1rem; }
+.company-section p { color: var(--muted-ivory); line-height: 1.7; }
+.company-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(100%,260px),1fr)); gap: 2rem; }
+.company-status { color: var(--chartreuse); font-family: var(--font-mono); font-size: .8rem; }
+.company-section a, .company-footer a { color: var(--chartreuse); text-decoration: underline; }
+.company-footer p:first-child a { display: inline-block; padding: .5rem .75rem; border: 1px solid var(--bdr-ivory); }
+.company-footer { padding: 1.5rem var(--gut); line-height: 1.8; overflow-wrap: anywhere; }
+.company-hero { max-width: 46rem; margin: 1.5rem auto; padding: 0 1rem; line-height: 1.6; }
+.company-hero h1 { font-size: clamp(1.25rem,3vw,2rem); margin-bottom: .75rem; }
+</style>
+<!-- company:seo:end -->
 </head>
 
 <body>
@@ -1302,6 +1485,9 @@
         <span class="typewriter-text" id="typewriter"></span><span class="hook-cursor"></span>
       </div>
 
+<!-- company:hero:start -->
+<div class="company-hero"><h1>An AI-native vision for Kerala’s small businesses.</h1><p>Your WhatsApp-first storefront is live today. <strong>Roadmap:</strong> Agentic AI, Physical AI and practical AI applications to help your shop grow.</p></div>
+<!-- company:hero:end -->
       <!-- GLASSMORPHISM SCROLL TO KNOW MORE BUTTON -->
       <a href="#scroll-about" id="glass-scroll-btn" class="glass-btn">
         <span>Scroll to know more</span> <span class="glass-arrow">↓</span>
@@ -1707,35 +1893,105 @@
     </div>
   </section>
 
-  <!-- SCROLL 04 — PRODUCT DEMO (WEBSITE TRANSFORMS) -->
+  <!-- SCROLL 04 — PRODUCT DEMO (CUSTOMER VIEW & SHOP OWNER VIEW SHOWCASE) -->
   <section id="scroll-04">
     <div class="cnt">
       <div class="demo-top">
-        <p class="mono copper" style="margin-bottom:1rem">// THE DEMONSTRATION</p>
-        <h2 class="demo-say">You say it.<br><span class="serif" id="demo-prompt-txt">"I run a bakery in Kochi."</span>
-        </h2>
-        <p style="font-size:1.1rem;color:#666">Watch Zelera Deck transform into your live website in real time.</p>
+        <p class="mono copper" style="margin-bottom:0.75rem">// THE DEMONSTRATION</p>
+        <h2 class="demo-say">You sign up. Your shop goes live.</h2>
+        <p class="demo-sub">See how your store looks to your customers and how easy it is to manage.</p>
+
+        <!-- Shop Tabs -->
+        <div class="zd-shop-tabs" role="tablist" aria-label="Zelera Deck Interface Modes">
+          <button id="zd-tab-customer" class="zd-tab-btn active" role="tab" aria-selected="true"
+            aria-controls="zd-demo-viewport" tabindex="0" data-shop="customer">
+            <span class="zd-tab-dot"></span> Customer View
+          </button>
+          <button id="zd-tab-admin" class="zd-tab-btn" role="tab" aria-selected="false" aria-controls="zd-demo-viewport"
+            tabindex="-1" data-shop="admin">
+            <span class="zd-tab-dot"></span> Shop Owner View
+          </button>
+        </div>
       </div>
 
-      <div class="demo-browser">
+      <!-- Browser Frame -->
+      <div class="demo-browser" id="zd-demo-browser">
         <div class="browser-bar">
-          <div class="dots">
+          <div class="dots" aria-hidden="true">
             <div class="dot"></div>
             <div class="dot"></div>
             <div class="dot"></div>
           </div>
-          <div class="address-bar">
-            <span style="color:#aaa">https://</span><span id="demo-url"
-              style="color:#111;font-weight:600">zeleradeck.com/crumb-and-co</span>
+          <a id="zd-address-bar-link" href="https://www.zeleradeck.com/la-bella" target="_blank"
+            rel="noopener noreferrer" class="zd-address-link" aria-label="Current shop page URL (opens in new tab)">
+            <span style="color:#888;font-size:0.75rem;flex-shrink:0">🔒 https://</span>
+            <span id="zd-address-text">www.zeleradeck.com/la-bella</span>
+            <span style="color:var(--copper);font-size:0.75rem;margin-left:auto;flex-shrink:0">↗</span>
+          </a>
+        </div>
+
+        <div class="zd-screen-wrap" id="zd-demo-viewport">
+          <!-- CUSTOMER VIEW PAGES -->
+          <!-- Customer Home (Step 1) -->
+          <div class="zd-preview-card active" data-shop="customer" data-step="1">
+            <img src="/demo-screens/customer-home.png" alt="Customer Storefront Home Page" class="zd-screenshot" />
+          </div>
+          <!-- Customer Collection (Step 2) -->
+          <div class="zd-preview-card" data-shop="customer" data-step="2">
+            <img src="/demo-screens/customer-shop.png" alt="Customer Collection Catalog" class="zd-screenshot" />
+          </div>
+          <!-- Customer Product (Step 3) -->
+          <div class="zd-preview-card" data-shop="customer" data-step="3">
+            <img src="/demo-screens/customer-product.png" alt="Customer Product Details Page" class="zd-screenshot" />
+          </div>
+          <!-- Customer Contact (Step 4) -->
+          <div class="zd-preview-card" data-shop="customer" data-step="4">
+            <img src="/demo-screens/customer-contact.png" alt="Customer Concierge & Contact Page"
+              class="zd-screenshot" />
+          </div>
+
+          <!-- SHOP OWNER / ADMIN VIEW PAGES -->
+          <!-- Admin Dashboard (Step 1) -->
+          <div class="zd-preview-card" data-shop="admin" data-step="1">
+            <img src="/demo-screens/admin-dashboard.png" alt="Shop Owner Admin Dashboard" class="zd-screenshot" />
+          </div>
+          <!-- Admin Page Editor (Step 2) -->
+          <div class="zd-preview-card" data-shop="admin" data-step="2">
+            <img src="/demo-screens/admin-editor.png" alt="Shop Owner Editorial Page Editor" class="zd-screenshot" />
+          </div>
+          <!-- Admin Contact Info Editor (Step 3) -->
+          <div class="zd-preview-card" data-shop="admin" data-step="3">
+            <img src="/demo-screens/customer-contact.png" alt="Shop Owner Contact Info Setup" class="zd-screenshot" />
           </div>
         </div>
-        <div class="demo-viewport" id="demo-viewport-card">
-          <div class="demo-biz-tag" id="demo-tag">ARTISAN BAKERY & PASTRY</div>
-          <h3 class="demo-biz-title" id="demo-title">Crumb & Co. Artisan Bakes</h3>
-          <p class="demo-biz-desc" id="demo-desc">Handcrafted sourdough, French croissants, and custom cakes in Kochi.
-            Order directly via WhatsApp.</p>
-          <a href="https://wa.me/917012783442" target="_blank" rel="noopener" class="demo-biz-cta">
-            <span>Order on WhatsApp</span> ↗
+      </div>
+
+      <!-- Controls & External Link Footer -->
+      <div class="zd-frame-footer">
+        <!-- Customer Steps Bar -->
+        <div id="zd-steps-customer" class="zd-step-bar" role="group" aria-label="Customer View Steps">
+          <button class="zd-step-item active" data-step="1" aria-current="step">1 Home</button>
+          <span class="zd-step-sep">·</span>
+          <button class="zd-step-item" data-step="2">2 Collection</button>
+          <span class="zd-step-sep">·</span>
+          <button class="zd-step-item" data-step="3">3 Product</button>
+          <span class="zd-step-sep">·</span>
+          <button class="zd-step-item" data-step="4">4 Contact</button>
+        </div>
+
+        <!-- Admin Steps Bar -->
+        <div id="zd-steps-admin" class="zd-step-bar" style="display:none;" role="group" aria-label="Shop Owner Steps">
+          <button class="zd-step-item active" data-step="1">1 Dashboard</button>
+          <span class="zd-step-sep">·</span>
+          <button class="zd-step-item" data-step="2">2 Page Editor</button>
+          <span class="zd-step-sep">·</span>
+          <button class="zd-step-item" data-step="3">3 Contact Info</button>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+          <a id="zd-open-page-link" href="https://www.zeleradeck.com/la-bella" target="_blank" rel="noopener noreferrer"
+            class="zd-open-link">
+            <span>Open this page</span> ↗
           </a>
         </div>
       </div>
@@ -1886,12 +2142,19 @@
     <p class="mono" style="margin-top:3.5rem;color:var(--muted-ivory)">FROM IDEA → TO LIVE WEBSITE</p>
   </section>
 
+<!-- company:sections:start -->
+<section class="company-section" id="ai" aria-labelledby="ai-heading"><h2 id="ai-heading">Practical AI for Kerala businesses</h2><div class="company-grid"><article><span class="company-status">Live</span><h3>Your WhatsApp-first storefront</h3><p>Manage products and categories, share your catalogue, take orders through WhatsApp and print a shop QR code.</p></article><article><span class="company-status">Live</span><h3>A starting point for AI applications</h3><p>Pro admin includes a copyable image-prompt helper for external AI tools. It creates prompt text; image generation happens outside ZeleraDeck.</p></article><article><span class="company-status">Roadmap</span><h3>Agentic AI for everyday shop work</h3><p>Assistants to organise catalogues, draft product descriptions, suggest pricing and handle WhatsApp customer enquiries.</p></article><article><span class="company-status">Roadmap</span><h3>Physical AI for your local shop</h3><p>Link physical shops with digital intelligence through QR smart shelf tags, in-store kiosk mode and camera-based inventory scanning. These are planned; the live shop QR code links to the catalogue.</p></article></div></section>
+<section class="company-section" id="recognition" aria-labelledby="recognition-heading"><h2 id="recognition-heading">Publications, Grants and Recognition</h2><h3>Recognition</h3><p><a href="https://udyamregistration.gov.in/" target="_blank" rel="noopener noreferrer">Udyam Registration (MSME)</a> — Ministry of MSME, Government of India · 2026</p></section>
+<!-- company:sections:end -->
   <!-- FOOTER -->
   <footer id="footer">
     <div class="cnt ft-inner">
       <div>ZELERA DECK © 2026. All rights reserved.</div>
       <div>Built in Kerala, India. Live at zeleradeck.com</div>
     </div>
+<!-- company:footer:start -->
+<div class="company-footer"><p><a href="https://udyamregistration.gov.in/" target="_blank" rel="noopener noreferrer">Govt. of India MSME Registered – Udyam No. UDYAM-KL-03-0043929</a></p><p>Micro enterprise (proprietorship, services sector). Jerin Jaison is the proprietor and sole founder.</p><a href="mailto:jerin@zeleradeck.com">jerin@zeleradeck.com</a></div>
+<!-- company:footer:end -->
   </footer>
 
   <!-- PRESERVED PROJECT OVERLAY MODAL -->
@@ -1983,29 +2246,215 @@
         }
       }
 
-      /* SCROLL 04 DEMO DYNAMIC PREVIEW SWITCHER FOR ZELERADECK.COM/<SLUG> */
-      const demoPrompts = [
-        { prompt: '"I run a bakery in Kochi."', url: 'zeleradeck.com/crumb-and-co', tag: 'ARTISAN BAKERY', title: 'Crumb & Co. Artisan Bakes', desc: 'Handcrafted sourdough, French croissants, and custom cakes in Kochi. Order directly via WhatsApp.' },
-        { prompt: '"I need a site for my gym."', url: 'zeleradeck.com/fitzone-kochi', tag: 'FITNESS & GYM', title: 'FitZone Elite Gym', desc: 'State-of-the-art strength training, personal coaches, and flexible memberships. Join today via WhatsApp.' },
-        { prompt: '"I run a salon & spa."', url: 'zeleradeck.com/aroma-studio', tag: 'HAIR & BEAUTY SALON', title: 'Aroma Luxury Studio', desc: 'Premium hair styling, organic facials, and spa treatments. Book your appointment instantly on WhatsApp.' }
-      ];
+      /* SCROLL 04 — SHOWCASE DEMONSTRATION LOGIC (CUSTOMER & SHOP OWNER VIEWS) */
+      (function initDemoShowcase() {
+        const MODE_DATA = {
+          customer: {
+            name: 'Customer View',
+            stepsBarId: 'zd-steps-customer',
+            steps: [
+              { num: 1, title: 'Home', url: 'https://www.zeleradeck.com/la-bella', displayUrl: 'www.zeleradeck.com/la-bella' },
+              { num: 2, title: 'Collection', url: 'https://www.zeleradeck.com/la-bella/shop', displayUrl: 'www.zeleradeck.com/la-bella/shop' },
+              { num: 3, title: 'Product', url: 'https://www.zeleradeck.com/la-bella/product/PRD0045', displayUrl: 'www.zeleradeck.com/la-bella/shop/fresh-hues' },
+              { num: 4, title: 'Contact', url: 'https://www.zeleradeck.com/la-bella/contact', displayUrl: 'www.zeleradeck.com/la-bella/contact' }
+            ]
+          },
+          admin: {
+            name: 'Shop Owner View',
+            stepsBarId: 'zd-steps-admin',
+            steps: [
+              { num: 1, title: 'Dashboard', url: 'https://www.zeleradeck.com/pro/admin/dashboard', displayUrl: 'www.zeleradeck.com/pro/admin/dashboard' },
+              { num: 2, title: 'Page Editor', url: 'https://www.zeleradeck.com/pro/admin/about', displayUrl: 'www.zeleradeck.com/pro/admin/about' },
+              { num: 3, title: 'Contact Info', url: 'https://www.zeleradeck.com/pro/admin/contact', displayUrl: 'www.zeleradeck.com/pro/admin/contact' }
+            ]
+          }
+        };
 
-      let demoIdx = 0;
-      const demoPromptTxt = document.getElementById('demo-prompt-txt');
-      const demoUrl = document.getElementById('demo-url');
-      const demoTag = document.getElementById('demo-tag');
-      const demoTitle = document.getElementById('demo-title');
-      const demoDesc = document.getElementById('demo-desc');
+        let currentMode = 'customer';
+        let currentStep = 1;
+        let typingTimer = null;
+        let isTabResetting = false;
 
-      setInterval(function () {
-        demoIdx = (demoIdx + 1) % demoPrompts.length;
-        const cur = demoPrompts[demoIdx];
-        if (demoPromptTxt) demoPromptTxt.textContent = cur.prompt;
-        if (demoUrl) demoUrl.textContent = cur.url;
-        if (demoTag) demoTag.textContent = cur.tag;
-        if (demoTitle) demoTitle.textContent = cur.title;
-        if (demoDesc) demoDesc.textContent = cur.desc;
-      }, 3500);
+        const addressTextEl = document.getElementById('zd-address-text');
+        const addressLinkEl = document.getElementById('zd-address-bar-link');
+        const openLinkEl = document.getElementById('zd-open-page-link');
+        const tabBtns = document.querySelectorAll('.zd-tab-btn');
+        const customerStepsBar = document.getElementById('zd-steps-customer');
+        const adminStepsBar = document.getElementById('zd-steps-admin');
+        const previewCards = document.querySelectorAll('.zd-preview-card');
+        const demoSection = document.getElementById('scroll-04');
+
+        // Address Bar Typing Effect
+        function updateAddressBar(targetUrlText, skipTyping) {
+          if (typingTimer) {
+            clearTimeout(typingTimer);
+            typingTimer = null;
+          }
+
+          if (skipTyping || prm) {
+            if (addressTextEl) addressTextEl.textContent = targetUrlText;
+            return;
+          }
+
+          let charIndex = 0;
+          if (addressTextEl) addressTextEl.textContent = '';
+
+          function typeChar() {
+            if (charIndex < targetUrlText.length) {
+              if (addressTextEl) addressTextEl.textContent += targetUrlText.charAt(charIndex);
+              charIndex++;
+              typingTimer = setTimeout(typeChar, 18);
+            } else {
+              typingTimer = null;
+            }
+          }
+          typeChar();
+        }
+
+        // Active View & Stage Updater
+        function updateDisplay(modeKey, stepNum, skipTyping) {
+          currentMode = modeKey;
+          currentStep = stepNum;
+
+          const modeInfo = MODE_DATA[modeKey];
+          const stepInfo = modeInfo.steps[stepNum - 1];
+
+          // 1. Update Tabs UI
+          tabBtns.forEach(btn => {
+            const isTarget = btn.getAttribute('data-shop') === modeKey;
+            btn.classList.toggle('active', isTarget);
+            btn.setAttribute('aria-selected', isTarget ? 'true' : 'false');
+            btn.setAttribute('tabindex', isTarget ? '0' : '-1');
+          });
+
+          // 2. Toggle Active Steps Bar & Step Item Highlights
+          if (customerStepsBar) customerStepsBar.style.display = (modeKey === 'customer') ? 'inline-flex' : 'none';
+          if (adminStepsBar) adminStepsBar.style.display = (modeKey === 'admin') ? 'inline-flex' : 'none';
+
+          const activeBar = modeKey === 'customer' ? customerStepsBar : adminStepsBar;
+          if (activeBar) {
+            const stepBtns = activeBar.querySelectorAll('.zd-step-item');
+            stepBtns.forEach(btn => {
+              const btnStep = parseInt(btn.getAttribute('data-step'), 10);
+              const isTarget = btnStep === stepNum;
+              btn.classList.toggle('active', isTarget);
+              if (isTarget) {
+                btn.setAttribute('aria-current', 'step');
+              } else {
+                btn.removeAttribute('aria-current');
+              }
+            });
+          }
+
+          // 3. Update Screenshot Cards
+          previewCards.forEach(card => {
+            const cardShop = card.getAttribute('data-shop');
+            const cardStep = parseInt(card.getAttribute('data-step'), 10);
+            const isMatch = (cardShop === modeKey && cardStep === stepNum);
+            card.classList.toggle('active', isMatch);
+          });
+
+          // 4. Update External Links & Address Text
+          if (addressLinkEl) addressLinkEl.href = stepInfo.url;
+          if (openLinkEl) openLinkEl.href = stepInfo.url;
+          updateAddressBar(stepInfo.displayUrl, skipTyping);
+        }
+
+        // Tab Switch & Scroll Reset Handler
+        function switchMode(modeKey) {
+          if (currentMode === modeKey && currentStep === 1) return;
+
+          isTabResetting = true;
+          updateDisplay(modeKey, 1, false);
+
+          // Reset scroll progress to top of demo section
+          if (demoSection) {
+            const navOffset = 75;
+            const targetY = demoSection.getBoundingClientRect().top + window.scrollY - navOffset;
+
+            if (prm) {
+              window.scrollTo({ top: targetY, behavior: 'instant' });
+              setTimeout(() => { isTabResetting = false; }, 50);
+            } else {
+              gsap.to(window, {
+                scrollTo: { y: targetY, autoKill: false },
+                duration: 0.5,
+                ease: 'power2.out',
+                onComplete: function () {
+                  setTimeout(() => { isTabResetting = false; }, 100);
+                }
+              });
+            }
+          } else {
+            isTabResetting = false;
+          }
+        }
+
+        // Event Listeners for Tabs
+        tabBtns.forEach(btn => {
+          btn.addEventListener('click', function () {
+            const mode = this.getAttribute('data-shop');
+            switchMode(mode);
+          });
+
+          btn.addEventListener('keydown', function (e) {
+            if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+              e.preventDefault();
+              const otherTab = Array.from(tabBtns).find(t => t !== this);
+              if (otherTab) {
+                otherTab.focus();
+                switchMode(otherTab.getAttribute('data-shop'));
+              }
+            }
+          });
+        });
+
+        // Event Listeners for Step Buttons
+        document.querySelectorAll('.zd-step-item').forEach(btn => {
+          btn.addEventListener('click', function () {
+            const step = parseInt(this.getAttribute('data-step'), 10);
+            if (step !== currentStep) {
+              updateDisplay(currentMode, step, false);
+            }
+          });
+        });
+
+        // GSAP ScrollTrigger Setup for Pinning & Stage Progress
+        if (demoSection && !prm) {
+          ScrollTrigger.create({
+            trigger: '#scroll-04',
+            start: 'top top',
+            end: '+=240%',
+            pin: true,
+            scrub: 0.5,
+            onUpdate: function (self) {
+              if (isTabResetting) return;
+
+              const progress = self.progress;
+              const totalSteps = MODE_DATA[currentMode].steps.length;
+              let targetStep = 1;
+
+              if (totalSteps === 4) {
+                if (progress < 0.25) targetStep = 1;
+                else if (progress < 0.50) targetStep = 2;
+                else if (progress < 0.75) targetStep = 3;
+                else targetStep = 4;
+              } else {
+                if (progress < 0.33) targetStep = 1;
+                else if (progress < 0.66) targetStep = 2;
+                else targetStep = 3;
+              }
+
+              if (targetStep !== currentStep) {
+                updateDisplay(currentMode, targetStep, false);
+              }
+            }
+          });
+        }
+
+        // Initial setup
+        updateDisplay('customer', 1, true);
+      })();
 
       /* SCROLL 05 NO BILL STAGE */
       const nb1 = document.getElementById('nb-1');

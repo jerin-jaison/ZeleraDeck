@@ -1,18 +1,16 @@
-import { useEffect } from 'react'
+import { siteTitle, description, keywords, organization } from '../config/company'
 import SEOHead from '../components/SEOHead'
 
 export default function HomePage() {
-  useEffect(() => {
-    document.title = 'ZeleraDeck — Where We Grow Together'
-  }, [])
 
   return (
     <>
       <SEOHead
-        title="ZeleraDeck — Where We Grow Together"
-        description="ZeleraDeck gives Kerala shop owners a beautiful digital storefront with WhatsApp ordering. No app, no website needed. Set up in minutes."
+        title={siteTitle}
+        description={description}
         url="https://zeleradeck.com"
-        keywords="digital catalogue Kerala, WhatsApp catalogue shop, ZeleraDeck, shop catalogue app India, Kerala SMB platform"
+        keywords={keywords}
+        schema={organization}
       />
       <div className="w-full h-screen overflow-hidden bg-[#0A0A0A]">
         <iframe

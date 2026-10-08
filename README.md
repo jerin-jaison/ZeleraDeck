@@ -51,6 +51,38 @@ Ready to take your business to the next level? Our team is here to build your vi
 - +91 95626 70230
 
 **📧 Email:**
-- teamzelera@gmail.com
+- jerin@zeleradeck.com
 
 *Zelera — Where We Grow Together.*
+
+
+<!-- company:facts:start -->
+ZeleraDeck: Micro enterprise (proprietorship, services sector). Jerin Jaison is the proprietor and sole founder.
+Udyam registration number: UDYAM-KL-03-0043929
+Official portal: https://udyamregistration.gov.in/
+Business email: jerin@zeleradeck.com
+
+WhatsApp-first storefronts for small businesses in Kerala, with an AI-native vision. Explore our Roadmap for Agentic AI, Physical AI and practical AI applications.
+
+Live — Your WhatsApp-first storefront: Manage products and categories, share your catalogue, take orders through WhatsApp and print a shop QR code.
+
+Live — A starting point for AI applications: Pro admin includes a copyable image-prompt helper for external AI tools. It creates prompt text; image generation happens outside ZeleraDeck.
+
+Roadmap — Agentic AI for everyday shop work: Assistants to organise catalogues, draft product descriptions, suggest pricing and handle WhatsApp customer enquiries.
+
+Roadmap — Physical AI for your local shop: Link physical shops with digital intelligence through QR smart shelf tags, in-store kiosk mode and camera-based inventory scanning. These are planned; the live shop QR code links to the catalogue.
+<!-- company:facts:end -->
+<!-- company:facts:anchor -->
+
+
+## Company facts and recognition
+
+Edit `frontend/src/config/company.js` as the single source for company facts, the Udyam number, feature status and recognition entries. Run `cd frontend && npm run sync:company` after edits; development and production builds also sync automatically. Generated blocks in the standalone homepages, this README and `frontend/public/llms.txt` must not be edited by hand. Commit those generated changes along with the config.
+
+To add an entry to `recognition`, supply `title`, `issuer` (issuer or publisher), `year`, `url` (official URL), and `type`. Allowed types: `grant`, `publication`, `hackathon`, `incubation`, `press`, `recognition`. Only real items with an official page or link are allowed. The homepage and About page group the same list by type and hide the entire section when the list is empty. External logos require user-supplied local image files; none are used now.
+
+Still needed: real grants, publications, hackathons, incubation, press or recognition entries with their official URLs, issuer/publisher and year. Registration is the only current entry, not a grant or award.
+
+### Feature audit
+
+Live functionality was checked in `StoreInfo.jsx` (shop QR), `StorePage.jsx` / `ProductPage.jsx` (WhatsApp orders), product admin pages (catalogue management), and `AiPromptHelperButton.jsx` / `aiPromptGenerator.js` (copyable external image-tool prompts). No built-in AI inference or autonomous assistant was found. Catalogue assistants, description drafting, pricing suggestions, WhatsApp enquiry automation, smart shelf tags, kiosk mode and camera inventory scanning are all **Roadmap**.

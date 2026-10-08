@@ -1,9 +1,9 @@
+import { siteTitle, description as siteDescription, keywords as siteKeywords } from '../config/company'
 import { Helmet } from 'react-helmet-async'
 
 const SITE_NAME = 'ZeleraDeck'
-const DEFAULT_TITLE = 'ZeleraDeck — Where We Grow Together'
-const DEFAULT_DESC =
-  'ZeleraDeck is a mobile-first digital product catalogue SaaS for small shop owners in Kerala, India. Create your digital catalogue, share one link, and let customers browse and order on WhatsApp.'
+const DEFAULT_TITLE = siteTitle
+const DEFAULT_DESC = siteDescription
 const DEFAULT_IMAGE = 'https://zeleradeck.com/logo-zd-nobg.png'
 const DEFAULT_URL = 'https://zeleradeck.com'
 
@@ -24,7 +24,7 @@ export default function SEOHead({
   description = DEFAULT_DESC,
   url = DEFAULT_URL,
   image = DEFAULT_IMAGE,
-  keywords,
+  keywords = siteKeywords,
   schema,
   noindex = false,
 }) {
