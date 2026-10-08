@@ -16,19 +16,20 @@ function update(file, transform) {
   writeFileSync(path, transform(readFileSync(path, 'utf8')), 'utf8')
 }
 const styles = `<style>
-.company-section { padding: 4rem var(--gut); max-width: var(--max-w); margin: auto; }
-.company-section h2 { font-family: var(--font-serif); font-size: clamp(1.8rem,4vw,3rem); margin-bottom: 1.5rem; }
-.company-section h3 { margin: 1rem 0 .75rem; font-size: 1.1rem; }
+.company-section { padding: 5rem var(--gut); max-width: var(--max-w); margin: auto; }
+.company-section h2 { font-family: var(--font-serif); font-size: clamp(2rem,4.5vw,3.5rem); margin-bottom: 0.75rem; line-height: 1.15; }
+.company-section .company-sub { font-size: clamp(1.05rem,1.8vw,1.3rem); color: var(--muted-ivory); margin-bottom: 2.5rem; max-width: 820px; line-height: 1.6; }
+.company-section h3 { margin: 1rem 0 .75rem; font-size: 1.15rem; font-family: var(--font-brand); }
 .company-section p { color: var(--muted-ivory); line-height: 1.7; }
 .company-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(100%,260px),1fr)); gap: 2rem; }
-.company-status { color: var(--chartreuse); font-family: var(--font-mono); font-size: .8rem; }
+.company-status { color: var(--chartreuse); font-family: var(--font-mono); font-size: .8rem; letter-spacing: 0.05em; text-transform: uppercase; }
 .company-section a, .company-footer a { color: var(--chartreuse); text-decoration: underline; }
-.company-footer p:first-child a { display: inline-block; padding: .5rem .75rem; border: 1px solid var(--bdr-ivory); }
-.company-footer { padding: 1.5rem var(--gut); line-height: 1.8; overflow-wrap: anywhere; }
-.company-hero { max-width: 46rem; margin: 1.5rem auto; padding: 0 1rem; line-height: 1.6; }
-.company-hero h1 { font-size: clamp(1.25rem,3vw,2rem); margin-bottom: .75rem; }
+.company-footer { padding: 2rem 0; border-top: 1px solid var(--bdr-ivory); margin-top: 2rem; display: flex; flex-direction: column; gap: 1rem; font-size: 0.88rem; }
+.company-footer-top { display: flex; justify-content: space-between; items-center; flex-wrap: wrap; gap: 1rem; color: var(--muted-ivory); }
+.company-footer-badge { display: inline-flex; align-items: center; gap: 8px; background: rgba(197, 211, 107, 0.08); border: 1px solid rgba(197, 211, 107, 0.25); color: var(--chartreuse) !important; padding: 6px 14px; border-radius: 8px; font-family: var(--font-mono); font-size: .8rem; text-decoration: none !important; width: fit-content; }
+.company-footer-meta { display: flex; flex-direction: column; gap: 0.4rem; color: var(--dim-ivory); font-size: 0.85rem; }
 </style>`
-const ai = `<section class="company-section" id="ai" aria-labelledby="ai-heading"><h2 id="ai-heading">Practical AI for Kerala businesses</h2><div class="company-grid">${capabilities.map(item => `<article><span class="company-status">${item.status}</span><h3>${escape(item.title)}</h3><p>${escape(item.description)}</p></article>`).join('')}</div></section>`
+const ai = `<section class="company-section" id="ai" aria-labelledby="ai-heading"><h2 id="ai-heading">An AI-native vision for Kerala’s small businesses.</h2><p class="company-sub">Your WhatsApp-first storefront is live today. Roadmap: Agentic AI, Physical AI and practical AI applications to help your shop grow.</p><div class="company-grid">${capabilities.map(item => `<article><span class="company-status">${item.status}</span><h3>${escape(item.title)}</h3><p>${escape(item.description)}</p></article>`).join('')}</div></section>`
 const recognitionHtml = recognition.length ? `<section class="company-section" id="recognition" aria-labelledby="recognition-heading"><h2 id="recognition-heading">Publications, Grants and Recognition</h2>${[...new Set(recognition.map(item => item.type))].map(type => `<h3>${escape(type[0].toUpperCase() + type.slice(1))}</h3>${recognition.filter(item => item.type === type).map(item => `<p>${link(item.url, item.title)} — ${escape(item.issuer)} · ${item.year}</p>`).join('')}`).join('')}</section>` : ''
 for (const file of ['index.html', 'new_index.html', 'frontend/public/landing.html', 'frontend/index.html']) {
   update(file, text => {
@@ -40,7 +41,7 @@ for (const file of ['index.html', 'new_index.html', 'frontend/public/landing.htm
     text = block(text, 'seo', `<link rel="canonical" href="https://zeleradeck.com/">\n<meta name="keywords" content="${keywords}">\n<meta property="og:title" content="${siteTitle}">\n<meta property="og:description" content="${description}">\n<meta property="og:type" content="website">\n<meta property="og:url" content="https://zeleradeck.com/">\n<meta property="og:image" content="https://zeleradeck.com/logo-zd-nobg.png">\n<meta name="twitter:card" content="summary_large_image">\n<meta name="twitter:title" content="${siteTitle}">\n<meta name="twitter:description" content="${description}">\n<meta name="twitter:image" content="https://zeleradeck.com/logo-zd-nobg.png">\n<script type="application/ld+json">${JSON.stringify(organization)}</script>\n${styles}`, '</head>')
     text = block(text, 'hero', '<div class="company-hero"><h1>An AI-native vision for Kerala’s small businesses.</h1><p>Your WhatsApp-first storefront is live today. <strong>Roadmap:</strong> Agentic AI, Physical AI and practical AI applications to help your shop grow.</p></div>', '      <!-- GLASSMORPHISM SCROLL TO KNOW MORE BUTTON -->')
     text = block(text, 'sections', ai + '\n' + recognitionHtml, '  <!-- FOOTER -->')
-    return block(text, 'footer', `<div class="company-footer"><p>${link(company.registrationUrl, registrationLabel)}</p><p>${company.profile}</p><a href="mailto:${company.email}">${company.email}</a></div>`, '  </footer>')
+    return block(text, 'footer', `<div class="company-footer"><div class="company-footer-meta"><p><a href="${company.registrationUrl}" target="_blank" rel="noopener noreferrer" class="company-footer-badge">${registrationLabel}</a></p><p>${company.profile}</p><p><a href="mailto:${company.email}">${company.email}</a></p></div></div>`, '    </div>\n  </footer>')
   })
 }
 for (const file of ['README.md', 'frontend/public/llms.txt']) update(file, text => {
