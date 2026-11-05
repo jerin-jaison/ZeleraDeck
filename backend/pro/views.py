@@ -263,3 +263,76 @@ class ProPublicAboutBlocksView(APIView):
         from pro.models import ProAboutBlock
         blocks = ProAboutBlock.objects.filter(shop=shop).order_by("order", "created_at")
         return Response(ProPublicAboutBlockSerializer(blocks, many=True).data)
+
+
+# ─── GET /api/pro/<slug>/page-data/ — Combined home page data (single request) ─
+
+class ProStorePageDataView(APIView):
+    """
+    Combined public endpoint for the Pro storefront home page.
+
+    Returns in one response everything needed for storefront tier detection and page rendering:
+      - /api/store/<slug>/  (tier detection: is_pro)
+      - /api/pro/<slug>/    (shop, hero, categories, featured products, total_products)
+      - /api/pro/<slug>/about/  (about blocks)
+
+    DB queries are minimised with select_related / prefetch_related.
+    """
+
+    permission_classes = [AllowAny]
+
+    def get(self, request, slug):
+        try:
+            shop = (
+                Shop.objects
+                .select_related("pro_hero_settings", "pro_contact_info")
+                .get(slug=slug, is_active=True)
+            )
+        except Shop.DoesNotExist:
+            return Response({"error": "Store not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        if not shop.is_pro:
+            return Response({"is_pro": False}, status=status.HTTP_200_OK)
+
+        from pro.models import ProHeroSettings, ProAboutBlock
+
+        categories = list(
+            Category.objects
+            .filter(shop=shop)
+            .prefetch_related("products")
+            .order_by("display_order", "name")
+        )
+
+        all_in_stock = Product.objects.filter(shop=shop, is_in_stock=True).select_related("category")
+        featured = list(all_in_stock.order_by("display_order", "-created_at")[:8])
+        total_products = all_in_stock.count()
+
+        try:
+            hero = shop.pro_hero_settings
+        except Exception:
+            hero, _ = ProHeroSettings.objects.get_or_create(shop=shop)
+
+        about_blocks = list(
+            ProAboutBlock.objects
+            .filter(shop=shop)
+            .order_by("order", "created_at")
+        )
+
+        data = {
+            "is_pro": True,
+            "shop": ProShopSerializer(shop).data,
+            "hero": ProPublicHeroSettingsSerializer(hero).data,
+            "categories": ProCategorySerializer(categories, many=True).data,
+            "featured_products": ProProductCardSerializer(featured, many=True).data,
+            "total_products": total_products,
+            "about_blocks": ProPublicAboutBlockSerializer(about_blocks, many=True).data,
+        }
+
+        response = Response(data)
+
+        if request.headers.get("Authorization"):
+            response["Cache-Control"] = "no-store"
+        else:
+            response["Cache-Control"] = "public, max-age=30, stale-while-revalidate=300"
+
+        return response

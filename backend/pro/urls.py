@@ -7,6 +7,7 @@ Admin routes:   /api/pro/admin/...
 from django.urls import path, include
 from pro.views import (
     ProStoreHomeView,
+    ProStorePageDataView,
     ProCategoryListView,
     ProProductListView,
     ProProductDetailView,
@@ -19,6 +20,7 @@ urlpatterns = [
     path("admin/", include("pro.admin_urls")),
 
     # ── Public storefront ────────────────────────────────────────────────
+    path("<slug:slug>/page-data/", ProStorePageDataView.as_view(), name="pro-page-data"),
     path("<slug:slug>/", ProStoreHomeView.as_view(), name="pro-store-home"),
     path("<slug:slug>/categories/", ProCategoryListView.as_view(), name="pro-categories"),
     path("<slug:slug>/products/", ProProductListView.as_view(), name="pro-products"),
