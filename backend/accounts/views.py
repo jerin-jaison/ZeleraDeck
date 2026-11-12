@@ -448,13 +448,15 @@ class MaintenanceModeView(APIView):
         })
 
     def post(self, request):
-        from accounts.site_settings import SiteSettings
+        from accounts.site_settings import SiteSettings, STATUS_CACHE_KEY
+        from django.core.cache import cache
         settings = SiteSettings.get()
         if 'maintenance' in request.data:
             settings.maintenance_mode = bool(request.data['maintenance'])
         if 'message' in request.data and request.data['message']:
             settings.maintenance_message = request.data['message']
         settings.save()
+        cache.delete(STATUS_CACHE_KEY)
         return Response({
             'maintenance': settings.maintenance_mode,
             'message': settings.maintenance_message,
