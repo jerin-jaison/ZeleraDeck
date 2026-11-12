@@ -6,7 +6,8 @@ No new models. No writes. Queries the existing catalogue + accounts models.
 
 import logging
 
-from django.db.models import Q
+from django.db.models import Q, Count
+from django.utils import timezone
 from django.core.paginator import Paginator
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -64,7 +65,9 @@ class ProStoreHomeView(APIView):
         if err:
             return err
 
-        categories = Category.objects.filter(shop=shop).order_by("display_order", "name")
+        categories = Category.objects.filter(shop=shop).annotate(
+            product_count=Count("products", filter=Q(products__is_in_stock=True))
+        ).order_by("display_order", "name")
         all_products = Product.objects.filter(shop=shop, is_in_stock=True)
 
         # Featured = lowest display_order first (admins set this), then newest
@@ -97,7 +100,9 @@ class ProCategoryListView(APIView):
         if err:
             return err
 
-        categories = Category.objects.filter(shop=shop).order_by("display_order", "name")
+        categories = Category.objects.filter(shop=shop).annotate(
+            product_count=Count("products", filter=Q(products__is_in_stock=True))
+        ).order_by("display_order", "name")
         return Response(ProCategorySerializer(categories, many=True).data)
 
 
@@ -291,6 +296,9 @@ class ProStorePageDataView(APIView):
         except Shop.DoesNotExist:
             return Response({"error": "Store not found."}, status=status.HTTP_404_NOT_FOUND)
 
+        if shop.expires_at and shop.expires_at < timezone.now():
+            return Response({"error": "Store not found."}, status=status.HTTP_404_NOT_FOUND)
+
         if not shop.is_pro:
             return Response({"is_pro": False}, status=status.HTTP_200_OK)
 
@@ -299,7 +307,7 @@ class ProStorePageDataView(APIView):
         categories = list(
             Category.objects
             .filter(shop=shop)
-            .prefetch_related("products")
+            .annotate(product_count=Count("products", filter=Q(products__is_in_stock=True)))
             .order_by("display_order", "name")
         )
 
