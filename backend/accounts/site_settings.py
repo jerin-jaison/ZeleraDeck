@@ -1,4 +1,8 @@
 from django.db import models
+from django.core.cache import cache
+
+STATUS_CACHE_KEY = "site_status_response"
+STATUS_CACHE_TIMEOUT = 15
 
 
 class SiteSettings(models.Model):
@@ -19,3 +23,7 @@ class SiteSettings(models.Model):
     def get(cls):
         obj, _ = cls.objects.get_or_create(pk=1)
         return obj
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        cache.delete(STATUS_CACHE_KEY)

@@ -66,6 +66,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",          # Must be first
+    "django.middleware.gzip.GZipMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",     # Right after security
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -116,6 +117,12 @@ else:
             "PASSWORD": unquote(_parsed.password) if _parsed and _parsed.password else "",
             "HOST": _parsed.hostname if _parsed else "localhost",
             "PORT": str(_parsed.port or 5432) if _parsed else "5432",
+            "CONN_MAX_AGE": 300,
+            "CONN_HEALTH_CHECKS": True,
+            "DISABLE_SERVER_SIDE_CURSORS": True,
+            "OPTIONS": {
+                "connect_timeout": 10,
+            },
         }
     }
 
@@ -144,6 +151,8 @@ _cors_env = [
 CORS_ALLOWED_ORIGINS = _cors_env + [
     "http://localhost:5173",
     "http://localhost:5174",
+    "http://127.0.0.1:5173",
+    "http://127.0.0.1:5174",
 ]
 
 # CSRF trusted origins — required for POST/PUT/PATCH requests from the frontend.
@@ -230,6 +239,15 @@ MEDIA_URL = "/media/"
 # ─── Default PK ───────────────────────────────────────────────────────────────
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# ─── Cache ────────────────────────────────────────────────────────────────────
+
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "zeleradeck-locmem",
+    }
+}
 
 # ─── Logging ──────────────────────────────────────────────────────────────────
 # pro.safety is always logged at ERROR level regardless of DEBUG setting.

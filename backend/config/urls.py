@@ -18,13 +18,21 @@ def health_check(request):
 
 def site_status(request):
     """GET /api/status/ — public maintenance status check."""
+    from django.core.cache import cache
+    from accounts.site_settings import SiteSettings, STATUS_CACHE_KEY, STATUS_CACHE_TIMEOUT
+
+    cached = cache.get(STATUS_CACHE_KEY)
+    if cached is not None:
+        return JsonResponse(cached)
+
     try:
-        from accounts.site_settings import SiteSettings
         settings = SiteSettings.get()
-        return JsonResponse({
+        data = {
             "maintenance": settings.maintenance_mode,
             "message": settings.maintenance_message,
-        })
+        }
+        cache.set(STATUS_CACHE_KEY, data, STATUS_CACHE_TIMEOUT)
+        return JsonResponse(data)
     except Exception:
         return JsonResponse({"maintenance": False, "message": ""})
 

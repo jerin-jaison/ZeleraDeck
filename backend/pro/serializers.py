@@ -38,6 +38,9 @@ class ProCategorySerializer(serializers.ModelSerializer):
         fields = ["id", "name", "image_url", "product_count"]
 
     def get_product_count(self, obj):
+        count = getattr(obj, "product_count", None)
+        if count is not None:
+            return count
         return obj.products.filter(is_in_stock=True).count()
 
 
