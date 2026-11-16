@@ -151,6 +151,8 @@ _cors_env = [
 CORS_ALLOWED_ORIGINS = _cors_env + [
     "http://localhost:5173",
     "http://localhost:5174",
+    "http://127.0.0.1:5173",
+    "http://127.0.0.1:5174",
 ]
 
 # CSRF trusted origins — required for POST/PUT/PATCH requests from the frontend.
