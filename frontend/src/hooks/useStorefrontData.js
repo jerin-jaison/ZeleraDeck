@@ -1,18 +1,58 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { publicApi } from '../api/axios'
 
+export class StorefrontError extends Error {
+  constructor(type, message, status = null, originalError = null) {
+    super(message)
+    this.name = 'StorefrontError'
+    this.type = type // 'NOT_FOUND' | 'SERVER_ERROR' | 'NETWORK_ERROR'
+    this.status = status
+    this.originalError = originalError
+  }
+}
+
+function classifyError(err) {
+  // 1. 404 from store endpoint -> Not Found
+  if (err?.response?.status === 404 || err?.status === 404) {
+    return {
+      type: 'NOT_FOUND',
+      status: 404,
+      message: 'Store not found',
+    }
+  }
+
+  // 2. 5xx Server Error
+  if (err?.response?.status >= 500 && err?.response?.status < 600) {
+    return {
+      type: 'SERVER_ERROR',
+      status: err.response.status,
+      message: 'The store is having trouble right now',
+    }
+  }
+
+  // 3. No response at all: network failure, timeout, or CORS block
+  return {
+    type: 'NETWORK_ERROR',
+    status: err?.response?.status || null,
+    message: "Can’t reach the server. Check your connection",
+  }
+}
+
 /**
  * useStorefrontData
  *
  * Single unified storefront data hook:
- * 1. Calls /api/pro/<slug>/page-data/ first.
+ * 1. Calls /api/pro/<slug>/page-data/ first (timeout 8s <= 15s).
  * 2. If page-data fails for ANY reason (404, 5xx, timeout, network error),
  *    falls back to the old flow:
  *      - Store tier call: /api/store/<slug>/?page=1&page_size=1
  *      - If Pro, calls /api/pro/<slug>/ and /api/pro/<slug>/about/
- * 3. For non-Pro shops, returns the data from the store tier call.
- * 4. Seeds the existing query caches for 'pro-store' and 'pro-about-blocks'
- *    so ProLayout and ProHomePage fire ZERO extra network requests.
+ * 3. Classifies final errors:
+ *      - NOT_FOUND (404): store does not exist
+ *      - SERVER_ERROR (5xx): backend exception
+ *      - NETWORK_ERROR: no response / network error / timeout / CORS block
+ * 4. Seeds query caches for 'pro-store' and 'pro-about-blocks' on success.
+ * 5. Early failure never caches an error as store data.
  */
 export function useStorefrontData(slug) {
   const queryClient = useQueryClient()
@@ -22,7 +62,9 @@ export function useStorefrontData(slug) {
     queryFn: async () => {
       if (!slug) throw new Error('Store slug is required')
 
-      // ── Step 1: Try combined page-data endpoint ──────────────────────────
+      const apiBase = publicApi.defaults.baseURL || import.meta.env.VITE_API_URL || 'unknown'
+
+      // ── Step 1: Try combined page-data endpoint (timeout <= 15s) ───────────
       try {
         const res = await publicApi.get(`pro/${slug}/page-data/`, { timeout: 8000 })
         const pageData = res.data
@@ -49,12 +91,21 @@ export function useStorefrontData(slug) {
             return { ...tierRes.data, is_pro: false }
           }
         }
-      } catch {
-        // Any error (404, 500, network, timeout) falls through to Step 2 fallback flow
+      } catch (pageDataErr) {
+        // Log non-fatal fallback warning (does not cache any error)
+        console.warn(`[StorefrontData] page-data failed for "${slug}", falling back to legacy store endpoints. API Base: ${apiBase}`, pageDataErr)
       }
 
       // ── Step 2: Fallback flow — old store tier call ────────────────────────
-      const tierRes = await publicApi.get(`store/${slug}/?page=1&page_size=1`)
+      let tierRes
+      try {
+        tierRes = await publicApi.get(`store/${slug}/?page=1&page_size=1`, { timeout: 10000 })
+      } catch (err) {
+        const classified = classifyError(err)
+        console.warn(`[StorefrontData] ${classified.type} loading store "${slug}". API Base: ${apiBase}`, err)
+        throw new StorefrontError(classified.type, classified.message, classified.status, err)
+      }
+
       const tierData = tierRes.data
 
       // Non-Pro shop or inactive shop: ensure is_pro is explicitly boolean
@@ -89,10 +140,12 @@ export function useStorefrontData(slug) {
     },
     enabled: !!slug,
     staleTime: 30_000,
-    // Do not retry on 404
+    // Do not retry on 404 (Store not found)
     retry: (failureCount, error) => {
-      if (error?.response?.status === 404 || error?.status === 404) return false
-      return failureCount < 2
+      if (error?.type === 'NOT_FOUND' || error?.status === 404 || error?.response?.status === 404) {
+        return false
+      }
+      return failureCount < 1
     },
   })
 }
