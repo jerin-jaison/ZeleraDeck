@@ -3,31 +3,22 @@
  *
  * Layout wrapper for all public storefronts at /<slug> and /<slug>/*.
  *
- * Fetches the public shop record to determine tier, then strictly dispatches:
- *   - is_pro === true  → renders <ProLayout /> which uses <Outlet /> for sub-routes
- *                        (/shop, /about, /contact, /wishlist, /product/:id)
- *   - is_pro === false → renders <StorePage /> (normal catalogue layout)
- *
- * NO SILENT FALLBACK: If tier cannot be determined or is_pro is missing,
- * renders an explicit error screen rather than defaulting to the wrong layout.
+ * Uses useStorefrontData:
+ *   - Tries /api/pro/<slug>/page-data/ first.
+ *   - Falls back seamlessly to old endpoints on ANY failure.
+ *   - Seeds React Query caches so sub-components make zero extra requests.
+ *   - Shows 'Store not found' ONLY when the old store endpoint returns 404.
+ *   - Shows 'Unable to load store' with a Retry button on any other error.
  */
 import { useParams } from 'react-router-dom'
-import { useQuery } from '@tanstack/react-query'
-import { publicApi } from '../api/axios'
+import { useStorefrontData } from '../hooks/useStorefrontData'
 import StorePage from './StorePage'
 import ProductPage from './ProductPage'
 import ProLayout from '../pro/ProLayout'
 
 export default function UnifiedStorefront() {
   const { slug, displayId } = useParams()
-
-  const { data, isLoading, error } = useQuery({
-    queryKey: ['shop-tier', slug],
-    queryFn: () => publicApi.get(`store/${slug}/?page=1&page_size=1`).then(r => r.data),
-    enabled: !!slug,
-    staleTime: 10_000,
-    retry: 1,
-  })
+  const { data, isLoading, error, refetch } = useStorefrontData(slug)
 
   if (isLoading) {
     return (
@@ -37,7 +28,8 @@ export default function UnifiedStorefront() {
     )
   }
 
-  if (error?.response?.status === 404) {
+  // 404 from the fallback store endpoint -> Store truly does not exist
+  if (error?.response?.status === 404 || error?.status === 404) {
     return (
       <div className="bg-white min-h-screen flex flex-col items-center justify-center px-6 text-center">
         <p className="text-[96px] font-black text-[#F0F0F0] leading-none">404</p>
@@ -47,12 +39,18 @@ export default function UnifiedStorefront() {
     )
   }
 
-  // Strict check: if request failed or is_pro field is missing, show explicit error
+  // Any other error (5xx, network, parse error) -> show error with retry button
   if (error || !data || typeof data.is_pro !== 'boolean') {
     return (
       <div className="bg-white min-h-screen flex flex-col items-center justify-center px-6 text-center">
         <p className="text-xl font-bold text-[#0A0A0A] mb-2">Unable to Load Store</p>
-        <p className="text-sm text-[#737373]">We couldn't determine this store's configuration. Please refresh or try again later.</p>
+        <p className="text-sm text-[#737373] mb-6">We couldn't load this store's configuration. Please check your connection or try again.</p>
+        <button
+          onClick={() => refetch()}
+          className="px-6 py-2.5 bg-black text-white text-sm font-semibold rounded-lg hover:bg-neutral-800 transition-colors cursor-pointer"
+        >
+          Retry
+        </button>
       </div>
     )
   }
@@ -70,8 +68,14 @@ export default function UnifiedStorefront() {
 
   return (
     <div className="bg-white min-h-screen flex flex-col items-center justify-center px-6 text-center">
-      <p className="text-xl font-bold text-[#0A0A0A] mb-2">Configuration Error</p>
-      <p className="text-sm text-[#737373]">Invalid store tier data.</p>
+      <p className="text-xl font-bold text-[#0A0A0A] mb-2">Unable to Load Store</p>
+      <p className="text-sm text-[#737373] mb-6">Invalid store tier data.</p>
+      <button
+        onClick={() => refetch()}
+        className="px-6 py-2.5 bg-black text-white text-sm font-semibold rounded-lg hover:bg-neutral-800 transition-colors cursor-pointer"
+      >
+        Retry
+      </button>
     </div>
   )
 }

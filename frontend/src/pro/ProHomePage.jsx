@@ -6,6 +6,16 @@ import ProProductCard from './components/ProProductCard';
 import SEOHead from '../components/SEOHead';
 import { publicApi } from '../api/axios';
 
+function getOptimizedCloudinaryUrl(url, width) {
+  if (!url || typeof url !== 'string') return url
+  if (url.includes('cloudinary.com') && url.includes('/upload/')) {
+    if (!url.includes('f_auto') && !url.includes('q_auto')) {
+      return url.replace('/upload/', `/upload/f_auto,q_auto,w_${width}/`)
+    }
+  }
+  return url
+}
+
 export default function ProHomePage() {
   const { storeData, slug } = useOutletContext();
   const shopName = storeData?.shop?.name || 'AESTHETE';
@@ -49,8 +59,11 @@ export default function ProHomePage() {
   // Hero settings from storeData (included in ProStoreHomeView response)
   const hero = storeData?.hero || {};
   const heroBg = "https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=1920&auto=format&fit=crop";
-  const heroDesktopImage = hero.hero_image_url || hero.hero_mobile_image_url || heroBg;
-  const heroMobileImage = hero.hero_mobile_image_url || hero.hero_image_url || heroBg;
+  const rawDesktop = hero.hero_image_url || hero.hero_mobile_image_url || heroBg;
+  const rawMobile = hero.hero_mobile_image_url || hero.hero_image_url || heroBg;
+  const heroDesktopImage = getOptimizedCloudinaryUrl(rawDesktop, 1920);
+  const heroMobileImage = getOptimizedCloudinaryUrl(rawMobile, 800);
+
   const heroHeadline = hero.hero_headline || '';
   const heroSubheading = hero.hero_subheading || '';
 
@@ -74,12 +87,17 @@ export default function ProHomePage() {
       <section className="relative z-0 w-full min-h-[80vh] md:min-h-0 md:h-[85vh] flex flex-col justify-end pb-16 md:pb-24 px-5 md:px-16 overflow-hidden">
         {/* Background Image Container with responsive HTML picture tag */}
         <picture className="absolute inset-0 w-full h-full z-0">
-          <source media="(max-width: 767px)" srcSet={heroMobileImage} />
-          <source media="(min-width: 768px)" srcSet={heroDesktopImage} />
+          <source media="(max-width: 767px)" srcSet={heroMobileImage} width="800" height="1000" />
+          <source media="(min-width: 768px)" srcSet={heroDesktopImage} width="1920" height="1080" />
           <img
             src={heroDesktopImage}
             alt={heroHeadline || shopName}
             className="w-full h-full object-cover object-center"
+            loading="eager"
+            fetchPriority="high"
+            decoding="async"
+            width="1920"
+            height="1080"
           />
         </picture>
         {/* Automatic darkening overlay for readability */}
@@ -176,6 +194,10 @@ export default function ProHomePage() {
                       src={cat.image_url || catImages[idx % catImages.length]} 
                       alt={cat.name} 
                       className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700"
+                      loading="lazy"
+                      decoding="async"
+                      width="600"
+                      height="600"
                     />
                     <div className="absolute inset-0 bg-black/25 group-hover:bg-black/35 transition-colors"></div>
                     <div className="absolute inset-0 flex items-center justify-center">
