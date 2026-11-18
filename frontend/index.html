@@ -2,8 +2,8 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/png" href="/logo-zd-nobg.png" />
-    <link rel="apple-touch-icon" href="/logo-zd-nobg.png" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/logo.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <!-- ── Primary Meta Tags (fallback defaults — overridden per-page by SEOHead) ── -->
@@ -20,7 +20,7 @@
     <meta property="og:url" content="https://zeleradeck.com/" />
     <meta property="og:title" content="ZeleraDeck — AI-native storefronts for Kerala" />
     <meta property="og:description" content="WhatsApp-first storefronts for small businesses in Kerala, with an AI-native vision. Explore our Roadmap for Agentic AI, Physical AI and practical AI applications." />
-    <meta property="og:image" content="https://zeleradeck.com/logo-zd-nobg.png" />
+    <meta property="og:image" content="https://zeleradeck.com/social-card.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:locale" content="en_IN" />
@@ -31,22 +31,55 @@
     <meta property="twitter:url" content="https://zeleradeck.com/" />
     <meta property="twitter:title" content="ZeleraDeck — AI-native storefronts for Kerala" />
     <meta property="twitter:description" content="WhatsApp-first storefronts for small businesses in Kerala, with an AI-native vision. Explore our Roadmap for Agentic AI, Physical AI and practical AI applications." />
-    <meta property="twitter:image" content="https://zeleradeck.com/logo-zd-nobg.png" />
+    <meta property="twitter:image" content="https://zeleradeck.com/social-card.png" />
 
     <!-- ── Performance: Preconnect to external origins ── -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <!-- Cloudinary (product images) -->
     <link rel="preconnect" href="https://res.cloudinary.com" />
-    <!-- Supabase (database / auth) -->
-    <link rel="preconnect" href="https://supabase.co" />
-    <!-- Razorpay (payments) -->
-    <link rel="preconnect" href="https://api.razorpay.com" />
-    <link rel="dns-prefetch" href="https://checkout.razorpay.com" />
 
-    <!-- ── Google Fonts & Icons ── -->
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Jost:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <!-- ── Hide Material Symbols text until font stylesheet loads (with 3s fallback) ── -->
+    <style>
+      .material-symbols-outlined {
+        visibility: hidden;
+      }
+      .fonts-loaded .material-symbols-outlined {
+        visibility: visible;
+      }
+    </style>
+    <script>
+      (function() {
+        function showIcons() {
+          document.documentElement.classList.add('fonts-loaded');
+        }
+        if ('fonts' in document) {
+          document.fonts.load('24px "Material Symbols Outlined"').then(showIcons).catch(showIcons);
+        }
+        setTimeout(showIcons, 3000);
+      })();
+    </script>
+
+    <!-- ── Non-render-blocking Google Fonts & Icons ── -->
+    <link
+      rel="preload"
+      as="style"
+      href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Jost:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=swap"
+      onload="this.onload=null;this.rel='stylesheet'"
+    />
+    <noscript>
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Jost:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" />
+    </noscript>
+
+    <link
+      rel="preload"
+      as="style"
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+      onload="this.onload=null;this.rel='stylesheet';document.documentElement.classList.add('fonts-loaded');"
+    />
+    <noscript>
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    </noscript>
 
     <!-- ── Google Analytics 4 (GA4) ── -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-3S90YSVJ54"></script>
@@ -59,14 +92,15 @@
       });
     </script>
 
-    <!-- ── Microsoft Clarity (heatmap & session recording) ── -->
-    <!-- Replace XXXXXXXXXX with your actual Clarity Project ID -->
+    <!-- ── Microsoft Clarity: delayed until window load event ── -->
     <script type="text/javascript">
-      (function(c,l,a,r,i,t,y){
-        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
-        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
-      })(window, document, "clarity", "script", "wbzhs2z6qe");
+      window.addEventListener('load', function() {
+        (function(c,l,a,r,i,t,y){
+          c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+          t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+          y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        })(window, document, "clarity", "script", "wbzhs2z6qe");
+      }, { once: true });
     </script>
   </head>
   <body>

@@ -3,31 +3,23 @@
  *
  * Layout wrapper for all public storefronts at /<slug> and /<slug>/*.
  *
- * Fetches the public shop record to determine tier, then strictly dispatches:
- *   - is_pro === true  → renders <ProLayout /> which uses <Outlet /> for sub-routes
- *                        (/shop, /about, /contact, /wishlist, /product/:id)
- *   - is_pro === false → renders <StorePage /> (normal catalogue layout)
- *
- * NO SILENT FALLBACK: If tier cannot be determined or is_pro is missing,
- * renders an explicit error screen rather than defaulting to the wrong layout.
+ * Uses useStorefrontData:
+ *   - Tries /api/pro/<slug>/page-data/ first.
+ *   - Falls back seamlessly to old endpoints on ANY failure.
+ *   - Seeds React Query caches so sub-components make zero extra requests.
+ *   - Shows 'Store not found' ONLY when the old store endpoint returns 404.
+ *   - Shows 'The store is having trouble right now' on 5xx server errors with Retry button.
+ *   - Shows 'Can’t reach the server. Check your connection' on network/timeout/CORS failures with Retry button.
  */
 import { useParams } from 'react-router-dom'
-import { useQuery } from '@tanstack/react-query'
-import { publicApi } from '../api/axios'
+import { useStorefrontData } from '../hooks/useStorefrontData'
 import StorePage from './StorePage'
 import ProductPage from './ProductPage'
 import ProLayout from '../pro/ProLayout'
 
 export default function UnifiedStorefront() {
   const { slug, displayId } = useParams()
-
-  const { data, isLoading, error } = useQuery({
-    queryKey: ['shop-tier', slug],
-    queryFn: () => publicApi.get(`store/${slug}/?page=1&page_size=1`).then(r => r.data),
-    enabled: !!slug,
-    staleTime: 10_000,
-    retry: 1,
-  })
+  const { data, isLoading, error, refetch } = useStorefrontData(slug)
 
   if (isLoading) {
     return (
@@ -37,22 +29,70 @@ export default function UnifiedStorefront() {
     )
   }
 
-  if (error?.response?.status === 404) {
+  // Handle failure modes
+  if (error) {
+    const errorType = error.type || (
+      error.response?.status === 404 || error.status === 404
+        ? 'NOT_FOUND'
+        : (error.response?.status >= 500 && error.response?.status < 600) || (error.status >= 500 && error.status < 600)
+          ? 'SERVER_ERROR'
+          : 'NETWORK_ERROR'
+    )
+
+    // 1. Store really does not exist (404 from old store endpoint)
+    if (errorType === 'NOT_FOUND') {
+      return (
+        <div className="bg-white min-h-screen flex flex-col items-center justify-center px-6 text-center">
+          <p className="text-[96px] font-black text-[#F0F0F0] leading-none">404</p>
+          <p className="text-xl font-bold text-[#0A0A0A] mt-2">Store not found</p>
+          <p className="text-sm text-[#737373] mt-2">This store link doesn't exist.</p>
+        </div>
+      )
+    }
+
+    // 2. Server answered with an error (5xx)
+    if (errorType === 'SERVER_ERROR') {
+      return (
+        <div className="bg-white min-h-screen flex flex-col items-center justify-center px-6 text-center">
+          <p className="text-xl font-bold text-[#0A0A0A] mb-2">The store is having trouble right now</p>
+          <p className="text-sm text-[#737373] mb-6">Our servers encountered an unexpected issue. Please try again.</p>
+          <button
+            onClick={() => refetch()}
+            className="px-6 py-2.5 bg-black text-white text-sm font-semibold rounded-lg hover:bg-neutral-800 transition-colors cursor-pointer"
+          >
+            Retry
+          </button>
+        </div>
+      )
+    }
+
+    // 3. No response at all (network failure, timeout or CORS block)
     return (
       <div className="bg-white min-h-screen flex flex-col items-center justify-center px-6 text-center">
-        <p className="text-[96px] font-black text-[#F0F0F0] leading-none">404</p>
-        <p className="text-xl font-bold text-[#0A0A0A] mt-2">Store not found</p>
-        <p className="text-sm text-[#737373] mt-2">This store link doesn't exist.</p>
+        <p className="text-xl font-bold text-[#0A0A0A] mb-2">Can’t reach the server. Check your connection</p>
+        <p className="text-sm text-[#737373] mb-6">Unable to connect to the store service. Please check your internet connection or verify CORS access.</p>
+        <button
+          onClick={() => refetch()}
+          className="px-6 py-2.5 bg-black text-white text-sm font-semibold rounded-lg hover:bg-neutral-800 transition-colors cursor-pointer"
+        >
+          Retry
+        </button>
       </div>
     )
   }
 
-  // Strict check: if request failed or is_pro field is missing, show explicit error
-  if (error || !data || typeof data.is_pro !== 'boolean') {
+  // Fallback check if data is malformed
+  if (!data || typeof data.is_pro !== 'boolean') {
     return (
       <div className="bg-white min-h-screen flex flex-col items-center justify-center px-6 text-center">
-        <p className="text-xl font-bold text-[#0A0A0A] mb-2">Unable to Load Store</p>
-        <p className="text-sm text-[#737373]">We couldn't determine this store's configuration. Please refresh or try again later.</p>
+        <p className="text-xl font-bold text-[#0A0A0A] mb-2">The store is having trouble right now</p>
+        <p className="text-sm text-[#737373] mb-6">Received invalid store data.</p>
+        <button
+          onClick={() => refetch()}
+          className="px-6 py-2.5 bg-black text-white text-sm font-semibold rounded-lg hover:bg-neutral-800 transition-colors cursor-pointer"
+        >
+          Retry
+        </button>
       </div>
     )
   }
@@ -68,10 +108,5 @@ export default function UnifiedStorefront() {
     return displayId ? <ProductPage /> : <StorePage />
   }
 
-  return (
-    <div className="bg-white min-h-screen flex flex-col items-center justify-center px-6 text-center">
-      <p className="text-xl font-bold text-[#0A0A0A] mb-2">Configuration Error</p>
-      <p className="text-sm text-[#737373]">Invalid store tier data.</p>
-    </div>
-  )
+  return null
 }
