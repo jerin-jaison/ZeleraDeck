@@ -203,6 +203,8 @@ class AdminShopListCreateView(APIView):
 
         shop = Shop(
             name=data['name'],
+            category=data.get('category', '').strip(),
+            town=data.get('town', '').strip(),
             phone=data['phone'],
             password=make_password(data['password']),
         )
@@ -216,6 +218,19 @@ class AdminShopListCreateView(APIView):
             except CloudinaryUploadError as e:
                 return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
+        # Optional cover image upload
+        cover_file = request.FILES.get('cover')
+        if cover_file:
+            try:
+                shop.cover_image_url = upload_shop_logo(cover_file, f"{shop.name.lower().replace(' ', '-')}-cover")
+            except Exception:
+                pass
+        elif 'cover_image_url' in request.data and request.data['cover_image_url']:
+            shop.cover_image_url = request.data['cover_image_url'].strip()
+
+        if 'logo_url' in request.data and request.data['logo_url']:
+            shop.logo_url = request.data['logo_url'].strip()
+
         # Optional fields from admin
         if 'expires_at' in request.data and request.data['expires_at']:
             shop.expires_at = request.data['expires_at']
@@ -227,14 +242,33 @@ class AdminShopListCreateView(APIView):
             raw_is_pro = str(request.data.get('is_pro', 'false')).strip().lower()
             shop.is_pro = raw_is_pro in ('true', '1', 'yes')
 
-        shop.save()  # slug auto-generated inside model.save()
+        # SEO fields overrides (if provided)
+        if 'seo_title' in request.data:
+            shop.seo_title = request.data.get('seo_title', '').strip()
+        if 'seo_description' in request.data:
+            shop.seo_description = request.data.get('seo_description', '').strip()
+        if 'seo_heading' in request.data:
+            shop.seo_heading = request.data.get('seo_heading', '').strip()
+        if 'is_indexable' in request.data:
+            raw_idx = str(request.data.get('is_indexable', 'true')).strip().lower()
+            shop.is_indexable = raw_idx in ('true', '1', 'yes')
+
+        shop.save()  # slug and SEO auto-generated inside model.save()
 
         return Response({
             'shop_id': str(shop.id),
             'name': shop.name,
             'slug': shop.slug,
+            'category': shop.category,
+            'town': shop.town,
             'phone': shop.phone,
             'logo_url': shop.logo_url,
+            'cover_image_url': shop.cover_image_url,
+            'seo_title': shop.seo_title,
+            'seo_description': shop.seo_description,
+            'seo_heading': shop.seo_heading,
+            'is_indexable': shop.is_indexable,
+            'structured_data': shop.structured_data,
             'public_url': f'/{shop.slug}',
         }, status=status.HTTP_201_CREATED)
 
@@ -381,6 +415,33 @@ class AdminShopEditView(APIView):
             except CloudinaryUploadError as e:
                 return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
+        # ── Cover upload (multipart) ──────────────────────────────────────
+        cover_file = request.FILES.get('cover')
+        if cover_file:
+            try:
+                shop.cover_image_url = upload_shop_logo(cover_file, f"{shop.slug}-cover")
+            except Exception:
+                pass
+
+        # ── Category & Town ───────────────────────────────────────────────
+        if 'category' in data:
+            shop.category = (data.get('category') or '').strip()
+        if 'town' in data:
+            shop.town = (data.get('town') or '').strip()
+
+        # ── SEO Fields & Indexing ─────────────────────────────────────────
+        if 'is_indexable' in data:
+            raw_idx = str(data.get('is_indexable', 'true')).strip().lower()
+            shop.is_indexable = raw_idx in ('true', '1', 'yes')
+        if 'seo_title' in data:
+            shop.seo_title = (data.get('seo_title') or '').strip()
+        if 'seo_description' in data:
+            shop.seo_description = (data.get('seo_description') or '').strip()
+        if 'seo_heading' in data:
+            shop.seo_heading = (data.get('seo_heading') or '').strip()
+        if 'cover_image_url' in data:
+            shop.cover_image_url = (data.get('cover_image_url') or '').strip() or None
+
         # ── Save ──────────────────────────────────────────────────────────
         if phone_changed:
             shop.token_version += 1
@@ -389,6 +450,99 @@ class AdminShopEditView(APIView):
 
         serializer = ShopAdminListSerializer(shop)
         return Response(serializer.data)
+
+
+def check_shop_seo_health(shop):
+    """
+    Evaluates 7 criteria for SEO readiness:
+    1. title_length: 30-60 characters
+    2. description_present: >= 50 characters (recommended 120-160)
+    3. town_present: bool(shop.town.strip())
+    4. cover_image_present: bool(shop.cover_image_url or shop.logo_url)
+    5. indexing_on: bool(shop.is_indexable)
+    6. ready_html: shop exists, is_active, and has valid slug
+    7. structured_data_valid: valid JSON-LD schema with @context, @type, name, address
+    """
+    title = (shop.seo_title or '').strip()
+    title_ok = 25 <= len(title) <= 65
+    title_msg = f"{len(title)} chars (recommended: 30-60 chars)" if title else "Missing SEO title"
+
+    desc = (shop.seo_description or '').strip()
+    desc_ok = len(desc) >= 50
+    desc_msg = f"{len(desc)} chars (recommended: 120-160 chars)" if desc else "Missing SEO description"
+
+    town = (shop.town or '').strip()
+    town_ok = bool(town)
+    town_msg = town if town_ok else "Missing town for local search"
+
+    cover_image_ok = bool(shop.cover_image_url or shop.logo_url)
+    if not cover_image_ok and shop.is_pro:
+        try:
+            from pro.models import ProHeroSettings
+            hero = ProHeroSettings.objects.filter(shop=shop).first()
+            if hero and (hero.hero_image_url or hero.hero_mobile_image_url):
+                cover_image_ok = True
+        except Exception:
+            pass
+    cover_image_msg = "Image set" if cover_image_ok else "No cover image or logo set"
+
+    indexing_ok = bool(shop.is_indexable)
+    indexing_msg = "Indexing enabled" if indexing_ok else "Indexing turned off (noindex)"
+
+    ready_html_ok = bool(shop.is_active and shop.slug)
+    ready_html_msg = f"Ready HTML at /{shop.slug}" if ready_html_ok else "Store inactive or missing slug"
+
+    sd = shop.structured_data
+    sd_ok = False
+    if isinstance(sd, dict) and sd:
+        has_context = sd.get("@context") in ["https://schema.org", "http://schema.org"]
+        has_type = sd.get("@type") in ["Store", "LocalBusiness", "Organization"]
+        has_name = bool(sd.get("name"))
+        has_addr = bool(sd.get("address"))
+        sd_ok = has_context and has_type and has_name and has_addr
+    sd_msg = "Valid Schema.org Store JSON-LD" if sd_ok else "Incomplete structured data schema"
+
+    checks = [
+        {"id": "title_length", "label": "Title length (30-60 chars)", "passed": title_ok, "detail": title_msg},
+        {"id": "description_present", "label": "Meta description present", "passed": desc_ok, "detail": desc_msg},
+        {"id": "town_present", "label": "Town present", "passed": town_ok, "detail": town_msg},
+        {"id": "cover_image_present", "label": "Cover image present", "passed": cover_image_ok, "detail": cover_image_msg},
+        {"id": "indexing_switch", "label": "Indexing switch on", "passed": indexing_ok, "detail": indexing_msg},
+        {"id": "ready_html", "label": "Shop page returns ready HTML", "passed": ready_html_ok, "detail": ready_html_msg},
+        {"id": "structured_data_valid", "label": "Structured data valid", "passed": sd_ok, "detail": sd_msg},
+    ]
+
+    passed_count = sum(1 for c in checks if c["passed"])
+    total_count = len(checks)
+    is_ready = (passed_count == total_count)
+    score = f"{passed_count}/{total_count}"
+    score_percentage = int((passed_count / total_count) * 100)
+    missing = [c["label"] for c in checks if not c["passed"]]
+
+    return {
+        "score": score,
+        "score_percentage": score_percentage,
+        "is_ready": is_ready,
+        "passed_count": passed_count,
+        "total_count": total_count,
+        "checks": checks,
+        "missing": missing,
+    }
+
+
+class AdminShopSeoHealthView(APIView):
+    """GET /api/admin/shops/{id}/seo-health/ — evaluates 7-point SEO checklist"""
+    authentication_classes = []
+    permission_classes = [IsAdminSecret]
+
+    def get(self, request, pk):
+        try:
+            shop = Shop.objects.get(pk=pk)
+        except Shop.DoesNotExist:
+            return Response({'error': 'Shop not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        health = check_shop_seo_health(shop)
+        return Response(health)
 
 
 class AdminShopProductsView(APIView):

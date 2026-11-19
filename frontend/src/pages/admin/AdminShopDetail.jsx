@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { ArrowLeft, Search, X, Trash2, ExternalLink, Package, Eye, EyeOff, Pencil, Save } from 'lucide-react'
+import { ArrowLeft, Search, X, Trash2, ExternalLink, Package, Eye, EyeOff, Pencil, Save, CheckCircle, AlertCircle, Globe, ImagePlus } from 'lucide-react'
 import { useToast } from '../../context/ToastContext'
 import { adminApi, timeAgo } from './AdminDashboard'
 import Pagination from '../../components/Pagination'
@@ -25,6 +25,13 @@ export default function AdminShopDetail() {
   })
   const shops = shopsData?.shops ?? (Array.isArray(shopsData) ? shopsData : [])
   const shop = shops.find((s) => s.id === id)
+
+  // SEO Health Query
+  const { data: seoHealth, refetch: refetchSeo } = useQuery({
+    queryKey: ['admin-shop-seo-health', id],
+    queryFn: () => adminApi.get(`admin/shops/${id}/seo-health/`).then((r) => r.data),
+    enabled: !!id,
+  })
 
   // Products
   const [prodSearch, setProdSearch] = useState('')
@@ -52,8 +59,16 @@ export default function AdminShopDetail() {
   const [editing, setEditing] = useState(false)
   const [editLogo, setEditLogo] = useState(null)
   const [editLogoPreview, setEditLogoPreview] = useState(null)
+  const [editCover, setEditCover] = useState(null)
+  const [editCoverPreview, setEditCoverPreview] = useState(null)
   const [editName, setEditName] = useState('')
+  const [editCategory, setEditCategory] = useState('')
+  const [editTown, setEditTown] = useState('')
   const [editPhone, setEditPhone] = useState('')
+  const [editIsIndexable, setEditIsIndexable] = useState(true)
+  const [editSeoTitle, setEditSeoTitle] = useState('')
+  const [editSeoDesc, setEditSeoDesc] = useState('')
+  const [editSeoHeading, setEditSeoHeading] = useState('')
   const [editExpiry, setEditExpiry] = useState('')
   const [editClearExpiry, setEditClearExpiry] = useState(false)
   const [editNotes, setEditNotes] = useState('')
@@ -96,7 +111,15 @@ export default function AdminShopDetail() {
   const startEditing = () => {
     setEditLogo(null)
     setEditLogoPreview(shop.logo_url || null)
+    setEditCover(null)
+    setEditCoverPreview(shop.cover_image_url || null)
     setEditName(shop.name || '')
+    setEditCategory(shop.category || '')
+    setEditTown(shop.town || '')
+    setEditIsIndexable(shop.is_indexable !== false)
+    setEditSeoTitle(shop.seo_title || '')
+    setEditSeoDesc(shop.seo_description || '')
+    setEditSeoHeading(shop.seo_heading || '')
     setEditPhone(shop.phone || '')
     setEditExpiry(toDateInput(shop.expires_at))
     setEditClearExpiry(false)
@@ -123,6 +146,12 @@ export default function AdminShopDetail() {
     const formData = new FormData()
     formData.append('name', editName.trim())
     formData.append('phone', cleanPhone)
+    formData.append('category', editCategory.trim())
+    formData.append('town', editTown.trim())
+    formData.append('is_indexable', String(editIsIndexable))
+    formData.append('seo_title', editSeoTitle.trim())
+    formData.append('seo_description', editSeoDesc.trim())
+    formData.append('seo_heading', editSeoHeading.trim())
     formData.append('admin_notes', editNotes)
     formData.append('is_pro', String(editIsPro))
 
@@ -140,6 +169,9 @@ export default function AdminShopDetail() {
     if (editLogo) {
       formData.append('logo', editLogo)
     }
+    if (editCover) {
+      formData.append('cover', editCover)
+    }
 
     const phoneChanged = cleanPhone !== shop.phone
 
@@ -154,6 +186,7 @@ export default function AdminShopDetail() {
         return { ...old, shops: old.shops.map((s) => s.id === id ? { ...s, ...updatedShop } : s) }
       })
       refresh()
+      refetchSeo()
       setEditing(false)
       showToast('Shop updated successfully')
       if (phoneChanged) {
@@ -187,8 +220,12 @@ export default function AdminShopDetail() {
   const isExpired = shop.expires_at && new Date(shop.expires_at) < new Date()
 
   const infoRows = [
+    { l: 'Category', v: shop.category || '—' },
+    { l: 'Town', v: shop.town || '—' },
     { l: 'Phone', v: shop.phone },
     { l: 'WhatsApp', v: shop.whatsapp_number },
+    { l: 'Indexing', v: shop.is_indexable !== false ? '✓ Enabled' : '✗ Noindex' },
+    { l: 'SEO Score', v: seoHealth ? `${seoHealth.score} (${seoHealth.is_ready ? 'Ready' : 'Incomplete'})` : '—' },
     { l: 'Joined', v: fmtDate(shop.created_at) },
     { l: 'Last Login', v: shop.last_login ? timeAgo(shop.last_login) : 'Never' },
     { l: 'Expires', v: shop.expires_at ? fmtDate(shop.expires_at) : 'No expiry' },
@@ -346,6 +383,144 @@ export default function AdminShopDetail() {
                   {phoneError && <p className="text-xs text-[#EF4444] mt-1">{phoneError}</p>}
                 </div>
 
+                {/* ②.1 Category & Town */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-xs font-medium text-[#737373] mb-1 block">Category</label>
+                    <input
+                      type="text"
+                      value={editCategory}
+                      onChange={(e) => setEditCategory(e.target.value)}
+                      placeholder="e.g. Fashion, Bakery"
+                      className="w-full border border-[#E5E5E5] rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#111111]"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-medium text-[#737373] mb-1 block">Town / City</label>
+                    <input
+                      type="text"
+                      value={editTown}
+                      onChange={(e) => setEditTown(e.target.value)}
+                      placeholder="e.g. Kochi, Kottayam"
+                      className="w-full border border-[#E5E5E5] rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#111111]"
+                    />
+                  </div>
+                </div>
+
+                {/* ②.2 Indexing Toggle */}
+                <div className="p-3.5 bg-[#F8F8F8] rounded-xl border border-[#F0F0F0] flex items-center justify-between">
+                  <div>
+                    <p className="text-xs font-semibold text-[#0A0A0A] flex items-center gap-1.5">
+                      <Globe className="w-3.5 h-3.5 text-[#0A0A0A]" /> Search Engine Indexing
+                    </p>
+                    <p className="text-[11px] text-[#737373] mt-0.5">
+                      {editIsIndexable ? 'Store is included in sitemap.xml and public directory' : 'Hidden from search engines & directory (noindex)'}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setEditIsIndexable(!editIsIndexable)}
+                    className="relative w-11 h-6 rounded-full transition-colors flex-shrink-0 ml-3"
+                    style={{ backgroundColor: editIsIndexable ? '#166534' : '#D4D4D4' }}
+                  >
+                    <div
+                      className="absolute top-0.5 w-5 h-5 bg-white rounded-full shadow-sm transition-transform"
+                      style={{ transform: editIsIndexable ? 'translateX(22px)' : 'translateX(2px)' }}
+                    />
+                  </button>
+                </div>
+
+                {/* ②.3 Cover Image Upload */}
+                <div>
+                  <label className="text-xs font-medium text-[#737373] mb-2 block">Cover / Social Share Image (Optional)</label>
+                  <div className="flex items-center gap-4">
+                    {editCoverPreview ? (
+                      <div className="relative">
+                        <img src={editCoverPreview} alt="Cover Preview" className="w-24 h-14 rounded-xl object-cover border border-[#E5E5E5]" />
+                        <button
+                          type="button"
+                          onClick={() => { setEditCover(null); setEditCoverPreview(null); }}
+                          className="absolute -top-2 -right-2 w-6 h-6 bg-white border border-[#E5E5E5] rounded-full flex items-center justify-center hover:bg-[#F8F8F8]"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="w-24 h-14 rounded-xl border border-[#E5E5E5] bg-[#F8F8F8] flex items-center justify-center">
+                        <span className="text-[#A3A3A3] text-xs font-medium">None</span>
+                      </div>
+                    )}
+                    <label className="text-xs bg-[#F8F8F8] border border-[#E5E5E5] px-3 py-2 rounded-lg font-medium cursor-pointer hover:bg-[#F0F0F0] active:scale-[0.98] transition-all text-[#0A0A0A]">
+                      Select Cover Image
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0]
+                          if (file) {
+                            try {
+                              const options = { maxSizeMB: 0.8, maxWidthOrHeight: 1200, useWebWorker: true, fileType: "image/webp" }
+                              const compressedFile = await imageCompression(file, options)
+                              setEditCover(compressedFile)
+                              setEditCoverPreview(URL.createObjectURL(compressedFile))
+                            } catch (err) {
+                              showToast('Image compression failed', 'error')
+                            }
+                          }
+                          e.target.value = ''
+                        }}
+                      />
+                    </label>
+                  </div>
+                </div>
+
+                {/* ②.4 SEO Title */}
+                <div>
+                  <div className="flex justify-between items-center mb-1">
+                    <label className="text-xs font-medium text-[#737373]">SEO Title</label>
+                    <span className={`text-[10px] font-mono ${editSeoTitle.length >= 30 && editSeoTitle.length <= 60 ? 'text-emerald-600 font-semibold' : 'text-[#A3A3A3]'}`}>
+                      {editSeoTitle.length} chars (target: 30-60)
+                    </span>
+                  </div>
+                  <input
+                    type="text"
+                    value={editSeoTitle}
+                    onChange={(e) => setEditSeoTitle(e.target.value)}
+                    placeholder="e.g. La Bella — Boutique in Kochi"
+                    className="w-full border border-[#E5E5E5] rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#111111]"
+                  />
+                </div>
+
+                {/* ②.5 SEO Meta Description */}
+                <div>
+                  <div className="flex justify-between items-center mb-1">
+                    <label className="text-xs font-medium text-[#737373]">SEO Description</label>
+                    <span className={`text-[10px] font-mono ${editSeoDesc.length >= 120 && editSeoDesc.length <= 160 ? 'text-emerald-600 font-semibold' : 'text-[#A3A3A3]'}`}>
+                      {editSeoDesc.length} chars (target: 120-160)
+                    </span>
+                  </div>
+                  <textarea
+                    value={editSeoDesc}
+                    onChange={(e) => setEditSeoDesc(e.target.value)}
+                    rows={2}
+                    placeholder="Compelling description for Google search results..."
+                    className="w-full border border-[#E5E5E5] rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#111111] resize-none"
+                  />
+                </div>
+
+                {/* ②.6 SEO Heading */}
+                <div>
+                  <label className="text-xs font-medium text-[#737373] mb-1 block">SEO Heading (H1)</label>
+                  <input
+                    type="text"
+                    value={editSeoHeading}
+                    onChange={(e) => setEditSeoHeading(e.target.value)}
+                    placeholder="e.g. La Bella — Boutique in Kochi"
+                    className="w-full border border-[#E5E5E5] rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#111111]"
+                  />
+                </div>
+
                 {/* ③ Subscription Expiry */}
                 <div>
                   <div className="flex justify-between items-center mb-1">
@@ -458,6 +633,76 @@ export default function AdminShopDetail() {
               </div>
             </div>
           )}
+
+          {/* ── SEO Health Panel ────────────────────────────────────────── */}
+          <div className="bg-white rounded-2xl p-5 border border-[#F0F0F0]">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+              <div className="flex items-center gap-2.5">
+                <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${seoHealth?.is_ready ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'}`}>
+                  {seoHealth?.is_ready ? <CheckCircle className="w-5 h-5" /> : <AlertCircle className="w-5 h-5" />}
+                </div>
+                <div>
+                  <h2 className="text-sm font-semibold text-[#0A0A0A] flex items-center gap-1.5">
+                    SEO Health & Discovery Checklist
+                  </h2>
+                  <p className="text-xs text-[#737373]">Automated audit for search visibility & Google indexing</p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <span className={`text-xs px-2.5 py-1 rounded-full font-semibold ${
+                  seoHealth?.is_ready ? 'bg-[#DCFCE7] text-[#166534]' : 'bg-[#FEF3C7] text-[#92400E]'
+                }`}>
+                  {seoHealth?.is_ready ? '✓ SEO Ready' : 'Needs Attention'}
+                </span>
+                <span className="text-xs font-mono font-bold bg-[#F8F8F8] px-2.5 py-1 rounded-full border border-[#E5E5E5]">
+                  Score: {seoHealth?.score || '0/7'} ({seoHealth?.score_percentage || 0}%)
+                </span>
+              </div>
+            </div>
+
+            {/* Checklist */}
+            <div className="space-y-2 pt-2 border-t border-[#F8F8F8]">
+              {seoHealth?.checks?.map((c) => (
+                <div key={c.id} className="flex items-center justify-between text-xs py-2 px-3 rounded-xl bg-[#FAFAFA] border border-[#F0F0F0]">
+                  <div className="flex items-center gap-2.5">
+                    {c.passed ? (
+                      <CheckCircle className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+                    ) : (
+                      <AlertCircle className="w-4 h-4 text-amber-500 flex-shrink-0" />
+                    )}
+                    <span className={`font-medium ${c.passed ? 'text-[#0A0A0A]' : 'text-[#737373]'}`}>
+                      {c.label}
+                    </span>
+                  </div>
+                  <span className={`text-[11px] font-mono ${c.passed ? 'text-emerald-700 font-medium' : 'text-amber-600 font-medium'}`}>
+                    {c.detail}
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            {/* Missing items breakdown */}
+            {seoHealth?.missing && seoHealth.missing.length > 0 && (
+              <div className="mt-4 p-3.5 bg-amber-50 rounded-xl border border-amber-200/70">
+                <p className="text-xs font-semibold text-amber-900 mb-1">
+                  Missing Checks ({seoHealth.missing.length}):
+                </p>
+                <ul className="text-xs text-amber-800 list-disc list-inside space-y-0.5">
+                  {seoHealth.missing.map((item, idx) => (
+                    <li key={idx}>{item}</li>
+                  ))}
+                </ul>
+                <button
+                  type="button"
+                  onClick={() => { if (!editing) startEditing(); }}
+                  className="mt-3 text-xs font-semibold text-amber-900 underline flex items-center gap-1 hover:text-amber-950"
+                >
+                  <Pencil className="w-3 h-3" /> Edit Shop Details to complete SEO items
+                </button>
+              </div>
+            )}
+          </div>
 
           {/* Products */}
           <div className="bg-white rounded-2xl p-5 border border-[#F0F0F0]">

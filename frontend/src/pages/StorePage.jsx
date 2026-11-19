@@ -191,21 +191,23 @@ export default function StorePage() {
   const shop = data
 
   // ── Per-shop SEO metadata ──
-  const shopTitle = `${shop.name} — Shop Catalogue`
-  const shopDesc = `Browse products from ${shop.name} on ZeleraDeck. Order easily on WhatsApp.`
+  const shopTitle = shop.seo_title || `${shop.name} — Shop Catalogue`
+  const shopDesc = shop.seo_description || `Browse products from ${shop.name} on ZeleraDeck. Order easily on WhatsApp.`
   const shopUrl = `https://zeleradeck.com/${slug}`
-  const shopImage = shop.logo_url ? cloudinaryOptimize(shop.logo_url) : 'https://zeleradeck.com/logo2.png'
+  const shopImage = shop.cover_image_url || (shop.logo_url ? cloudinaryOptimize(shop.logo_url) : 'https://zeleradeck.com/logo2.png')
 
-  const localBusinessSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'LocalBusiness',
-    name: shop.name,
-    url: shopUrl,
-    ...(shop.logo_url ? { image: cloudinaryOptimize(shop.logo_url), logo: cloudinaryOptimize(shop.logo_url) } : {}),
-    description: shopDesc,
-    ...(shop.whatsapp_number ? { telephone: `+${shop.whatsapp_number}` } : {}),
-    address: { '@type': 'PostalAddress', addressRegion: 'Kerala', addressCountry: 'IN' },
-  }
+  const localBusinessSchema = (shop.structured_data && Object.keys(shop.structured_data).length > 0)
+    ? shop.structured_data
+    : {
+        '@context': 'https://schema.org',
+        '@type': 'LocalBusiness',
+        name: shop.name,
+        url: shopUrl,
+        ...(shop.logo_url ? { image: cloudinaryOptimize(shop.logo_url), logo: cloudinaryOptimize(shop.logo_url) } : {}),
+        description: shopDesc,
+        ...(shop.whatsapp_number ? { telephone: `+${shop.whatsapp_number}` } : {}),
+        address: { '@type': 'PostalAddress', addressLocality: shop.town || 'Kerala', addressRegion: 'Kerala', addressCountry: 'IN' },
+      }
 
   return (
     <>
@@ -214,8 +216,9 @@ export default function StorePage() {
         description={shopDesc}
         url={shopUrl}
         image={shopImage}
-        keywords={`${shop.name}, online catalogue, shop products Kerala, WhatsApp ordering`}
+        keywords={`${shop.name}, ${shop.category || ''}, ${shop.town || ''}, online catalogue, shop products Kerala, WhatsApp ordering`}
         schema={localBusinessSchema}
+        noindex={shop.is_indexable === false}
       />
     <div className="bg-white min-h-screen max-w-md mx-auto" style={{ animation: 'fadeIn 0.15s ease-out' }}>
       {/* Sticky header */}
@@ -224,7 +227,7 @@ export default function StorePage() {
           {shop.logo_url && (
             <img src={shop.logo_url} alt="" className="w-8 h-8 rounded-lg object-cover mr-2 flex-shrink-0" />
           )}
-          <h1 className="text-base font-bold text-[#0A0A0A]">{shop.name}</h1>
+          <h1 className="text-base font-bold text-[#0A0A0A]">{shop.seo_heading || shop.name}</h1>
         </div>
         <span className="text-xs text-[#737373]">{pagination?.total ?? 0} products</span>
       </div>
