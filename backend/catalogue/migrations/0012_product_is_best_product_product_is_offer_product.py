@@ -3,6 +3,30 @@
 from django.db import migrations, models
 
 
+def add_product_flags_if_not_exists(apps, schema_editor):
+    connection = schema_editor.connection
+    vendor = connection.vendor
+    with connection.cursor() as cursor:
+        if vendor == 'postgresql':
+            cursor.execute("""
+                ALTER TABLE catalogue_product ADD COLUMN IF NOT EXISTS is_best_product boolean NOT NULL DEFAULT false;
+                ALTER TABLE catalogue_product ADD COLUMN IF NOT EXISTS is_offer_product boolean NOT NULL DEFAULT false;
+            """)
+        elif vendor == 'sqlite':
+            cursor.execute("PRAGMA table_info(catalogue_product);")
+            cols = [row[1] for row in cursor.fetchall()]
+            if 'is_best_product' not in cols:
+                cursor.execute("ALTER TABLE catalogue_product ADD COLUMN is_best_product bool NOT NULL DEFAULT 0;")
+            if 'is_offer_product' not in cols:
+                cursor.execute("ALTER TABLE catalogue_product ADD COLUMN is_offer_product bool NOT NULL DEFAULT 0;")
+        else:
+            table_description = [col.name for col in connection.introspection.get_table_description(cursor, 'catalogue_product')]
+            if 'is_best_product' not in table_description:
+                cursor.execute("ALTER TABLE catalogue_product ADD COLUMN is_best_product boolean NOT NULL DEFAULT false;")
+            if 'is_offer_product' not in table_description:
+                cursor.execute("ALTER TABLE catalogue_product ADD COLUMN is_offer_product boolean NOT NULL DEFAULT false;")
+
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -10,14 +34,24 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AddField(
-            model_name='product',
-            name='is_best_product',
-            field=models.BooleanField(default=False),
-        ),
-        migrations.AddField(
-            model_name='product',
-            name='is_offer_product',
-            field=models.BooleanField(default=False),
+        migrations.SeparateDatabaseAndState(
+            state_operations=[
+                migrations.AddField(
+                    model_name='product',
+                    name='is_best_product',
+                    field=models.BooleanField(default=False),
+                ),
+                migrations.AddField(
+                    model_name='product',
+                    name='is_offer_product',
+                    field=models.BooleanField(default=False),
+                ),
+            ],
+            database_operations=[
+                migrations.RunPython(
+                    add_product_flags_if_not_exists,
+                    reverse_code=migrations.RunPython.noop,
+                ),
+            ],
         ),
     ]
