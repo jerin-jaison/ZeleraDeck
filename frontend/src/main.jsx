@@ -29,6 +29,7 @@ const WhyUsPage = lazy(() => import('./pages/WhyUsPage'))
 const SignupPage = lazy(() => import('./pages/SignupPage'))
 const AboutPage = lazy(() => import('./pages/AboutPage'))
 const ContactPage = lazy(() => import('./pages/ContactPage'))
+const DirectoryPage = lazy(() => import('./pages/DirectoryPage'))
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'))
 const MaintenancePage = lazy(() => import('./pages/MaintenancePage'))
 
@@ -162,6 +163,8 @@ function AppRoutes() {
                   <Route path="/signup" element={<SignupPage />} />
                   <Route path="/about" element={<AboutPage />} />
                   <Route path="/contact" element={<ContactPage />} />
+                  <Route path="/directory" element={<DirectoryPage />} />
+                  <Route path="/shops" element={<Navigate to="/directory" replace />} />
 
                   {/* Legacy redirects */}
                   <Route path="/store/:slug" element={<LegacyStoreRedirect />} />

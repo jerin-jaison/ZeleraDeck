@@ -13,7 +13,11 @@ class ShopSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Shop
-        fields = ['id', 'name', 'slug', 'phone', 'whatsapp_number', 'is_active', 'is_pro', 'logo_url', 'created_at']
+        fields = [
+            'id', 'name', 'slug', 'phone', 'whatsapp_number', 'is_active', 'is_pro',
+            'logo_url', 'cover_image_url', 'category', 'town', 'is_indexable',
+            'seo_title', 'seo_description', 'seo_heading', 'structured_data', 'created_at'
+        ]
 
     def get_whatsapp_number(self, obj):
         return obj.whatsapp_number
@@ -22,6 +26,8 @@ class ShopSerializer(serializers.ModelSerializer):
 class ShopCreateSerializer(serializers.Serializer):
     """Used by admin to create new shops. Phone is used for both login AND WhatsApp."""
     name = serializers.CharField(max_length=200)
+    category = serializers.CharField(max_length=100, required=True)
+    town = serializers.CharField(max_length=100, required=True)
     phone = serializers.CharField(max_length=15)
     password = serializers.CharField(write_only=True, min_length=6)
     # logo is intentionally excluded — read directly from request.FILES in the view
@@ -36,7 +42,9 @@ class ShopAdminListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Shop
         fields = [
-            'id', 'name', 'slug', 'phone', 'whatsapp_number', 'logo_url',
+            'id', 'name', 'slug', 'phone', 'whatsapp_number', 'logo_url', 'cover_image_url',
+            'category', 'town', 'is_indexable', 'seo_title', 'seo_description',
+            'seo_heading', 'structured_data',
             'is_active', 'is_pro', 'product_count', 'created_at',
             'expires_at', 'admin_notes', 'last_login', 'is_expiring_soon',
         ]
@@ -60,7 +68,11 @@ class ShopPublicSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Shop
-        fields = ['name', 'slug', 'phone', 'whatsapp_number', 'logo_url']
+        fields = [
+            'name', 'slug', 'phone', 'whatsapp_number', 'logo_url', 'cover_image_url',
+            'category', 'town', 'is_indexable', 'seo_title', 'seo_description',
+            'seo_heading', 'structured_data'
+        ]
 
     def get_whatsapp_number(self, obj):
         return obj.whatsapp_number

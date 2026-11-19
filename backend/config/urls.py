@@ -7,7 +7,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.http import JsonResponse
 
-from catalogue.views import og_store_view, og_product_view
+from catalogue.views import og_store_view, og_product_view, DirectoryView
 from config.seo_views import sitemap_stores_view
 
 
@@ -43,12 +43,14 @@ urlpatterns = [
     path("api/status/", site_status, name="site-status"),
     path("api/auth/", include("accounts.urls")),
     path("api/admin/", include("accounts.admin_urls")),
+    path("api/directory/", DirectoryView.as_view(), name="api-directory"),
     path("api/shop/", include("catalogue.shop_urls")),
     path("api/store/", include("catalogue.public_urls")),
     # OG meta tag pages for WhatsApp / Telegram link previews
     path("og/store/<slug:slug>/", og_store_view, name="og-store"),
     path("og/store/<slug:slug>/product/<str:display_id>/", og_product_view, name="og-product"),
-    # SEO — dynamic sitemap with all active store slugs
+    # SEO — dynamic sitemaps with all indexable pages and active store slugs
+    path("sitemap.xml", sitemap_stores_view, name="sitemap"),
     path("sitemap-stores.xml", sitemap_stores_view, name="sitemap-stores"),
     # Pro storefront API — read-only, AllowAny, internal preview only
     path("api/pro/", include("pro.urls")),

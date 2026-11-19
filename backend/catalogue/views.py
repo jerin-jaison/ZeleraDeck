@@ -576,6 +576,51 @@ class ShopProductDetailView(APIView):
 
 # ─── Public Views ─────────────────────────────────────────────────────────────
 
+class DirectoryView(APIView):
+    """GET /api/directory/ or /api/store/directory/ — public directory of all indexable shops"""
+    authentication_classes = []
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        shops = Shop.objects.filter(is_active=True, is_indexable=True).order_by('town', 'category', 'name')
+
+        town_param = request.query_params.get('town', '').strip()
+        cat_param = request.query_params.get('category', '').strip()
+        if town_param:
+            shops = shops.filter(town__iexact=town_param)
+        if cat_param:
+            shops = shops.filter(category__iexact=cat_param)
+
+        data = []
+        towns = set()
+        categories = set()
+
+        for s in shops:
+            town_val = s.town.strip() or 'Kerala'
+            cat_val = s.category.strip() or 'General'
+            towns.add(town_val)
+            categories.add(cat_val)
+            data.append({
+                'name': s.name,
+                'slug': s.slug,
+                'category': cat_val,
+                'town': town_val,
+                'logo_url': s.logo_url,
+                'cover_image_url': s.cover_image_url,
+                'seo_title': s.seo_title,
+                'seo_description': s.seo_description,
+                'is_pro': s.is_pro,
+                'url': f"/{s.slug}",
+            })
+
+        return Response({
+            'shops': data,
+            'total': len(data),
+            'towns': sorted(list(towns)),
+            'categories': sorted(list(categories)),
+        })
+
+
 class PublicStoreView(APIView):
     """GET /api/store/{slug}/"""
     authentication_classes = []
@@ -656,6 +701,14 @@ class PublicStoreView(APIView):
             'phone': shop.phone,
             'whatsapp_number': shop.whatsapp_number,
             'logo_url': shop.logo_url,
+            'cover_image_url': shop.cover_image_url,
+            'category': shop.category,
+            'town': shop.town,
+            'is_indexable': shop.is_indexable,
+            'seo_title': shop.seo_title,
+            'seo_description': shop.seo_description,
+            'seo_heading': shop.seo_heading,
+            'structured_data': shop.structured_data,
             'categories': CategorySerializer(categories, many=True).data,
             'products': ProductPublicSerializer(list(page_obj), many=True).data,
             'pagination': {
@@ -696,46 +749,85 @@ class PublicProductDetailView(APIView):
 
 # ─── OG Preview Views (WhatsApp / Telegram / Twitter) ─────────────────────────
 
+import json
 from django.http import HttpResponse
 from django.utils.html import escape
 
 
 def og_store_view(request, slug):
-    """GET /og/store/{slug}/ — OG meta tags for store link previews"""
+    """GET /og/store/{slug}/ — OG meta tags & raw crawler HTML for store link previews"""
     try:
         shop = Shop.objects.get(slug=slug)
     except Shop.DoesNotExist:
-        return HttpResponse("<html><body>Not found</body></html>", status=404)
+        return HttpResponse(
+            "<!DOCTYPE html><html><head>"
+            '<meta name="robots" content="noindex, nofollow">'
+            "</head><body><h1>Store not found</h1></body></html>",
+            status=404,
+            content_type="text/html",
+        )
+
+    # Inactive shops: return noindex 404 so crawlers don't index dead pages
+    if not shop.is_active:
+        return HttpResponse(
+            "<!DOCTYPE html><html><head>"
+            '<meta name="robots" content="noindex, nofollow">'
+            "</head><body><h1>Store not available</h1></body></html>",
+            status=404,
+            content_type="text/html",
+        )
 
     real_url = f"{settings.FRONTEND_URL}/{slug}"
-    image_url = shop.logo_url or f"{settings.FRONTEND_URL}/logo2.png"
-    title = escape(f"{shop.name} — Browse our products")
-    description = escape(
-        f"Browse {shop.name}'s product catalogue on ZeleraDeck. "
-        f"Order directly on WhatsApp."
+    image_url = shop.cover_image_url or shop.logo_url or f"{settings.FRONTEND_URL}/logo2.png"
+
+    # Use auto-generated or custom SEO fields
+    page_title = shop.seo_title or f"{shop.name} — Shop Catalogue"
+    meta_desc = shop.seo_description or (
+        f"Browse {shop.name}'s product catalogue on ZeleraDeck. Order directly on WhatsApp."
     )
+    heading = shop.seo_heading or shop.name
+
+    title_esc = escape(page_title)
+    desc_esc = escape(meta_desc)
+    heading_esc = escape(heading)
+    img_esc = escape(image_url)
+
+    # Robots tag based on shop.is_indexable
+    robots_tag = '<meta name="robots" content="index, follow">' if shop.is_indexable else '<meta name="robots" content="noindex, nofollow">'
+
+    # JSON-LD structured data
+    sd_script = ""
+    if shop.structured_data:
+        try:
+            sd_script = f'\n  <script type="application/ld+json">\n  {json.dumps(shop.structured_data)}\n  </script>'
+        except Exception:
+            pass
 
     html = f"""<!DOCTYPE html>
-<html prefix="og: http://ogp.me/ns#">
+<html lang="en" prefix="og: http://ogp.me/ns#">
 <head>
   <meta charset="UTF-8">
-  <title>{title}</title>
-  <meta name="description" content="{description}">
-  <meta property="og:title" content="{title}">
-  <meta property="og:description" content="{description}">
-  <meta property="og:image" content="{escape(image_url)}">
-  <meta property="og:image:width" content="400">
-  <meta property="og:image:height" content="400">
+  <title>{title_esc} | ZeleraDeck</title>
+  <meta name="description" content="{desc_esc}">
+  {robots_tag}
+  <link rel="canonical" href="{real_url}">
+  <meta property="og:title" content="{title_esc}">
+  <meta property="og:description" content="{desc_esc}">
+  <meta property="og:image" content="{img_esc}">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
   <meta property="og:url" content="{real_url}">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="ZeleraDeck">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="{title}">
-  <meta name="twitter:description" content="{description}">
-  <meta name="twitter:image" content="{escape(image_url)}">
+  <meta name="twitter:title" content="{title_esc}">
+  <meta name="twitter:description" content="{desc_esc}">
+  <meta name="twitter:image" content="{img_esc}">{sd_script}
   <meta http-equiv="refresh" content="0;url={real_url}">
 </head>
 <body>
+  <h1>{heading_esc}</h1>
+  <p>{desc_esc}</p>
   <p>Redirecting to <a href="{real_url}">{escape(shop.name)}</a>...</p>
 </body>
 </html>"""

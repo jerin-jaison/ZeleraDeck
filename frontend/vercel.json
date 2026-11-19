@@ -1,4 +1,7 @@
 {
+  "proxy": {
+    "entrypoint": "middleware.js"
+  },
   "headers": [
     {
       "source": "/(.*)\\.(ico|png|jpg|jpeg|svg|webp|avif)",
@@ -13,7 +16,8 @@
   "rewrites": [
     { "source": "/llms.txt", "destination": "/llms.txt" },
     { "source": "/robots.txt", "destination": "/robots.txt" },
-    { "source": "/sitemap.xml", "destination": "/sitemap.xml" },
+    { "source": "/sitemap.xml", "destination": "https://zeleradeck.onrender.com/sitemap.xml" },
+    { "source": "/sitemap-stores.xml", "destination": "https://zeleradeck.onrender.com/sitemap-stores.xml" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }

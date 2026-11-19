@@ -22,6 +22,14 @@ class ProShopSerializer(serializers.ModelSerializer):
             "slug",
             "logo_url",
             "whatsapp_number",
+            "cover_image_url",
+            "category",
+            "town",
+            "is_indexable",
+            "seo_title",
+            "seo_description",
+            "seo_heading",
+            "structured_data",
         ]
 
     def get_whatsapp_number(self, obj):

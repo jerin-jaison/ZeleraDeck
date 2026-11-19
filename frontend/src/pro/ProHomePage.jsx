@@ -78,9 +78,12 @@ export default function ProHomePage() {
   return (
     <div className="bg-[var(--pro-background)]">
       <SEOHead
-        title={`${shopName}${heroHeadline ? ' — ' + heroHeadline : ''}`}
-        description={`Explore premium boutique collections at ${shopName} storefront. Chat on WhatsApp for custom orders.`}
+        title={storeData?.shop?.seo_title || `${shopName}${heroHeadline ? ' — ' + heroHeadline : ''}`}
+        description={storeData?.shop?.seo_description || `Explore premium boutique collections at ${shopName} storefront. Chat on WhatsApp for custom orders.`}
+        image={storeData?.shop?.cover_image_url || heroDesktopImage}
         url={window.location.href}
+        schema={storeData?.shop?.structured_data}
+        noindex={storeData?.shop?.is_indexable === false}
       />
 
       {/* Hero Section */}

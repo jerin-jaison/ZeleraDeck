@@ -10,6 +10,7 @@ RESERVED_SLUGS = frozenset({
     'login', 'signup', 'about', 'contact', 'why-us',
     'dashboard', 'admin-panel', 'pro-admin',
     'store', 'pro',
+    'directory', 'shops', 'sitemap.xml', 'sitemap-stores.xml',
     'maintenance-preview', 'api',
 })
 
@@ -27,6 +28,16 @@ class Shop(models.Model):
 
     # ── Shop profile ─────────────────────────────────────────────────────────
     logo_url = models.URLField(max_length=500, blank=True, null=True)
+    cover_image_url = models.URLField(max_length=500, blank=True, null=True)
+
+    # ── Category, Town & SEO ─────────────────────────────────────────────────
+    category = models.CharField(max_length=100, blank=True, default='')
+    town = models.CharField(max_length=100, blank=True, default='')
+    is_indexable = models.BooleanField(default=True)
+    seo_title = models.CharField(max_length=255, blank=True, default='')
+    seo_description = models.TextField(blank=True, default='')
+    seo_heading = models.CharField(max_length=255, blank=True, default='')
+    structured_data = models.JSONField(blank=True, null=True, default=dict)
 
     # ── Admin / subscription fields ──────────────────────────────────────────
     token_version = models.PositiveIntegerField(default=0)
@@ -61,6 +72,87 @@ class Shop(models.Model):
     def __str__(self):
         return f"{self.name} ({self.phone})"
 
+    def generate_seo_fields(self):
+        """Auto-generate SEO fields if not provided or empty."""
+        cat_clean = self.category.strip() if self.category else ''
+        town_clean = self.town.strip() if self.town else ''
+        name_clean = self.name.strip()
+
+        # Title: target 30-60 chars
+        if not self.seo_title:
+            if cat_clean and town_clean:
+                candidate = f"{name_clean} — {cat_clean} in {town_clean}"
+                if len(candidate) < 30:
+                    candidate = f"{name_clean} — {cat_clean} Store in {town_clean}"
+                if len(candidate) < 30:
+                    candidate = f"{name_clean} — Verified {cat_clean} in {town_clean}"
+                self.seo_title = candidate
+            elif town_clean:
+                candidate = f"{name_clean} — Store in {town_clean}"
+                if len(candidate) < 30:
+                    candidate = f"{name_clean} — Verified Online Store in {town_clean}"
+                self.seo_title = candidate
+            elif cat_clean:
+                candidate = f"{name_clean} — {cat_clean} Store"
+                if len(candidate) < 30:
+                    candidate = f"{name_clean} — Verified {cat_clean} Store"
+                self.seo_title = candidate
+            else:
+                self.seo_title = f"{name_clean} — Official Shop Catalogue"
+
+        # Description: target 120-160 chars
+        if not self.seo_description:
+            if cat_clean and town_clean:
+                self.seo_description = (
+                    f"Explore {name_clean}, your local {cat_clean.lower()} destination in {town_clean}. "
+                    f"Browse catalogue products and order directly on WhatsApp."
+                )
+            elif town_clean:
+                self.seo_description = (
+                    f"Browse {name_clean}'s verified product catalogue in {town_clean} on ZeleraDeck. "
+                    f"Order directly on WhatsApp with quick delivery."
+                )
+            elif cat_clean:
+                self.seo_description = (
+                    f"Browse {name_clean}'s collection of quality {cat_clean.lower()} items on ZeleraDeck. "
+                    f"Order directly on WhatsApp with fast local service."
+                )
+            else:
+                self.seo_description = (
+                    f"Browse {name_clean}'s product catalogue on ZeleraDeck. "
+                    f"Check prices, stock, and order directly on WhatsApp."
+                )
+
+        # Heading: H1
+        if not self.seo_heading:
+            if cat_clean and town_clean:
+                self.seo_heading = f"{name_clean} — {cat_clean} in {town_clean}"
+            elif cat_clean:
+                self.seo_heading = f"{name_clean} — {cat_clean}"
+            else:
+                self.seo_heading = name_clean
+
+        # Structured data: Valid Schema.org Store / LocalBusiness JSON-LD
+        if not self.structured_data:
+            image_url = self.cover_image_url or self.logo_url or "https://zeleradeck.com/logo2.png"
+            locality = town_clean or "Kerala"
+            self.structured_data = {
+                "@context": "https://schema.org",
+                "@type": "Store",
+                "name": name_clean,
+                "description": self.seo_description,
+                "url": f"https://zeleradeck.com/{self.slug}",
+                "telephone": f"+{self.whatsapp_number}",
+                "image": image_url,
+                "address": {
+                    "@type": "PostalAddress",
+                    "addressLocality": locality,
+                    "addressRegion": "Kerala",
+                    "addressCountry": "IN"
+                },
+                "priceRange": "₹₹"
+            }
+
     def save(self, *args, **kwargs):
         if not self.slug:
             base = slugify(self.name)
@@ -73,6 +165,8 @@ class Shop(models.Model):
                 slug = f"{base}-{n}"
                 n += 1
             self.slug = slug
+
+        self.generate_seo_fields()
         super().save(*args, **kwargs)
 
     def regenerate_slug(self):

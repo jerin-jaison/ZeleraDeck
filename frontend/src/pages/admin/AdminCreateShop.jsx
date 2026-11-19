@@ -19,6 +19,8 @@ export default function AdminCreateShop() {
   const qc = useQueryClient()
 
   const [name, setName] = useState('')
+  const [category, setCategory] = useState('')
+  const [town, setTown] = useState('')
   const [phone, setPhone] = useState('')
   const [password, setPassword] = useState(genPassword())
   const [autoGen, setAutoGen] = useState(true)
@@ -46,11 +48,16 @@ export default function AdminCreateShop() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    if (!name.trim() || !phone.trim() || !password) { showToast('Name, phone, and password are required', 'error'); return }
+    if (!name.trim() || !category.trim() || !town.trim() || !phone.trim() || !password) {
+      showToast('Name, category, town, phone, and password are required', 'error')
+      return
+    }
     setSaving(true)
     try {
       const fd = new FormData()
       fd.append('name', name.trim())
+      fd.append('category', category.trim())
+      fd.append('town', town.trim())
       fd.append('phone', phone.trim())
       fd.append('password', password)
       if (logo) fd.append('logo', logo, 'logo.jpg')
@@ -62,14 +69,14 @@ export default function AdminCreateShop() {
       setResult(data)
       qc.invalidateQueries({ queryKey: ['admin-shops'] })
       qc.invalidateQueries({ queryKey: ['admin-stats'] })
-      showToast('Shop created!')
+      showToast('Shop created with automated SEO setup!')
     } catch (err) {
       showToast(err.response?.data?.error || 'Failed to create shop', 'error')
     } finally { setSaving(false) }
   }
 
   const resetForm = () => {
-    setName(''); setPhone(''); setPassword(genPassword()); setAutoGen(true)
+    setName(''); setCategory(''); setTown(''); setPhone(''); setPassword(genPassword()); setAutoGen(true)
     setShowPw(true); setLogo(null); setLogoPreview(''); setExpiresAt('')
     setNotes(''); setIsPro(false); setResult(null)
   }
@@ -100,6 +107,8 @@ export default function AdminCreateShop() {
           <div className="space-y-3 bg-[#F8F8F8] rounded-xl p-4">
             {[
               { l: 'Store URL', v: storeUrl },
+              { l: 'Category & Town', v: `${result.category || category} • ${result.town || town}` },
+              { l: 'SEO Title (Auto)', v: result.seo_title || `${result.name} — ${result.category || category} in ${result.town || town}` },
               { l: 'Phone (Login)', v: phone },
               { l: 'Password', v: password },
             ].map(({ l, v }) => (
@@ -159,8 +168,61 @@ export default function AdminCreateShop() {
         {/* Name */}
         <div className="mb-4">
           <label className="text-xs text-[#737373] block mb-1.5">Shop Name *</label>
-          <input type="text" value={name} onChange={(e) => setName(e.target.value)} required
+          <input type="text" value={name} onChange={(e) => setName(e.target.value)} required placeholder="e.g. La Bella Boutique"
             className="w-full border border-[#E5E5E5] rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#111111]" />
+        </div>
+
+        {/* Category & Town (Required for automated SEO) */}
+        <div className="grid grid-cols-2 gap-3 mb-4">
+          <div>
+            <label className="text-xs text-[#737373] block mb-1.5">Category * <span className="text-[#A3A3A3]">(SEO)</span></label>
+            <input
+              type="text"
+              list="category-suggestions"
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              required
+              placeholder="e.g. Fashion, Bakery"
+              className="w-full border border-[#E5E5E5] rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#111111]"
+            />
+            <datalist id="category-suggestions">
+              <option value="Fashion" />
+              <option value="Boutique" />
+              <option value="Bakery" />
+              <option value="Cafe" />
+              <option value="Jewelry" />
+              <option value="Electronics" />
+              <option value="Footwear" />
+              <option value="Grocery" />
+              <option value="Home Decor" />
+              <option value="Beauty & Cosmetics" />
+            </datalist>
+          </div>
+
+          <div>
+            <label className="text-xs text-[#737373] block mb-1.5">Town / City * <span className="text-[#A3A3A3]">(Local SEO)</span></label>
+            <input
+              type="text"
+              list="town-suggestions"
+              value={town}
+              onChange={(e) => setTown(e.target.value)}
+              required
+              placeholder="e.g. Kochi, Kottayam"
+              className="w-full border border-[#E5E5E5] rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#111111]"
+            />
+            <datalist id="town-suggestions">
+              <option value="Kochi" />
+              <option value="Kottayam" />
+              <option value="Kozhikode" />
+              <option value="Thiruvananthapuram" />
+              <option value="Thrissur" />
+              <option value="Kannur" />
+              <option value="Kollam" />
+              <option value="Palakkad" />
+              <option value="Alappuzha" />
+              <option value="Malappuram" />
+            </datalist>
+          </div>
         </div>
 
         {/* Phone */}

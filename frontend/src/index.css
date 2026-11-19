@@ -983,3 +983,25 @@ input, textarea, select {
 [data-theme="dark"] .from-\[\#F8FAFC\] {
   --tw-gradient-from: #0F172A !important;
 }
+
+/* ── Minimal Black/White Scrollbar for Analytics & Dashboards ── */
+.analytics-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #000000 #f3f3f3;
+}
+.analytics-scrollbar::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+.analytics-scrollbar::-webkit-scrollbar-track {
+  background: #f3f3f3;
+  border-radius: 2px;
+}
+.analytics-scrollbar::-webkit-scrollbar-thumb {
+  background: #000000;
+  border-radius: 2px;
+}
+.analytics-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #333333;
+}
+
